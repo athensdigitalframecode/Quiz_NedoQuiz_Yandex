@@ -1056,7 +1056,7 @@ body[data-scr="s-home"] #bestFloat{display:block}
     <div class="photo-edit" id="photoBox"><img class="pic" id="profPic" alt=""><div><label class="btn alt small" for="photoIn" style="cursor:pointer">Выбрать фото</label><input type="file" id="photoIn" accept="image/*"><p class="hint" style="margin:6px 0 0">Фото сожмётся до небольшого квадрата</p></div></div>
     <div class="lab">Кто вы</div>
     <select id="ageIn"><option value="">Взрослый</option><option value="k1">Ребёнок, 5–7 лет</option><option value="k2">Ребёнок, 8–10 лет</option><option value="k3">Ребёнок, 11–13 лет</option></select>
-    <p class="hint" style="margin:6px 0 12px">Дети играют в своих темах и своём рейтинге. Чат, фото и Telegram у них отключены.</p>
+    <p class="hint" style="margin:6px 0 12px">Дети играют в своих темах и своём рейтинге. Чат и фото у них отключены.</p>
     <div class="lab">Никнейм</div>
     <input type="text" id="nickIn" maxlength="20" placeholder="Например, Дима" autocomplete="off">
     <div class="lab" style="margin-top:12px">Статус <span style="opacity:.6">(по желанию)</span></div>
@@ -1111,7 +1111,6 @@ body[data-scr="s-home"] #bestFloat{display:block}
     <button class="btn alt" id="join">Войти</button>
     <div class="err" id="home-err"></div>
   </div>
-  <div class="invbox"><div class="lab" style="text-align:center">Позвать друзей</div><div class="sharerow"><button class="btn alt small" id="shareHome" type="button">📨 Поделиться</button><button class="btn alt small" id="shareTg" type="button">✈️ В Telegram</button></div></div>
   <p class="hint" style="text-align:center;margin:14px 0 4px">Вопросы: Open Trivia DB, AI2 ARC, картинки OpenMoji, CC BY-SA 4.0; тема English — Princeton WordNet; тема «Что? Где? Когда?» — База вопросов db.chgk.info, авторы указаны в вопросах (подробнее в правилах)</p>
   <p class="hint" style="text-align:center;margin:0 0 10px">© 2026 «Квиз или Недоквиз». Все права защищены. Код, дизайн и оригинальные вопросы нельзя копировать без разрешения автора (подробнее в правилах).</p>
 </section>
@@ -1125,7 +1124,6 @@ body[data-scr="s-home"] #bestFloat{display:block}
   <p class="sub" id="meTeam"></p>
   <div id="meStats"></div>
   <div id="meAch"></div>
-  <div class="card" id="meTg" style="margin-bottom:12px"></div>
   <button class="btn alt" id="logoutBtn">Выйти из аккаунта</button>
   <div class="gap"></div>
 </section>
@@ -1418,7 +1416,6 @@ body[data-scr="s-home"] #bestFloat{display:block}
     <details><summary>Что такое серия дней и «Продолжить игру»?</summary><p>Серия дней растёт, если вы играете каждый день подряд, а в углу горит огонёк. Если вы вышли из незаконченной игры, на главной появится кнопка «Продолжить игру».</p></details>
     <details><summary>Что такое реакции и комментарии после игры?</summary><p>После игры можно поставить эмодзи-реакцию другому игроку и написать сообщение в общий чат этой игры. Всё это видят участники игры.</p></details>
     <details><summary>Что такое коллекция аватаров и рамок?</summary><p>За достижения и победы открываются новые аватары и рамки для фото. Откройте «🎖️ Коллекция» в меню «Ещё» и выберите, что показывать в профиле.</p></details>
-    <details><summary>Как получать уведомления в Telegram?</summary><p>В профиле подключите бота: нажмите кнопку, откроется Telegram, там нужно нажать «Старт». Бот будет присылать вызовы на дуэль, приглашения в новые игры и напоминание, если серия дней может прерваться. Уведомления можно выключить в профиле.</p></details>
     <details><summary>Как удалить команду?</summary><p>Это может сделать только капитан: в кабинете капитана нажмите «🗑️ Удалить команду» и введите название команды для подтверждения. Участники останутся без команды, рейтинг команды пропадёт, вернуть её нельзя.</p></details>
     <details><summary>Как установить игру на телефон?</summary><p>Откройте сайт в браузере телефона. На Android нажмите «Установить» в подсказке внизу главной (или меню браузера ⋮ → «Установить приложение»). На iPhone в Safari нажмите «Поделиться» → «На экран Домой». Игра откроется как приложение.</p></details>
     <details><summary>Какой нужен пароль?</summary><p>При регистрации и смене пароля нужно минимум 8 символов, слишком простые пароли вроде одних цифр не принимаются. Если у вас старый пароль из 6 символов, вход по нему работает как раньше.</p></details>
@@ -1771,7 +1768,7 @@ function sbCol(path,flt){
     onSnapshot(fn,err){return sbWatch(raw,["col=eq."+path],r=>fn(wrap(r)),err,path.startsWith("games/")?3000:8000,p=>p.startsWith(path+"/")&&p.indexOf("/",path.length+1)<0)}
   };
 }
-function tgNotify(kind,to,extra){try{const t=(Array.isArray(to)?to:[to]).filter(x=>x&&x!==uid);if(t.length)sb.functions.invoke("tg-notify",{body:{kind,to:t,...(extra||{})}}).catch(()=>{})}catch(e){}}
+function tgNotify(){}
 
 /* ---- вход ---- */
 let PJ=(()=>{try{const m=/[#&?]g=([A-Za-z0-9]{4})\b/.exec(location.hash+location.search);if(m){const c=m[1].toUpperCase();localStorage.setItem("quiz_pj",JSON.stringify({c,at:Date.now()}));return c}const o=JSON.parse(localStorage.getItem("quiz_pj")||"null");if(o&&Date.now()-o.at<6*3600*1000)return o.c}catch(e){}return""})();
@@ -3764,22 +3761,12 @@ $("fsBtn").onclick=()=>{uiFs=(uiFs+1)%3;LSs("quiz_fs",uiFs);uiApply()};
 uiApply();
 $("invite").onclick=async()=>{
   if(!code)return;
-  const g=game||{},mn=(MODES[g.mode]||{}).name||"квиз",link=GAME_URL+"#g="+code,
-    txt=`Го играть в «Квиз или Недоквиз»! 🎯\nРежим: ${mn}\nЖми на ссылку и сразу попадёшь в игру (код ${code}):\n${link}`;
+  const g=game||{},mn=(MODES[g.mode]||{}).name||"квиз",
+    txt=`Го играть в «Квиз или Недоквиз»! 🎯\nРежим: ${mn}\nКод игры: ${code}. Введите его на главной странице.`;
   const b=$("invite"),old="📨 Позвать друзей";
   try{if(navigator.share){await navigator.share({text:txt});return}}catch(e){if(e&&e.name==="AbortError")return}
-  const w=window.open("https://t.me/share/url?url="+encodeURIComponent(link)+"&text="+encodeURIComponent(`Го играть в «Квиз или Недоквиз»! 🎯 Режим: ${mn}. Код: ${code}`),"_blank","noopener");
-  if(!w){try{await navigator.clipboard.writeText(txt);b.textContent="Сообщение скопировано ✓"}catch(e){b.textContent="Код: "+code}setTimeout(()=>b.textContent=old,2200)}
-};
-$("shareHome").onclick=async()=>{
-  const b=$("shareHome"),old="📨 Поделиться",txt="Го играть в «Квиз или Недоквиз»! 🎯 Блиц-квиз, дуэли команд и турниры для своих.",url=GAME_URL;
-  try{if(navigator.share){await navigator.share({title:"Квиз или Недоквиз",text:txt,url});return}}catch(e){if(e&&e.name==="AbortError")return}
-  try{await navigator.clipboard.writeText(txt+"\n"+url);b.textContent="Ссылка скопирована ✓"}catch(e){b.textContent=url}
-  setTimeout(()=>b.textContent=old,2400);
-};
-$("shareTg").onclick=()=>{
-  const txt="Го играть в «Квиз или Недоквиз»! 🎯 Блиц-квиз, дуэли команд и турниры для своих.";
-  window.open("https://t.me/share/url?url="+encodeURIComponent(GAME_URL)+"&text="+encodeURIComponent(txt),"_blank","noopener");
+  try{await navigator.clipboard.writeText(txt);b.textContent="Сообщение скопировано ✓"}catch(e){b.textContent="Код: "+code}
+  setTimeout(()=>b.textContent=old,2200);
 };
 const ONB=[
   {e:"🎯",t:"Как играть",p:"Нажмите «Новая игра», выберите режим и отправьте друзьям код из четырёх букв. Они вводят его на главной странице. Когда все нажмут «Я готов», игра стартует. Можно играть и одному."},
@@ -4159,7 +4146,7 @@ setInterval(()=>{if(db&&uid&&!seenLoaded)seenLoad();seenDraw()},1200);
   let swReg=null;
   try{if("serviceWorker" in navigator&&/^https?:$/.test(location.protocol))navigator.serviceWorker.register("sw.js",{updateViaCache:"none"}).then(r=>{swReg=r}).catch(()=>{})}catch(e){}
   /* автообновление: сравниваем версию сборки с version.json на сервере */
-  const BUILD="6c12073771aa";
+  const BUILD="32ed1e80ac04";
   if(/^https?:$/.test(location.protocol)&&BUILD.length>8){
     let shown=false,busy=false;
     const bar=()=>{
