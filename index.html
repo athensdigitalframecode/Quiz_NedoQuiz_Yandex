@@ -13,7 +13,7 @@
 <meta name="apple-mobile-web-app-title" content="Недоквиз">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
-<link rel="preconnect" href="https://tfgynsfmnrxumftuiflm.supabase.co" crossorigin>
+<link rel="preconnect" href="https://cxblrsfnvqqblncvsjhn.supabase.co" crossorigin>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <script async src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.58.0/dist/umd/supabase.js"></script>
 <style>
@@ -1732,7 +1732,7 @@ const members=t=>Object.keys(profiles).filter(u=>profiles[u].team===t);
 
 /* ---------- запуск ---------- */
 function sub(query,fn){return new Promise(res=>{let first=true;const done=()=>{if(first){first=false;res()}};query.onSnapshot(s=>{fn(s);done();refresh()},()=>done())})}
-const SB_URL="https://tfgynsfmnrxumftuiflm.supabase.co",SB_KEY="sb_publishable_I3IBPWoVfWiPnsIEGj3fDg_JFojMMrk",TG_BOT="quiz_nedokviz_bot";
+const SB_URL="https://cxblrsfnvqqblncvsjhn.supabase.co",SB_KEY="sb_publishable_Y-kVc7Rk1eE1pcuQLshLbQ_4CX9BX5K",TG_BOT="quiz_nedokviz_bot";
 let sb=null;
 /* ---- слой доступа к Supabase с тем же интерфейсом, что был у встроенной базы ---- */
 const sbSnap=(id,v)=>({id,exists:v!==undefined,data:()=>v});
