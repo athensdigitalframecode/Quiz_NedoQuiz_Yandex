@@ -12,6 +12,11 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Недоквиз">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<script>
+/* отдельное пространство ключей: версия для Яндекса не должна видеть данные основного сайта на том же домене */
+(function(){try{var ls=window.localStorage,pk=function(k){return /^(sb-|supabase)/.test(k)?k:"yg_"+k};
+Object.defineProperty(window,"localStorage",{configurable:true,value:{getItem:function(k){return ls.getItem(pk(k))},setItem:function(k,v){ls.setItem(pk(k),v)},removeItem:function(k){ls.removeItem(pk(k))},key:function(i){return ls.key(i)},clear:function(){ls.clear()},get length(){return ls.length}}})}catch(e){}})();
+</script>
 <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
 <link rel="preconnect" href="https://cxblrsfnvqqblncvsjhn.supabase.co" crossorigin>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -4149,9 +4154,9 @@ setInterval(()=>{if(db&&uid&&!seenLoaded)seenLoad();seenDraw()},1200);
 /* ---- PWA: установка на экран ---- */
 (function(){
   let swReg=null;
-  try{if("serviceWorker" in navigator&&/^https?:$/.test(location.protocol))navigator.serviceWorker.register("sw.js",{updateViaCache:"none"}).then(r=>{swReg=r}).catch(()=>{})}catch(e){}
+  try{if("serviceWorker" in navigator)navigator.serviceWorker.getRegistrations().then(a=>a.forEach(r=>r.unregister())).catch(()=>{})}catch(e){}
   /* автообновление: сравниваем версию сборки с version.json на сервере */
-  const BUILD="0769ae52ce42";
+  const BUILD="8108336e3b8f";
   if(/^https?:$/.test(location.protocol)&&BUILD.length>8){
     let shown=false,busy=false;
     const bar=()=>{
