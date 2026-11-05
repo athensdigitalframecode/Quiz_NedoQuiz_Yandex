@@ -16,6 +16,7 @@
 <link rel="preconnect" href="https://cxblrsfnvqqblncvsjhn.supabase.co" crossorigin>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <script async src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.58.0/dist/umd/supabase.js"></script>
+<script async src="/sdk.js"></script>
 <style>
 /* layout: one-column phone-first lobby → arena of 13 avatars; single committed dark look (neon quiz night) */
 :root{--bg:#070b16;--card:#141c30;--card2:#1c2744;--line:#2a3760;--txt:#eef2fb;--mut:#8a96b4;--gold:#ffc93c;--ok:#2fe38a;--bad:#ff4d63;--acc:#6ab0ff;color-scheme:dark;--disp:"Unbounded","Trebuchet MS",system-ui,sans-serif}
@@ -1019,6 +1020,9 @@ body[data-scr="s-home"] #bestFloat{display:block}
 <canvas id="stars"></canvas>
 <canvas id="fx"></canvas>
 <div id="mesh" aria-hidden="true"><div class="bl b1"></div><div class="bl b2"></div><div class="bl b3"></div><div class="dots"></div></div>
+<style>
+#chat,#chat2,#s-suggest,[data-act="suggest"],#logoutBtn{display:none!important}
+</style>
 </head>
 <body>
 <div class="wrap">
@@ -1403,7 +1407,6 @@ body[data-scr="s-home"] #bestFloat{display:block}
     <details><summary>За что дисквалифицируют?</summary><p>За уход из вкладки или сворачивание браузера во время игры больше чем на 4 секунды. Если вернуться раньше, ничего не случится. Закрытие страницы дисквалифицирует сразу. Дисквалифицированный может наблюдать за игрой, но очков не получает, а рейтинг падает на 20.</p></details>
     <details><summary>Что такое асинхронная дуэль?</summary><p>Дуэль, в которой соперникам не нужно играть одновременно. Вызовите игрока или команду, отвечайте на вопросы в удобное время, и когда сыграют оба, результат появится сам.</p></details>
     <details><summary>Сколько времени даётся на вопрос?</summary><p>«Сам с собой» — 45 секунд, «Блиц» — 60, дуэль 1×1 и командные игры — 30. В «Квиз-вечере» зависит от раунда: «Разминка» и «Картинки» — 25 секунд, «Блиц» — 12, «Ставка» — 30. На вопросы тем «Логика и мышление» и «Что? Где? Зачем?» даётся 2 минуты, а на вопросы темы «Что? Где? Когда?» — 1,5 минуты, в любом режиме.</p></details>
-    <details><summary>Как предложить свой вопрос?</summary><p>Откройте «Предложить вопрос»: напишите вопрос, верный ответ, неверные варианты и тему. Остальные игроки голосуют, и лучшие вопросы попадают в игры.</p></details>
     <details><summary>Что такое вопрос дня и серия?</summary><p>Каждый день на главной странице есть один особый вопрос. Если отвечать на него несколько дней подряд, растёт серия, а за достижения вы получаете значки в профиле.</p></details>
     <details><summary>Что делать, если вопрос неверный?</summary><p>После игры откройте разбор: там видно, какой процент игроков ответил верно. Если вы считаете вопрос или ответ ошибочным, нажмите «⚠️ Ошибка в вопросе» прямо на экране с правильным ответом (или «Оспорить» в разборе). Когда на вопрос пожалуются три разных игрока, он перестанет выпадать в новых играх.</p></details>
     <details><summary>Что за тема «English Vocabulary Builder»?</summary><p>Вам показывают английское предложение с редким словом. Нужно выбрать, что слово значит именно здесь: варианты ответа тоже на английском. После ответа появится перевод слова. Тема только для взрослых профилей и в «Микс тем» не попадает.</p></details>
@@ -1496,7 +1499,7 @@ body[data-scr="s-home"] #bestFloat{display:block}
   <div class="card"><h2>Рейтинг и звания</h2>
     <p>У каждого вида игры свой рейтинг, и он есть и у игроков, и у команд. Все начинают с 1000 очков: победа добавляет очки, поражение отнимает. В личных дуэлях 1×1 рейтинг считается по системе Эло, как в шахматах: победа над более сильным соперником даёт больше очков, чем над более слабым. Звания идут от «Новичка» до «Легенды».</p></div>
   <div class="card"><h2>Источник вопросов</h2>
-    <p style="color:var(--mut);font-size:13px;line-height:1.5">Вопросы взяты из <a href="https://opentdb.com" target="_blank" rel="noopener" style="color:var(--gold)">Open Trivia Database</a> (opentdb.com), переведены на русский и распространяются по лицензии <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noopener" style="color:var(--gold)">CC BY-SA 4.0</a>. Иллюстрации в вопросах для малышей — <a href="https://openmoji.org" target="_blank" rel="noopener" style="color:var(--gold)">OpenMoji</a> (openmoji.org, CC BY-SA 4.0). Научные вопросы детских тем основаны на наборе <a href="https://allenai.org/data/arc" target="_blank" rel="noopener" style="color:var(--gold)">AI2 Reasoning Challenge (ARC)</a> Института искусственного интеллекта Аллена (CC BY-SA 4.0), переведены и адаптированы. Предложения и определения темы «English Vocabulary Builder» частично взяты из <a href="https://wordnet.princeton.edu" target="_blank" rel="noopener" style="color:var(--gold)">WordNet 3.0</a> (© 2006 Princeton University; свободное использование при сохранении уведомления об авторских правах, полный текст — в файле LICENSE.txt), переработаны и дополнены автором. Вопросы темы «Что? Где? Когда?» взяты из <a href="https://db.chgk.info" target="_blank" rel="noopener" style="color:var(--gold)">Базы вопросов «Что? Где? Когда?»</a> (db.chgk.info); авторы вопросов указаны в пояснении к каждому вопросу, права на них принадлежат авторам. Часть вопросов отобрана и изменена при переводе автором игры. Картинки для вопросов взяты из <a href="https://commons.wikimedia.org" target="_blank" rel="noopener" style="color:var(--gold)">Wikimedia Commons</a> и Wikidata (свободные лицензии, названия на русском из Википедии).</p></div>
+    <p style="color:var(--mut);font-size:13px;line-height:1.5">Вопросы взяты из Open Trivia Database (opentdb.com), переведены на русский и распространяются по лицензии CC BY-SA 4.0. Иллюстрации в вопросах для малышей — OpenMoji (openmoji.org, CC BY-SA 4.0). Научные вопросы детских тем основаны на наборе AI2 Reasoning Challenge (ARC) Института искусственного интеллекта Аллена (CC BY-SA 4.0), переведены и адаптированы. Предложения и определения темы «English Vocabulary Builder» частично взяты из WordNet 3.0 (© 2006 Princeton University; свободное использование при сохранении уведомления об авторских правах, полный текст — в файле LICENSE.txt), переработаны и дополнены автором. Вопросы темы «Что? Где? Когда?» взяты из Базы вопросов «Что? Где? Когда?» (db.chgk.info); авторы вопросов указаны в пояснении к каждому вопросу, права на них принадлежат авторам. Часть вопросов отобрана и изменена при переводе автором игры. Картинки для вопросов взяты из Wikimedia Commons и Wikidata (свободные лицензии, названия на русском из Википедии).</p></div>
   <div class="card"><h2>Авторские права</h2>
     <p style="color:var(--mut);font-size:13px;line-height:1.5">Исходный код, дизайн, тексты и оригинальные вопросы этого проекта нельзя копировать, изменять, распространять и использовать (полностью или частично) без письменного разрешения автора. Просмотр кода на GitHub разрешён только для ознакомления. Материалы третьих лиц (вопросы Open Trivia DB и AI2 ARC, словарь WordNet, значки OpenMoji, вопросы базы db.chgk.info) используются на условиях своих лицензий, они указаны выше.</p></div>
 </section>
@@ -1521,7 +1524,6 @@ body[data-scr="s-home"] #bestFloat{display:block}
 <div class="sheet" id="sheet" hidden role="dialog" aria-label="Ещё">
   <div class="shgrab"></div>
   <div class="shgrid">
-    <button type="button" class="shi" data-act="suggest">💡 Вопросы игроков</button>
     <button type="button" class="shi" data-act="modes">🎮 Виды игр</button>
     <button type="button" class="shi" data-act="rules">📖 Правила</button>
     <button type="button" class="shi" data-act="faq">❓ FAQ</button>
@@ -1840,14 +1842,13 @@ async function boot(){
   if(teams.sbornaya){try{await db.doc("teams/sbornaya").delete()}catch(e){} delete teams.sbornaya}
   if(ME&&ME.team&&!teams[ME.team]){try{await db.doc("profiles/"+uid).update({team:""});ME.team=""}catch(e){}}
   $("code-in").value="";
-  if(!ME){draft={photo:"",charIdx:-1,create:true};nav("profile")}else{nav("home");if(PJ){const c=PJ;PJ="";try{localStorage.removeItem("quiz_pj")}catch(e){}try{history.replaceState(null,"",location.pathname)}catch(e){}openGame(c)}}
+  if(!ME){const p={nick:"Игрок"+(1000+Math.floor(Math.random()*9000)),photo:"",team:"",status:"",age:"",frame:"",at:Date.now()};try{await db.doc("profiles/"+uid).set(p);ME=profiles[uid]=p}catch(e){draft={photo:"",charIdx:-1,create:true};nav("profile");return}}
+  nav("home");if(PJ){const c=PJ;PJ="";try{localStorage.removeItem("quiz_pj")}catch(e){}try{history.replaceState(null,"",location.pathname)}catch(e){}openGame(c)}
 }
 /* ---- гость: главная видна, игры закрыты до регистрации ---- */
 const GUEST_BEST="data:image/svg+xml,"+encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" fill="#16213f"/><circle cx="32" cy="25" r="11" fill="#ffd23f" opacity=".85"/><path d="M10 64c0-14 10-22 22-22s22 8 22 22z" fill="#ffd23f" opacity=".85"/></svg>');
 function guestHome(){
-  document.body.classList.add("guest");show("s-home");cur="home";
-  try{bestDraw({u:"guest",n:"Это ты?",p:GUEST_BEST})}catch(e){}
-  try{fillTopics()}catch(e){}
+  $("unavail-msg").textContent="Не удалось войти в игру. Проверьте интернет и обновите страницу.";show("s-unavail");
 }
 async function guestBest(){
   try{
@@ -1875,10 +1876,9 @@ function bootFail(msg){
 window.addEventListener("error",e=>bootFail(e.message||"ошибка"));
 window.addEventListener("unhandledrejection",e=>bootFail(String((e.reason&&e.reason.message)||e.reason||"ошибка")));
 (async function init(){
-  const dog=setTimeout(()=>{if(!uid&&document.body.dataset.scr!=="s-home"&&document.body.dataset.scr!=="s-auth"&&document.body.dataset.scr!=="s-profile"){try{guestHome()}catch(e){bootFail(e.message)}}},6000);
+  const dog=setTimeout(()=>{if(!uid&&document.body.dataset.scr!=="s-home"&&document.body.dataset.scr!=="s-auth"&&document.body.dataset.scr!=="s-profile"){try{guestHome()}catch(e){bootFail(e.message)}}},15000);
   try{
     let hasTok=false;try{hasTok=Object.keys(localStorage).some(k=>/^sb-.*-auth-token$/.test(k))}catch(e){}
-    if(!hasTok&&!recovering)guestHome();
     for(let i=0;i<120&&!window.supabase;i++)await new Promise(r=>setTimeout(r,50));
     if(!window.supabase){
       $("unavail-msg").textContent="Не удалось загрузить библиотеку входа. Проверьте интернет и обновите страницу.";
@@ -1890,7 +1890,7 @@ window.addEventListener("unhandledrejection",e=>bootFail(String((e.reason&&e.rea
     sb.auth.onAuthStateChange((ev)=>{if(ev==="PASSWORD_RECOVERY"){recovering=true;authShow()}else if(ev==="SIGNED_OUT"&&uid)location.reload()});
     if(recovering){authShow();return}
     let ses=null;try{ses=(await Promise.race([sb.auth.getSession(),new Promise((_,r)=>setTimeout(()=>r(new Error("timeout")),4000))])).data.session}catch(e){}
-    if(!ses){if(!document.body.classList.contains("guest"))guestHome();guestBest();return}
+    if(!ses){try{const r=await sb.auth.signInAnonymously();if(r.error)throw r.error;ses=r.data.session}catch(e){guestHome();return}}
     uid=ses.user.id;await boot();
   }catch(e){bootFail(e&&e.message||String(e));try{guestHome()}catch(_){}}
   finally{clearTimeout(dog)}
@@ -3173,6 +3173,7 @@ function drawBetHint(q,mine){
   const can=ind(game.mode)&&!game.ch&&game.mode!=="pvp"&&live&&!answered&&(mine.hn|0)<3&&mine.hq!==q,solo=game.mode==="solo"&&!game.ch;
   const vbOK=race(game.mode)&&game.mode!=="evening"&&!game.ch&&live&&!answered&&((mine.vn|0)<1||mine.vq===q),b=[];
   if(can)b.push(`<button class="btn small ghost" data-hint="1">50/50 · −30 очков · осталось ${3-(mine.hn|0)}</button>`);
+  if(YG.sdk&&YG.sdk.adv&&ind(game.mode)&&!game.ch&&game.mode!=="pvp"&&live&&!answered&&mine.hq!==q)b.push(`<button class="btn small ghost" data-ghv="1">📺 50/50 за просмотр видео · без потери очков</button>`);
   if(solo&&live&&!answered&&(mine.xn|0)<1)b.push(`<button class="btn small ghost" data-x="1">⏱ +10 сек · −20 очков · 1 раз</button>`);
   if(solo&&live&&!answered&&(mine.sn|0)<1)b.push(`<button class="btn small ghost" data-skip="1">⏭ Заменить вопрос · 1 раз</button>`);
   if(vbOK)b.push(`<button class="btn small${mine.vq===q?"":" ghost"}" data-vb="1">🎰 Ва-банк${mine.vq===q?" включён":""} · ×2 / −50 · 1 раз</button>`);
@@ -3198,6 +3199,9 @@ async function hintExtra(bt){
   drawGame();
 }
 $("hintRow").onclick=async e=>{
+  const gv=e.target.closest("[data-ghv]");
+  if(gv&&game&&game.status==="q"){const m=me(),q=game.qi|0;if(!m||m.hq===q||m.aq===q)return;
+    ygReward(async()=>{hid[code+":"+q]=hintPick(q);try{await pcol.doc(uid).update({hq:q,hf:q})}catch(err){delete hid[code+":"+q]}drawGame()});return}
   if(game&&game.status==="q"){const bt=e.target.closest("[data-x],[data-skip],[data-vb]");if(bt){hintExtra(bt);return}}
   if(!e.target.closest("[data-hint]")||!game||game.status!=="q")return;
   const m=me(),q=game.qi|0;if(!m||m.hq===q||(m.hn|0)>=3||m.aq===q)return;
@@ -3326,7 +3330,7 @@ async function act(key){
         const ok=p.aq===q&&p.a===ans,bet=g.mode==="evening"&&RND[rndOf(q)].bet,st=bet&&p.aq===q?Math.min(3,Math.max(1,p.bet|0)):1;
         let gain=ok?Math.round(50+50*Math.min(1,Math.max(0,(+p.rt||0)/T))):0;
         if(bet)gain=ok?60*st:-40*st;
-        if(ok&&p.hq===q)gain=Math.max(10,gain-30);
+        if(ok&&p.hq===q&&p.hf!==q)gain=Math.max(10,gain-30);
         if(ok&&p.xq===q)gain=Math.max(10,gain-20);
         const vb=!bet&&p.vq===q&&(p.vn|0)<1;
         if(vb)gain=ok?gain*2:-50;
@@ -3549,7 +3553,7 @@ $("tabScope").onclick=e=>{const b=e.target.closest("button");if(b){rankScope=b.d
 let ac;
 const LOWPWR=(()=>{try{return /Android|iPhone|iPad|iPod|Mobi/i.test(navigator.userAgent)||matchMedia("(pointer:coarse)").matches||(navigator.hardwareConcurrency||8)<=4}catch(e){return false}})();
 function mkAC(){const A=window.AudioContext||window.webkitAudioContext;try{return new A({latencyHint:"playback"})}catch(e){return new A()}}
-function note(f,d,type,vol,when){if(/^s-(film|polina)$/.test(document.body.dataset.scr||""))return;try{ac=ac||mkAC();const o=ac.createOscillator(),g=ac.createGain();o.type=type||"sine";o.connect(g);g.connect(ac.destination);const t=ac.currentTime+(when||0);o.frequency.setValueAtTime(f,t);g.gain.setValueAtTime(vol||.1,t);g.gain.exponentialRampToValueAtTime(.001,t+d);o.start(t);o.stop(t+d+.02)}catch(e){}}
+function note(f,d,type,vol,when){if(window.YGMUTE)return;if(/^s-(film|polina)$/.test(document.body.dataset.scr||""))return;try{ac=ac||mkAC();const o=ac.createOscillator(),g=ac.createGain();o.type=type||"sine";o.connect(g);g.connect(ac.destination);const t=ac.currentTime+(when||0);o.frequency.setValueAtTime(f,t);g.gain.setValueAtTime(vol||.1,t);g.gain.exponentialRampToValueAtTime(.001,t+d);o.start(t);o.stop(t+d+.02)}catch(e){}}
 function beep(ok){ok?(note(660,.12),note(990,.2,"sine",.1,.1)):note(300,.2,"triangle",.12)}
 function tick(){note(1000,.06,"square",.04)}
 /* звук нажатия на любые кнопки и пункты меню (выключается вместе с музыкой, кнопкой ♪) */
@@ -3706,6 +3710,7 @@ function musSet(name){
   MUS.tg=g;MUS.cur=name;MUS.tr=true;MUS.nt=c.currentTime+.1;MUS.st=0;
 }
 function musWant(){
+  if(window.YGMUTE)return "";
   if(/^s-(film|polina)$/.test(document.body.dataset.scr||""))return "";
   if(!MUS.on)return "";
   if(code&&game){
@@ -4146,7 +4151,7 @@ setInterval(()=>{if(db&&uid&&!seenLoaded)seenLoad();seenDraw()},1200);
   let swReg=null;
   try{if("serviceWorker" in navigator&&/^https?:$/.test(location.protocol))navigator.serviceWorker.register("sw.js",{updateViaCache:"none"}).then(r=>{swReg=r}).catch(()=>{})}catch(e){}
   /* автообновление: сравниваем версию сборки с version.json на сервере */
-  const BUILD="32ed1e80ac04";
+  const BUILD="0769ae52ce42";
   if(/^https?:$/.test(location.protocol)&&BUILD.length>8){
     let shown=false,busy=false;
     const bar=()=>{
@@ -4308,6 +4313,41 @@ async function drawGStats(){
 (function(){
   const f=()=>{const e=document.documentElement,end=(window.scrollY||e.scrollTop)+innerHeight>=Math.max(e.scrollHeight,document.body.scrollHeight)-60;document.body.classList.toggle("at-end",end)};
   addEventListener("scroll",f,{passive:true});addEventListener("resize",f);setInterval(f,500);f();
+})();
+
+/* ---------- Яндекс Игры: SDK, пауза, реклама ---------- */
+const YG={sdk:null,paused:false,playing:false,lastAd:0};
+function ygPause(on){YG.paused=on;window.YGMUTE=on;try{musSync()}catch(e){}}
+function ygAdv(done){
+  const s=YG.sdk;let fin=false;const end=()=>{if(fin)return;fin=true;ygPause(false);done&&done()};
+  if(!s||!s.adv){end();return}
+  try{s.adv.showFullscreenAdv({callbacks:{onOpen:()=>ygPause(true),onClose:end,onError:end}})}catch(e){end()}
+}
+function ygReward(ok){
+  const s=YG.sdk;if(!s||!s.adv)return;let got=false;
+  try{s.adv.showRewardedVideo({callbacks:{onOpen:()=>ygPause(true),onRewarded:()=>{got=true},onClose:()=>{ygPause(false);if(got)ok()},onError:()=>ygPause(false)}})}catch(e){ygPause(false)}
+}
+(function(){
+  let tries=0;const t=setInterval(()=>{
+    if(window.YaGames){clearInterval(t);
+      YaGames.init().then(s=>{YG.sdk=s;
+        try{s.on("game_api_pause",()=>ygPause(true));s.on("game_api_resume",()=>ygPause(false))}catch(e){}
+        const rw=setInterval(()=>{if(document.body.dataset.scr==="s-home"){clearInterval(rw);try{s.features.LoadingAPI.ready()}catch(e){}}},300);
+      }).catch(()=>{});
+    }else if(++tries>75)clearInterval(t);
+  },200);
+  setInterval(()=>{
+    const f=YG.sdk&&YG.sdk.features&&YG.sdk.features.GameplayAPI;if(!f)return;
+    const on=!!(code&&game&&game.status==="q")&&!document.hidden&&!YG.paused;
+    if(on!==YG.playing){YG.playing=on;try{on?f.start():f.stop()}catch(e){}}
+  },400);
+  /* полноэкранная реклама: при выходе с экрана итогов, не чаще раза в 90 секунд */
+  document.addEventListener("click",e=>{
+    const b=e.target.closest("#again");
+    if(!b||b.dataset.ygDone||!YG.sdk||!YG.sdk.adv||Date.now()-YG.lastAd<90000)return;
+    e.preventDefault();e.stopImmediatePropagation();YG.lastAd=Date.now();
+    ygAdv(()=>{b.dataset.ygDone="1";b.click();delete b.dataset.ygDone});
+  },true);
 })();
 </script>
 
