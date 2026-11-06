@@ -958,7 +958,7 @@ body[data-scr=s-tv] .madewrap{display:none!important}
 #s-boot h1 em{font-style:italic;background:linear-gradient(100deg,#fff1c4,#e4c27a 50%,#c9a6ff);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;text-shadow:none!important}
 @media(prefers-reduced-motion:reduce){#s-boot .bootico,#s-boot .bootico svg{animation:none}}
 #s-home .hero-ico{animation:bootx 3.4s ease-in-out infinite alternate;margin-bottom:6px}
-#s-home .hero-ico svg{animation:booty 1.7s ease-in-out infinite;transform-origin:50% 60%}
+#s-home .hero-ico svg{animation:booty 1.5333s ease-in-out infinite;transform-origin:50% 60%}
 #s-home h1{font:italic 700 clamp(28px,8.4vw,46px)/1.1 "Playfair Display",Georgia,"Times New Roman",serif!important;letter-spacing:.005em;color:#f6efe0;text-shadow:none!important;white-space:nowrap}
 #s-home h1 em{font-style:italic;background:linear-gradient(100deg,#fff1c4,#e4c27a 50%,#c9a6ff);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;text-shadow:none!important}
 @media(prefers-reduced-motion:reduce){#s-home .hero-ico,#s-home .hero-ico svg{animation:none}}
@@ -978,7 +978,7 @@ body.solomode .steps i{height:8px}
 body[data-scr="s-home"] #bestFloat{display:block}
 #bestFloat.bfoff{opacity:0}
 #bestFloat .bfin{position:absolute;left:50%;top:0;width:96px;margin-left:-48px;animation:bumpL 4.6s infinite}
-#bestFloat .bfy{display:flex;flex-direction:column;align-items:center;gap:2px;animation:booty 1.7s ease-in-out infinite;transform-origin:50% 60%}
+#bestFloat .bfy{display:flex;flex-direction:column;align-items:center;gap:2px;animation:booty 1.5333s ease-in-out infinite;transform-origin:50% 60%}
 #bestFloat .bfc{font-size:26px;line-height:1;filter:drop-shadow(0 2px 6px rgba(255,210,63,.5))}
 #bestFloat .bfp{width:68px;height:68px;border-radius:50%;object-fit:cover;border:3px solid #ffd23f;box-shadow:0 0 22px rgba(255,210,63,.55);background:#16213f}
 #bestFloat .bfn{font:700 12px/1.1 Inter,system-ui,sans-serif;color:#ffe9a0;max-width:96px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;text-shadow:0 1px 4px rgba(0,0,0,.7)}
@@ -2138,6 +2138,7 @@ function bestDraw(d){
   if(!el){el=document.createElement("div");el.id="bestFloat";el.setAttribute("aria-hidden","true");document.body.appendChild(el)}
   el.innerHTML=`<div class="bfin"><div class="bfy"><span class="bfc">👑</span><img class="bfp" src="${esc(d.p||"")}" alt=""><b class="bfn">${esc(d.n||"")}</b><small class="bfl">лучший игрок</small></div></div>`;
   bestFit();
+  if(document.body.dataset.scr==="s-home")bestSync();
 }
 function bestFit(){
   const el=document.getElementById("bestFloat");if(!el)return;
@@ -2156,7 +2157,7 @@ function bestFit(){
   if(t&&t.offsetParent){const rg=document.createRange();rg.selectNodeContents(t);const w=rg.getBoundingClientRect().width;if(w>50)R.setProperty("--bfa",Math.max(90,Math.min(w/2+12,document.documentElement.clientWidth/2-72)).toFixed(0)+"px")}
 }
 function bestSync(){
-  const a=[document.querySelector("#s-home .hero-ico"),document.querySelector("#bestFloat .bfin")].filter(Boolean);
+  const a=[".hero-ico",".hero-ico svg"].map(q=>document.querySelector("#s-home "+q)).concat([".bfin",".bfy"].map(q=>document.querySelector("#bestFloat "+q))).filter(Boolean);
   a.forEach(e=>{e.style.animation="none"});void document.body.offsetWidth;a.forEach(e=>{e.style.animation=""});
 }
 addEventListener("resize",bestFit);addEventListener("scroll",bestFit,{passive:true});
@@ -4435,7 +4436,7 @@ setInterval(()=>{if(db&&uid&&!seenLoaded)seenLoad();seenDraw()},1200);
   let swReg=null;
   try{if("serviceWorker" in navigator)navigator.serviceWorker.getRegistrations().then(a=>a.forEach(r=>r.unregister())).catch(()=>{})}catch(e){}
   /* автообновление: сравниваем версию сборки с version.json на сервере */
-  const BUILD="74b65b695999";
+  const BUILD="cbb287fa1a5e";
   if(/^https?:$/.test(location.protocol)&&BUILD.length>8){
     let shown=false,busy=false;
     const bar=()=>{
@@ -4492,6 +4493,7 @@ setInterval(()=>{if(db&&uid&&!seenLoaded)seenLoad();seenDraw()},1200);
 
 /* ---- таблица обновлений: новые записи добавляются в НАЧАЛО массива ---- */
 const UPDATES=[
+  {id:"u77",d:"6 ноября",t:"Столкновение значков",items:["🫧 На главной значки теперь отталкиваются только при настоящем касании"]},
   {id:"u76",d:"6 ноября",t:"Ещё 145 вопросов",items:["🎬 Больше сложных вопросов в «Кино», «Музыке», «Видеоиграх», «Науке» и «Книгах»","🍳 Дополнили «Еду и кулинарию» и «Моду и дизайн»"]},
   {id:"u75",d:"6 ноября",t:"Три новые темы",items:["🍳 «Еда и кулинария»: от пасты до науки о вкусе","🚀 «Космос»: планеты, миссии, телескопы и космонавты","👗 «Мода и дизайн»: дома моды, ткани, шрифты и вещи, которые изменили стиль"]},{id:"u74",d:"6 ноября",t:"Ещё 578 вопросов",items:["📚 Больше вопросов в самых популярных темах: «Кино», «Музыка», «История», «Видеоигры», «Животные», «Наука», «Книги»","🚆 Подтянули «Транспорт», «Гаджеты», «Комиксы», «Политику» и «Что? Где? Зачем?»","🔥 Среди новых вопросов много сложных"]},
   {id:"u73",d:"6 ноября",t:"Квиз дня, вызов другу и сундуки",items:["🗓️ Квиз дня: каждый день 15 одинаковых для всех вопросов, одна попытка и результат из зелёных и красных квадратов, которым можно поделиться","⚔️ Вызов другу: после раунда отправьте ссылку, друг ответит на те же вопросы, а победитель получит рейтинг","🎁 Сундуки: за каждые 3 раунда сундук с рамкой, аватаром или заморозкой серии; открывается через 2 часа или сразу за ролик","❄️ Заморозка серии сохраняет серию дней, если вы пропустили один день"]},
