@@ -1039,6 +1039,29 @@ body[data-scr="s-home"] #bestFloat{display:block}
 .arc-modes{display:grid;gap:10px;margin:12px 0}
 .arc-mode{display:flex;align-items:center;gap:12px;padding:14px;border-radius:16px;background:var(--card2);border:1px solid var(--line);cursor:pointer;text-align:left;color:var(--txt);width:100%;font:inherit}
 .arc-mode:active{transform:scale(.985)}
+.fr-emerald{box-shadow:0 0 0 2px #34d399,0 0 8px #34d39999!important}
+.fr-sunset{box-shadow:0 0 0 2px #fb923c,0 0 8px #fb923c99!important}
+.fr-sakura{box-shadow:0 0 0 2px #f9a8d4,0 0 8px #f9a8d499!important}
+.fr-ocean{box-shadow:0 0 0 2px #38bdf8,0 0 8px #38bdf899!important}
+.fr-mint{box-shadow:0 0 0 2px #6ee7b7,0 0 8px #6ee7b799!important}
+.fr-amber{box-shadow:0 0 0 2px #fbbf24,0 0 8px #fbbf2499!important}
+.fr-ruby{box-shadow:0 0 0 2px #ef4444,0 0 0 4px #ffffff55,0 0 12px #ef4444!important}
+.fr-sapphire{box-shadow:0 0 0 2px #3b82f6,0 0 0 4px #ffffff55,0 0 12px #3b82f6!important}
+.fr-amethyst{box-shadow:0 0 0 2px #a855f7,0 0 0 4px #ffffff55,0 0 12px #a855f7!important}
+.fr-aurora{box-shadow:0 0 0 2px #2dd4bf,0 0 0 4px #ffffff55,0 0 12px #2dd4bf!important}
+.fr-galaxy{animation:frgal 3s ease-in-out infinite}
+@keyframes frgal{0%,100%{box-shadow:0 0 0 2px #818cf8,0 0 0 4px #4338ca,0 0 16px #6366f1}50%{box-shadow:0 0 0 2px #f0abfc,0 0 0 4px #7e22ce,0 0 18px #c026d3}}
+.fr-rainbow{animation:frrain 4s linear infinite}
+@keyframes frrain{0%,100%{box-shadow:0 0 0 2px #ef4444,0 0 0 4px #fde047,0 0 14px #ef4444}33%{box-shadow:0 0 0 2px #22c55e,0 0 0 4px #38bdf8,0 0 14px #22c55e}66%{box-shadow:0 0 0 2px #3b82f6,0 0 0 4px #e879f9,0 0 14px #3b82f6}}
+.fr-start{box-shadow:0 0 0 2px #fde047,0 0 0 4px #f97316,0 0 12px #f97316!important}
+.fr-founder{box-shadow:0 0 0 2px #f5c542,0 0 0 4px #7c3aed,0 0 16px #f5c542!important}
+.arc-me{display:flex;align-items:center;gap:12px;padding:12px;border-radius:16px;background:var(--card2);border:1px solid var(--line);margin:0 0 10px}
+.arc-me b{display:block;font-size:16px}.arc-me small{color:var(--mut,#9aa3b8);font-size:14px}.arc-me .btn{margin-left:auto}
+.arc-av{width:56px;height:56px;border-radius:50%;object-fit:cover;flex:none;display:block}
+.arc-shop{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px;margin:8px 0 14px}
+.arc-item{padding:12px 8px;border-radius:16px;background:var(--card2);border:1px solid var(--line);text-align:center;display:flex;flex-direction:column;align-items:center;gap:8px}
+.arc-item b{font-size:14px}.arc-item .btn{width:100%;padding:10px 6px;font-size:14px}
+.arc-tier{font-size:13px;color:var(--mut,#9aa3b8);margin:6px 2px 0}
 .arc-mode .ai{font-size:30px;flex:none;width:44px;text-align:center}
 .arc-mode b{display:block;font:700 16px/1.15 var(--disp);letter-spacing:.02em}
 .arc-mode small{display:block;margin-top:3px;color:var(--mut);font-size:12.5px;line-height:1.3}
@@ -4436,7 +4459,7 @@ setInterval(()=>{if(db&&uid&&!seenLoaded)seenLoad();seenDraw()},1200);
   let swReg=null;
   try{if("serviceWorker" in navigator)navigator.serviceWorker.getRegistrations().then(a=>a.forEach(r=>r.unregister())).catch(()=>{})}catch(e){}
   /* автообновление: сравниваем версию сборки с version.json на сервере */
-  const BUILD="cbb287fa1a5e";
+  const BUILD="7c7d66a3ac0e";
   if(/^https?:$/.test(location.protocol)&&BUILD.length>8){
     let shown=false,busy=false;
     const bar=()=>{
@@ -4493,6 +4516,7 @@ setInterval(()=>{if(db&&uid&&!seenLoaded)seenLoad();seenDraw()},1200);
 
 /* ---- таблица обновлений: новые записи добавляются в НАЧАЛО массива ---- */
 const UPDATES=[
+  {id:"u78",d:"6 ноября",t:"Магазин за звёзды",items:["🛍 В быстрых режимах появился магазин: аватары и рамки за ⭐","📺 +15⭐ за ролик (до трёх раз в день), за задания дня теперь 10⭐, за слово дня 3⭐","✨ Особые рамки «Старт» и «Основатель» — для тех, кто поддержал игру"]},
   {id:"u77",d:"6 ноября",t:"Столкновение значков",items:["🫧 На главной значки теперь отталкиваются только при настоящем касании"]},
   {id:"u76",d:"6 ноября",t:"Ещё 145 вопросов",items:["🎬 Больше сложных вопросов в «Кино», «Музыке», «Видеоиграх», «Науке» и «Книгах»","🍳 Дополнили «Еду и кулинарию» и «Моду и дизайн»"]},
   {id:"u75",d:"6 ноября",t:"Три новые темы",items:["🍳 «Еда и кулинария»: от пасты до науки о вкусе","🚀 «Космос»: планеты, миссии, телескопы и космонавты","👗 «Мода и дизайн»: дома моды, ткани, шрифты и вещи, которые изменили стиль"]},{id:"u74",d:"6 ноября",t:"Ещё 578 вопросов",items:["📚 Больше вопросов в самых популярных темах: «Кино», «Музыка», «История», «Видеоигры», «Животные», «Наука», «Книги»","🚆 Подтянули «Транспорт», «Гаджеты», «Комиксы», «Политику» и «Что? Где? Зачем?»","🔥 Среди новых вопросов много сложных"]},
@@ -4566,12 +4590,12 @@ const YG={sdk:null,paused:false,playing:false,lastAd:0};
 function ygPause(on){YG.paused=on;window.YGMUTE=on;try{musSync()}catch(e){}}
 function ygAdv(done){
   const s=YG.sdk;let fin=false;const end=()=>{if(fin)return;fin=true;ygPause(false);done&&done()};
-  if(!s||!s.adv){end();return}
-  try{s.adv.showFullscreenAdv({callbacks:{onOpen:()=>ygPause(true),onClose:end,onError:end}})}catch(e){end()}
+  if(!s||!s.adv||YG.noads){end();return}
+  try{s.adv.showFullscreenAdv({callbacks:{onOpen:()=>{ygPause(true);try{QMET("ai")}catch(e){}},onClose:end,onError:end}})}catch(e){end()}
 }
 function ygReward(ok){
   const s=YG.sdk;if(!s||!s.adv)return;let got=false;
-  try{s.adv.showRewardedVideo({callbacks:{onOpen:()=>ygPause(true),onRewarded:()=>{got=true},onClose:()=>{ygPause(false);if(got)ok()},onError:()=>ygPause(false)}})}catch(e){ygPause(false)}
+  try{s.adv.showRewardedVideo({callbacks:{onOpen:()=>{ygPause(true);try{QMET("ar")}catch(e){}},onRewarded:()=>{got=true;try{QMET("ark")}catch(e){}},onClose:()=>{ygPause(false);if(got)ok()},onError:()=>ygPause(false)}})}catch(e){ygPause(false)}
 }
 (function(){
   let tries=0;const t=setInterval(()=>{
@@ -4591,7 +4615,7 @@ function ygReward(ok){
   /* полноэкранная реклама: при выходе с экрана итогов, не чаще раза в 90 секунд */
   document.addEventListener("click",e=>{
     const b=e.target.closest("#again");
-    if(!b||b.dataset.ygDone||!YG.sdk||!YG.sdk.adv||Date.now()-YG.lastAd<90000)return;
+    if(!b||b.dataset.ygDone||!YG.sdk||!YG.sdk.adv||YG.noads||Date.now()-YG.lastAd<90000)return;
     e.preventDefault();e.stopImmediatePropagation();YG.lastAd=Date.now();
     ygAdv(()=>{b.dataset.ygDone="1";b.click();delete b.dataset.ygDone});
   },true);
@@ -4619,10 +4643,10 @@ const E=s=>(typeof esc==="function"?esc(s):String(s));
 const day=()=>typeof dayKey==="function"?dayKey():new Date().toISOString().slice(0,10);
 const wk=()=>typeof weekId==="function"?weekId():Math.floor((Date.now()/864e5+3)/7);
 const hs=s=>typeof hstr==="function"?hstr(String(s)):String(s).length;
-function blank(){return{v:1,rec:{},mast:{},seen:[],day:"",tasks:[],stars:0,tot:0,runs:0,week:{id:0,best:{}}}}
+function blank(){return{v:1,rec:{},mast:{},seen:[],day:"",tasks:[],stars:0,tot:0,runs:0,week:{id:0,best:{}},own:{},tok:[],eq:{av:"",fr:""}}}
 function load(){
   let s=null;try{s=JSON.parse(localStorage.getItem(LSK)||"null")}catch(e){}
-  S=Object.assign(blank(),s||{});S.rec=S.rec||{};S.mast=S.mast||{};S.seen=S.seen||[];
+  S=Object.assign(blank(),s||{});S.rec=S.rec||{};S.mast=S.mast||{};S.seen=S.seen||[];S.own=S.own||{};S.tok=S.tok||[];S.eq=S.eq||{av:"",fr:""};YG.noads=!!S.own.noads;
   if(!S.week||S.week.id!==wk())S.week={id:wk(),best:{}};
   const d=day();
   if(S.day!==d){
@@ -4632,11 +4656,19 @@ function load(){
 }
 function save(){try{localStorage.setItem(LSK,JSON.stringify(S))}catch(e){}cloudPush()}
 let cpT=0;
+function getPl(fresh){
+  if(!YG.sdk||!YG.sdk.getPlayer)return Promise.reject(new Error("nosdk"));
+  if(fresh||!YG.plP)YG.plP=YG.sdk.getPlayer({scopes:false});
+  return YG.plP.catch(e=>{YG.plP=null;throw e});
+}
 function cloudPush(){
   clearTimeout(cpT);cpT=setTimeout(()=>{try{
-    if(!YG.sdk||!YG.sdk.getPlayer)return;
-    YG.sdk.getPlayer({scopes:false}).then(p=>p.setData({arc:S},false)).catch(()=>{});
+    getPl().then(p=>p.setData({arc:S},false)).catch(()=>{});
   }catch(e){}},1500);
+}
+function cloudFlush(){
+  clearTimeout(cpT);
+  return getPl().then(p=>p.setData({arc:S},true)).catch(()=>{});
 }
 function merge(r){
   if(!r||typeof r!=="object")return;
@@ -4646,13 +4678,18 @@ function merge(r){
   if(r.week&&r.week.id===S.week.id)Object.keys(r.week.best||{}).forEach(k=>{S.week.best[k]=Math.max(S.week.best[k]|0,r.week.best[k]|0)});
   if(r.day===S.day&&Array.isArray(r.tasks)&&r.tasks.length===S.tasks.length)S.tasks.forEach((t,i)=>{t.p=Math.max(t.p|0,r.tasks[i].p|0)});
   S.seen=[...new Set([...(r.seen||[]),...S.seen])].slice(-400);
+  Object.keys(r.own||{}).forEach(k=>{if(r.own[k])S.own[k]=1});
+  S.tok=[...new Set([...(r.tok||[]),...S.tok])].slice(-60);
+  if(r.eq&&(!S.eq||(!S.eq.av&&!S.eq.fr)))S.eq={av:r.eq.av||"",fr:r.eq.fr||""};
+  if(r.rw&&S.rw&&r.rw.d===S.rw.d)S.rw.n=Math.max(S.rw.n|0,r.rw.n|0);
+  YG.noads=!!S.own.noads;
 }
 function cloudPull(){
   let n=0;const t=setInterval(()=>{
     if(++n>60){clearInterval(t);return}
     if(!YG.sdk||!YG.sdk.getPlayer)return;
     clearInterval(t);
-    YG.sdk.getPlayer({scopes:false}).then(p=>p.getData(["arc"])).then(d=>{if(d&&d.arc){merge(d.arc);try{localStorage.setItem(LSK,JSON.stringify(S))}catch(e){}if(document.body.dataset.scr==="s-arc"&&!G)hub()}}).catch(()=>{});
+    getPl().then(p=>p.getData(["arc"])).then(d=>{if(d&&d.arc){merge(d.arc);try{localStorage.setItem(LSK,JSON.stringify(S))}catch(e){}if(document.body.dataset.scr==="s-arc"&&!G&&!SHOPON)hub()}}).catch(()=>{});
   },500);
 }
 /* ---------- пул вопросов ---------- */
@@ -4698,15 +4735,15 @@ function back(){
 }
 const online=()=>{try{return !!(uid&&ME)}catch(e){return false}};
 function hub(){
-  stop();G=null;load();show2();setTitle("⚡ Быстрые режимы","Короткие раунды: сыграли, побили рекорд, ещё раз");
+  stop();G=null;SHOPON=false;load();show2();setTitle("⚡ Быстрые режимы","Короткие раунды: сыграли, побили рекорд, ещё раз");
   $a("arcBack").hidden=!online();
   const list=(online()?ORDER:["cls",...ORDER]).map(m=>{const c=MODES_A[m],r=S.rec[m]|0;
     return `<button type="button" class="arc-mode" data-arc="m:${m}"><span class="ai">${c.ico}</span><span><b>${c.name}</b><small>${c.desc}</small></span><span class="rc">${r?r:"—"}<i>рекорд</i></span></button>`}).join("");
   const tasks=S.tasks.map(t=>{const p=Math.min(t.p|0,t.g),d=p>=t.g;return `<div class="arc-task${d?" done":""}"><div class="tb">${d?"✅ ":""}${E(t.n)}<div class="tp"><i style="width:${Math.round(p/t.g*100)}%"></i></div></div><span class="tn">${p}/${t.g}</span></div>`}).join("");
   const stars=S.stars|0,th=themeOf(),thb=th>=0?`<div class="card" style="text-align:center;margin-bottom:10px">🌟 <b>Тема недели:</b> ${E(TOPICS[th])}<br><small>Верные ответы по ней дают ×2 очков</small></div>`:"";
-  body(`${thb}<div class="arc-modes">${list}</div>
+  body(`${meRow()}${thb}<div class="arc-modes">${list}</div>
   <button type="button" class="arc-mode" data-arc="wd"><span class="ai">🔤</span><span><b>Слово дня</b><small>${S.wd&&S.wd.day===day()&&S.wd.done?(S.wd.win?"Сегодня угадано ✅":"Попытки закончились"):"Одно слово в день: 6 попыток"}</small></span><span class="rc">${(S.wdS&&S.wdS.best)||"—"}<i>серия</i></span></button>
-  <div class="card"><div class="cardtitle"><h2>📅 Задания дня</h2><span class="chip2">⭐ ${stars}</span></div>${tasks}<p class="hint" style="margin:8px 0 0">Выполните все три и получите звезду.</p></div>
+  <div class="card"><div class="cardtitle"><h2>📅 Задания дня</h2><span class="chip2">⭐ ${stars}</span></div>${tasks}<p class="hint" style="margin:8px 0 0">Выполните все три и получите 10 звёзд.</p></div>
   <div class="row2" style="margin-top:12px"><button type="button" class="btn alt" data-arc="mast">🏅 Мастерство тем</button></div>
   <p class="hint" style="margin-top:10px">Очки всех режимов: <b>${S.tot|0}</b> · раундов сыграно: ${S.runs|0}</p>`);
 }
@@ -4728,7 +4765,8 @@ function mastery(){
 function start(mode){
   load();const cfg=MODES_A[mode];if(!cfg||!BANK||!BANK.length)return;
   if(pool(cfg.pool).length<20)return;
-  G={mode,cfg,score:0,ok:0,wrong:0,combo:0,maxCombo:0,lives:cfg.lives||0,time:cfg.time||0,n:0,used:new Set(),rev:false,ext:false,q:null,lock:false,qLeft:cfg.qtime||0,over:false,topics:{}};
+  met("rnd");
+  G={t0:Date.now(),mode,cfg,score:0,ok:0,wrong:0,combo:0,maxCombo:0,lives:cfg.lives||0,time:cfg.time||0,n:0,used:new Set(),rev:false,ext:false,q:null,lock:false,qLeft:cfg.qtime||0,over:false,topics:{}};
   show2();setTitle(cfg.ico+" "+cfg.name,"");$a("arcBack").hidden=true;
   next();
   stop();tm=setInterval(tick,100);
@@ -4837,6 +4875,7 @@ function lbShow(mode){
 function finish(){
   if(!G||G.over)return;G.over=true;stop();
   const c=G.cfg,m=G.mode,sc=G.score;
+  try{met("sec",Math.min(900,Math.round((Date.now()-G.t0)/1000)))}catch(e){}
   const old=S.rec[m]|0,isRec=sc>old&&sc>0;if(isRec)S.rec[m]=sc;
   S.week.best[m]=Math.max(S.week.best[m]|0,sc);
   S.tot=(S.tot|0)+sc;S.runs=(S.runs|0)+1;
@@ -4845,7 +4884,7 @@ function finish(){
   const first=S.runs<=1;
   body(`<div class="arc-big">${sc}</div><div class="arc-sub">${isRec?"🎉 Новый рекорд!":old?"Рекорд: "+old:"Первый результат"}</div>
   <div class="arc-stats"><div><b>${G.ok}</b><small>верно</small></div><div><b>${G.wrong}</b><small>ошибок</small></div><div><b>×${G.maxCombo}</b><small>лучшая серия</small></div></div>
-  ${done?`<div class="card" style="text-align:center">⭐ Все задания дня выполнены. Звёзд: <b>${S.stars}</b></div>`:""}
+  ${done?`<div class="card" style="text-align:center">⭐ Все задания дня выполнены: +10. Звёзд: <b>${S.stars}</b>${canAd()&&S.dbl!==day()?`<div class="row2" style="margin-top:8px"><button type="button" class="btn ghost" data-arc="dt">📺 Ещё +10⭐ за ролик</button></div>`:""}</div>`:""}
   <div class="row2" style="margin-top:12px"><button type="button" class="btn" data-arc="again" data-m="${m}">Ещё раз</button><button type="button" class="btn alt" data-arc="hub">Все режимы</button></div>
   ${canAd()&&sc>0&&!first?`<div class="row2" style="margin-top:8px"><button type="button" class="btn ghost" data-arc="dbl" id="arcDbl">📺 Удвоить очки раунда (+${sc})</button></div>`:""}
   <div class="arc-lb" id="arcLb"></div>`);
@@ -4862,7 +4901,7 @@ function prog(mode,sc){
     else if(t.k===mode)t.p=Math.max(t.p|0,sc);
     if((t.p|0)<t.g)all=false;
   });
-  if(all&&!S.claimed){S.claimed=true;S.stars=(S.stars|0)+1;return true}
+  if(all&&!S.claimed){S.claimed=true;S.stars=(S.stars|0)+10;met("tk");return true}
   return false;
 }
 function again(mode){
@@ -4904,6 +4943,12 @@ document.addEventListener("click",e=>{
     else if(k==="ext")reward("ext");
     else if(k==="fin")finish();
     else if(k==="fix")fixDo();
+    else if(k==="shop")shop();
+    else if(k==="rws")rwStars();
+    else if(k==="dt"){ygReward(()=>{S.dbl=day();S.stars=(S.stars|0)+10;met("rs");save();b.textContent="✅ +10⭐";b.disabled=true})}
+    else if(k.startsWith("buy:"))buyItem(k.slice(4));
+    else if(k.startsWith("eq:"))equip(k.slice(3));
+    else if(k.startsWith("pay:"))buyReal(k.slice(4));
     else if(k==="dbl"){
       b.disabled=true;
       ygReward(()=>{const sc=G?G.score:0;S.tot=(S.tot|0)+sc;save();b.textContent="✅ Очки удвоены";})
@@ -4913,6 +4958,141 @@ document.addEventListener("click",e=>{
   if(e.target.closest&&e.target.closest("#arcOpen")){e.preventDefault();hub()}
   if(e.target.closest&&e.target.closest("#arcBack")){e.preventDefault();back()}
 });
+
+/* ---------- метрики дня ---------- */
+let SHOPON=false,SES=false;
+function met(k,n){try{if(!S)load();S.md=S.md&&S.md.d===day()?S.md:{d:day(),v:{}};S.md.v[k]=(S.md.v[k]|0)+(n||1);mflush();clearTimeout(msT);msT=setTimeout(()=>{try{localStorage.setItem(LSK,JSON.stringify(S))}catch(e){}},1500)}catch(e){}}
+window.QMET=met;
+let mfT=0,msT=0;
+function mflush(){clearTimeout(mfT);mfT=setTimeout(mpost,20000)}
+function mvid(){let v="";try{v=localStorage.getItem("qv")||"";if(!v){v=(crypto.randomUUID?crypto.randomUUID():String(Math.random()).slice(2)+Date.now());localStorage.setItem("qv",v)}}catch(e){}return v}
+function mpost(){
+  try{
+    if(!S||!S.md||typeof SB_URL==="undefined")return;
+    const v=mvid();if(!v)return;
+    fetch(SB_URL+"/rest/v1/rpc/track_day",{method:"POST",keepalive:true,headers:{"apikey":SB_KEY,"Content-Type":"application/json"},body:JSON.stringify({v:v,d:S.md.d,m:S.md.v})}).catch(()=>{});
+  }catch(e){}
+}
+document.addEventListener("visibilitychange",()=>{if(document.hidden)mpost()});
+/* ---------- магазин за звёзды ---------- */
+const TIERS=[150,500,1500],TN=["Обычные","Редкие","Эпические"];
+const SH_AV=[["cat","🐱","#fbbf24","#b45309","Кот",0],["panda","🐼","#94a3b8","#334155","Панда",0],["lion","🦁","#f59e0b","#92400e","Лев",0],["penguin","🐧","#38bdf8","#1e3a8a","Пингвин",0],["frog","🐸","#4ade80","#14532d","Лягушка",0],["bear","🐻","#a16207","#451a03","Медведь",0],
+ ["eagle","🦅","#60a5fa","#1e293b","Орёл",1],["whale","🐋","#22d3ee","#0c4a6e","Кит",1],["tiger","🐯","#fb923c","#7c2d12","Тигр",1],["shark","🦈","#64748b","#0f172a","Акула",1],
+ ["planet","🪐","#a78bfa","#312e81","Сатурн",2],["peacock","🦚","#2dd4bf","#6d28d9","Павлин",2]];
+const SH_FR=[["emerald","Изумруд",0],["sunset","Закат",0],["sakura","Сакура",0],["ocean","Океан",0],["mint","Мята",0],["amber","Янтарь",0],
+ ["ruby","Рубин",1],["sapphire","Сапфир",1],["amethyst","Аметист",1],["aurora","Аврора",1],
+ ["galaxy","Галактика",2],["rainbow","Радуга",2]];
+const EXC={"f:start":"Старт","f:founder":"Основатель"};
+const ITEMS={};
+SH_AV.forEach(x=>{ITEMS["a:"+x[0]]={k:"a",id:x[0],e:x[1],bg:[x[2],x[3]],n:x[4],t:x[5]}});
+SH_FR.forEach(x=>{ITEMS["f:"+x[0]]={k:"f",id:x[0],n:x[1],t:x[2]}});
+const DEF_AV={e:"🙂",bg:["#64748b","#334155"]};
+const own=k=>!!(S&&S.own&&S.own[k]);
+function avImg(avId,frId,sz){
+  const it=avId&&ITEMS[avId],src=it?avSrc(it):avSrc(DEF_AV);
+  const fc=frId&&(ITEMS[frId]||EXC[frId])?" fr-"+frId.slice(2):"";
+  return `<img class="arc-av${fc}" src="${src}" alt=""${sz?` style="width:${sz}px;height:${sz}px"`:""}>`;
+}
+function meRow(){
+  const eq=S.eq||{};
+  return `<div class="arc-me">${avImg(eq.av,eq.fr)}<div><b>Ваш образ</b><small>⭐ ${S.stars|0}</small></div><button type="button" class="btn small" data-arc="shop">🛍 Магазин</button></div>`;
+}
+function rwLeft(){S.rw=S.rw&&S.rw.d===day()?S.rw:{d:day(),n:0};return Math.max(0,3-(S.rw.n|0))}
+let rbusy=0;
+function rwStars(){
+  if(!rwLeft()||Date.now()-rbusy<30000)return;rbusy=Date.now();
+  ygReward(()=>{rbusy=0;rwLeft();S.rw.n=(S.rw.n|0)+1;S.stars=(S.stars|0)+15;met("rs");save();if(SHOPON)shop()});
+}
+function msg(t){const e=$a("shMsg");if(e)e.textContent=t||""}
+function buyItem(id){
+  const it=ITEMS[id];if(!it||own(id))return;
+  const pr=TIERS[it.t];
+  if((S.stars|0)<pr){msg("Не хватает "+(pr-(S.stars|0))+"⭐. Звёзды дают задания дня, слово дня и ролики.");return}
+  S.stars-=pr;S.own[id]=1;S.eq[it.k==="a"?"av":"fr"]=id;met("si");save();cloudFlush();shop();
+}
+function equip(rest){
+  const id=rest;const it=ITEMS[id],k=it?it.k:(EXC[id]?"f":"");if(!k||!own(id))return;
+  const f=k==="a"?"av":"fr";S.eq[f]=S.eq[f]===id?"":id;save();shop();
+}
+/* ---------- покупки за деньги (Яндекс Игры) ---------- */
+const PROD={starter:{t:"Набор новичка",d:"300⭐ и рамка «Старт»",c:1},noads:{t:"Без полноэкранной рекламы",d:"Ролики за награду остаются по вашему желанию",c:0},founder:{t:"Основатель",d:"Значок и рамка «Основатель» — навсегда",c:0}};
+const FOUNDER_UNTIL="2027-03-01";
+let PAY=null,CAT={};
+function grant(id){
+  if(id==="starter"){S.own.starter=1;S.stars=(S.stars|0)+300;S.own["f:start"]=1;if(!S.eq.fr)S.eq.fr="f:start"}
+  else if(id==="noads"){S.own.noads=1;YG.noads=true}
+  else if(id==="founder"){S.own.founder=1;S.own["f:founder"]=1;S.eq.fr="f:founder"}
+}
+async function procBuys(list){
+  for(const pu of list){
+    const id=pu&&pu.productID,pd=PROD[id];if(!pd)continue;
+    if(pd.c){
+      if(!S.tok.includes(pu.purchaseToken)){grant(id);S.tok.push(pu.purchaseToken);save();await cloudFlush()}
+      try{await PAY.consumePurchase(pu.purchaseToken)}catch(e){}
+    }else grant(id);
+  }
+  save();
+}
+function payInit(){
+  if(PAY!==null||!YG.sdk||!YG.sdk.getPayments)return;
+  PAY=false;
+  YG.sdk.getPayments({signed:false}).then(p=>{PAY=p;return Promise.all([p.getCatalog().catch(()=>[]),p.getPurchases().catch(()=>[])])}).then(r=>{
+    (r[0]||[]).forEach(x=>{CAT[x.id]=x});
+    return procBuys(r[1]||[]);
+  }).then(()=>{if(SHOPON&&document.body.dataset.scr==="s-arc"&&!G)shop()}).catch(()=>{PAY=false});
+}
+async function buyReal(id){
+  if(!PAY||!PROD[id]||!CAT[id])return;
+  met("bt");msg("Открываем оплату…");
+  try{
+    try{const pl=await getPl();if(pl.isAuthorized&&!pl.isAuthorized()&&YG.sdk.auth&&YG.sdk.auth.openAuthDialog){await YG.sdk.auth.openAuthDialog();await getPl(true)}}catch(e){}
+    const pu=await PAY.purchase({id:id});
+    met("bo");await procBuys([pu]);shop();
+  }catch(e){msg("Покупка не завершена. Деньги не списаны, если окно оплаты было закрыто.")}
+}
+function priceHtml(p){
+  let img="";try{const u=p.getPriceCurrencyImage&&p.getPriceCurrencyImage("small");if(u)img=` <img src="${E(u)}" alt="" style="height:1em;vertical-align:-2px">`}catch(e){}
+  return E(p.priceValue!=null?String(p.priceValue):String(p.price||""))+img;
+}
+function realBlock(){
+  if(!PAY||!Object.keys(CAT).length)return"";
+  const founderOpen=Date.now()<Date.parse(FOUNDER_UNTIL);
+  const rows=[];
+  ["starter","noads","founder"].forEach(id=>{
+    const c=CAT[id],pd=PROD[id];if(!c)return;
+    if(own(id==="starter"?"starter":id)){rows.push(`<div class="arc-item"><b>${pd.t}</b><small>Куплено ✅</small></div>`);return}
+    if(id==="founder"&&!founderOpen)return;
+    rows.push(`<div class="arc-item"><b>${pd.t}</b><small>${pd.d}</small><button type="button" class="btn small" data-arc="pay:${id}">${priceHtml(c)}</button></div>`);
+  });
+  if(!rows.length)return"";
+  return `<div class="arc-tier">Поддержать игру</div><div class="arc-shop">${rows.join("")}</div><p class="hint">Платное не влияет на вопросы, очки и рейтинг. Чтобы покупки сохранялись на всех устройствах, войдите в аккаунт Яндекса.</p>`;
+}
+function shop(){
+  stop();G=null;load();SHOPON=true;show2();payInit();
+  setTitle("🛍 Магазин","Звёзды тратятся на внешний вид. Вопросы и очки за деньги не продаются");
+  $a("arcBack").hidden=true;
+  met("sh");
+  const left=rwLeft();
+  const card=(id,it)=>{
+    const o=own(id),eq=S.eq&&S.eq[it.k==="a"?"av":"fr"]===id;
+    const prev=it.k==="a"?avImg(id,S.eq&&S.eq.fr,56):avImg(S.eq&&S.eq.av,id,56);
+    const btn=o?`<button type="button" class="btn small ${eq?"alt":""}" data-arc="eq:${id}">${eq?"Снять":"Надеть"}</button>`:`<button type="button" class="btn small" data-arc="buy:${id}">${TIERS[it.t]} ⭐</button>`;
+    return `<div class="arc-item">${prev}<b>${E(it.n)}</b>${btn}</div>`;
+  };
+  let h=`<div class="arc-me">${avImg(S.eq.av,S.eq.fr)}<div><b>Ваш образ</b><small>⭐ ${S.stars|0}</small></div></div>
+  <button type="button" class="arc-mode" data-arc="rws"${left?"":" disabled"}><span class="ai">📺</span><span><b>+15⭐ за ролик</b><small>${left?"Осталось сегодня: "+left:"На сегодня всё, приходите завтра"}</small></span></button>
+  <p class="hint" id="shMsg" style="min-height:1.4em"></p>`;
+  for(let t=0;t<3;t++){
+    const a=Object.keys(ITEMS).filter(k=>ITEMS[k].t===t&&ITEMS[k].k==="a"),f=Object.keys(ITEMS).filter(k=>ITEMS[k].t===t&&ITEMS[k].k==="f");
+    h+=`<div class="arc-tier">${TN[t]} · ${TIERS[t]} ⭐</div><div class="arc-shop">${a.map(k=>card(k,ITEMS[k])).join("")}${f.map(k=>card(k,ITEMS[k])).join("")}</div>`;
+  }
+  const ex=Object.keys(EXC).filter(k=>own(k));
+  if(ex.length)h+=`<div class="arc-tier">Особые</div><div class="arc-shop">${ex.map(k=>{const eq=S.eq.fr===k;return `<div class="arc-item">${avImg(S.eq.av,k,56)}<b>${EXC[k]}</b><button type="button" class="btn small ${eq?"alt":""}" data-arc="eq:${k}">${eq?"Снять":"Надеть"}</button></div>`}).join("")}</div>`;
+  h+=realBlock();
+  h+=`<div class="row2" style="margin-top:14px"><button type="button" class="btn alt" data-arc="hub">← К режимам</button></div>`;
+  body(h);
+}
+
 /* ---------- Слово дня ---------- */
 const WDW="аллея ангел арбуз арена бабка банка бегун берег билет блюдо бочка брюки будка буква вагон вальс ванна ветер взрыв вилка вихрь вишня волна ворон выбор вывод вьюга гамак гараж герой глина голос гонка город горох грипп гроза груша губка двери дверь дождь дымка жабра жажда жарка жених жизнь жираф забор зайка закон замок заряд зебра земля зерно игрок икона ислам кабан казна калач камыш канал капля карта касса квест кивок кисть клоун книга комар короб кость кошка крыша кукла купол кухня лавка лампа лапка ласка левша лента лодка ложка лунка магия мадам майка маска масло матка метро мечта мешок мираж молот мотор набор навык нация нитка номер носок обувь овраг огонь океан олень орган осень отряд палец палка парад парта пасха перец песок пилот пират пирог плечо плита повар пожар полка порог поток право прага принц птица пудра пушка пчела пятка радио рамка редис репка рынок сабля садик салат самбо санки сахар свеча север седло сироп скала склон слива слово смола совет сосна спина спорт ссора стадо стена степь сумка сфера сцена табло тайга танец театр терем тираж тоска трава тропа туман уголь удача улица успех факел фасад ферма фикус филин форма фраза фрукт халва хаски хобби хомяк хутор цифра чайка червь чехол шагом шапка шарик шахта шашка школа шляпа шорох штаны штраф шутка экран эмаль эпоха эскиз юноша ягода якорь ясень".split(" ");
 const KB=["йцукенгшщзхъ","фывапролджэ","ячсмитьбю"];
@@ -4969,7 +5149,7 @@ function wdKey(k){
     if(WD.cur.length<5){if(err)err.textContent="Нужно 5 букв";return}
     const g=WD.cur,w=wdWord();
     st.g.push(g);WD.cur="";
-    if(g===w){st.done=true;st.win=true;st.st=(st.st|0)+1;S.wdS.w=(S.wdS.w|0)+1;S.wdS.p=(S.wdS.p|0)+1;S.wdS.best=Math.max(S.wdS.best|0,st.st);S.stars=(S.stars|0)+1;try{beep(1);confetti(70)}catch(e){}}
+    if(g===w){st.done=true;st.win=true;st.st=(st.st|0)+1;S.wdS.w=(S.wdS.w|0)+1;S.wdS.p=(S.wdS.p|0)+1;S.wdS.best=Math.max(S.wdS.best|0,st.st);S.stars=(S.stars|0)+3;try{beep(1);confetti(70)}catch(e){}}
     else if(st.g.length>=6){st.done=true;st.win=false;st.st=0;S.wdS.p=(S.wdS.p|0)+1;try{buzz()}catch(e){}}
     save();return wdDraw();
   }
@@ -4994,6 +5174,8 @@ document.addEventListener("keydown",e=>{
 window.arcOpen=hub;
 try{const _t=themeOf(),_e=$a("arcThm");if(_e&&_t>=0)_e.textContent="🌟 Тема недели: "+TOPICS[_t]+" (×2)"}catch(e){}
 load();cloudPull();
+if(!SES){SES=true;met("ses")}
+(function(){let n=0;const t=setInterval(()=>{if(YG.sdk){clearInterval(t);payInit()}else if(++n>80)clearInterval(t)},500)})();
 try{new MutationObserver(()=>{if(document.body.dataset.scr==="s-home"){try{if(online())loadAch().then(fixDraw).catch(()=>{});else fixDraw()}catch(e){}}}).observe(document.body,{attributes:true,attributeFilter:["data-scr"]})}catch(e){}
 })();
 
