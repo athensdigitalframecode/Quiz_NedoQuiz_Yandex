@@ -1034,6 +1034,53 @@ body[data-scr="s-home"] #bestFloat{display:block}
 <div id="mesh" aria-hidden="true"><div class="bl b1"></div><div class="bl b2"></div><div class="bl b3"></div><div class="dots"></div></div>
 <style>
 #chat,#chat2,#s-suggest,[data-act="suggest"],#logoutBtn{display:none!important}
+#s-arc .arc-top{display:flex;align-items:center;gap:10px;margin-bottom:6px}
+#s-arc h1{margin:4px 0 2px}
+.arc-modes{display:grid;gap:10px;margin:12px 0}
+.arc-mode{display:flex;align-items:center;gap:12px;padding:14px;border-radius:16px;background:var(--card2);border:1px solid var(--line);cursor:pointer;text-align:left;color:var(--txt);width:100%;font:inherit}
+.arc-mode:active{transform:scale(.985)}
+.arc-mode .ai{font-size:30px;flex:none;width:44px;text-align:center}
+.arc-mode b{display:block;font:700 16px/1.15 var(--disp);letter-spacing:.02em}
+.arc-mode small{display:block;margin-top:3px;color:var(--mut);font-size:12.5px;line-height:1.3}
+.arc-mode .rc{margin-left:auto;flex:none;text-align:right;color:var(--gold);font:700 13px var(--disp)}
+.arc-mode .rc i{display:block;font:500 10px Inter,system-ui;color:var(--mut);font-style:normal;margin-top:2px}
+.arc-task{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--line);font-size:14px}
+.arc-task:last-child{border:0}
+.arc-task .tb{flex:1}
+.arc-task .tp{height:6px;border-radius:4px;background:rgba(255,255,255,.08);margin-top:5px;overflow:hidden}
+.arc-task .tp i{display:block;height:100%;background:var(--gold);border-radius:4px}
+.arc-task.done .tp i{background:var(--ok)}
+.arc-task .tn{font:700 12px var(--disp);color:var(--mut)}
+.arc-hud{display:flex;align-items:center;justify-content:space-between;gap:8px;font:700 15px var(--disp);margin:2px 0 8px}
+.arc-hud .hc{color:var(--gold)}
+.arc-bar{height:8px;border-radius:5px;background:rgba(255,255,255,.1);overflow:hidden;margin-bottom:12px}
+.arc-bar i{display:block;height:100%;width:100%;background:linear-gradient(90deg,var(--gold),#ff8c28);transition:width .12s linear}
+.arc-bar.low i{background:var(--bad)}
+.arc-q{font:600 19px/1.35 Inter,system-ui;margin:6px 0 14px;overflow-wrap:anywhere}
+.arc-img{display:block;max-width:100%;max-height:210px;margin:0 auto 12px;border-radius:12px;object-fit:contain}
+.arc-ans{padding:14px;border-radius:14px;background:var(--card2);border:1px dashed var(--line);font-size:20px;text-align:center;margin-bottom:12px}
+.arc-ans b{color:var(--gold)}
+.arc-tf{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.arc-pop{position:fixed;left:50%;top:38%;transform:translateX(-50%);font:800 28px var(--disp);color:var(--gold);pointer-events:none;animation:arcpop .8s ease-out forwards;z-index:90;text-shadow:0 2px 12px rgba(0,0,0,.6)}
+.arc-pop.bad{color:var(--bad)}
+@keyframes arcpop{0%{opacity:0;transform:translate(-50%,10px) scale(.7)}25%{opacity:1;transform:translate(-50%,0) scale(1.1)}100%{opacity:0;transform:translate(-50%,-40px) scale(1)}}
+.arc-big{font:800 52px/1 var(--disp);color:var(--gold);text-align:center;margin:10px 0 2px}
+.arc-sub{text-align:center;color:var(--mut);margin-bottom:10px}
+.arc-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:12px 0}
+.arc-stats div{background:var(--card2);border:1px solid var(--line);border-radius:12px;padding:10px 6px;text-align:center}
+.arc-stats b{display:block;font:700 18px var(--disp)}
+.arc-stats small{color:var(--mut);font-size:11px}
+.arc-mast{display:grid;gap:8px;margin-top:10px}
+.arc-mrow{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:12px;background:var(--card2);border:1px solid var(--line)}
+.arc-mrow .mt{flex:1;min-width:0;font-size:14px}
+.arc-mrow .mb{height:5px;border-radius:3px;background:rgba(255,255,255,.08);margin-top:5px;overflow:hidden}
+.arc-mrow .mb i{display:block;height:100%;background:var(--acc)}
+.arc-mrow .ml{font:700 12px var(--disp);color:var(--gold);flex:none;white-space:nowrap}
+.arc-lb{margin-top:10px;font-size:13px}
+.arc-lb div{display:flex;justify-content:space-between;padding:4px 2px;border-bottom:1px solid var(--line)}
+.arc-fix{margin:8px 0;padding:12px;border-radius:14px;border:1px solid #ff8c28;background:rgba(255,140,40,.12);text-align:center}
+.arc-fix p{margin:0 0 8px;font-size:14px}
+
 </style>
 </head>
 <body>
@@ -1058,6 +1105,12 @@ body[data-scr="s-home"] #bestFloat{display:block}
   </div>
 </section>
 
+<section id="s-arc" class="screen">
+  <button type="button" class="btn alt small" id="arcBack" hidden>← На главную</button>
+  <h1 id="arcTitle"></h1>
+  <p class="sub" id="arcSub"></p>
+  <div id="arcBody"></div>
+</section>
 <section id="s-unavail" class="screen">
   <h1>Нужен вход</h1>
   <div class="card"><p id="unavail-msg" style="margin:0"></p></div>
@@ -1092,12 +1145,14 @@ body[data-scr="s-home"] #bestFloat{display:block}
   <div class="me-bar" data-act="me"><img class="pic" id="homePic" alt=""><div class="nm"><b id="homeNick"></b><small id="homeStatus" class="statusline"></small><small id="homeTeam"></small></div><span class="chip2" id="homeRank"></span></div>
   <div id="rankbar"></div>
   <div id="streak"></div>
+  <div id="stkFix"></div>
   <div id="resume"></div>
   <div id="invites"></div>
   <div id="nowplay"></div>
   <div id="daily"></div>
   <div id="boards"></div>
   <p class="hint seen" id="seenInfo"><span id="seenTxt"></span> <button type="button" class="linkbtn" id="seenRst" hidden>сбросить историю</button></p>
+  <button type="button" class="btn alt" id="arcOpen" style="width:100%;margin:10px 0">⚡ Быстрые режимы: Выживание, Блиц, «Верю — не верю»</button>
   <button class="btn playbig" data-act="new" data-mode="solo" type="button"><span class="pbi"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13l11-6.5z" fill="currentColor" stroke="none"/></svg></span><span class="pbt"><b>Играть</b><small>Быстрая игра: 15 вопросов, вы против себя</small></span></button>
   <div class="topicbox"><label for="topicSel" class="toplab">Тема вопросов<small>по умолчанию микс всех тем</small></label><select id="topicSel"></select><div class="chips" id="topicChips"></div><button type="button" class="chipsmore" id="chipsMore">Все темы ▾</button></div>
   <div class="modes">
@@ -1799,7 +1854,7 @@ async function boot(){
 /* ---- гость: главная видна, игры закрыты до регистрации ---- */
 const GUEST_BEST="data:image/svg+xml,"+encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" fill="#16213f"/><circle cx="32" cy="25" r="11" fill="#ffd23f" opacity=".85"/><path d="M10 64c0-14 10-22 22-22s22 8 22 22z" fill="#ffd23f" opacity=".85"/></svg>');
 function guestHome(){
-  $("unavail-msg").textContent="Не удалось войти в игру. Проверьте интернет и обновите страницу.";show("s-unavail");
+  if(document.body.dataset.scr==="s-arc")return;if(typeof arcOpen==="function"){arcOpen();return}$("unavail-msg").textContent="Не удалось войти в игру. Проверьте интернет и обновите страницу.";show("s-unavail");
 }
 async function guestBest(){
   try{
@@ -1832,8 +1887,7 @@ window.addEventListener("unhandledrejection",e=>bootFail(String((e.reason&&e.rea
     let hasTok=false;try{hasTok=Object.keys(localStorage).some(k=>/^sb-.*-auth-token$/.test(k))}catch(e){}
     for(let i=0;i<120&&!window.supabase;i++)await new Promise(r=>setTimeout(r,50));
     if(!window.supabase){
-      $("unavail-msg").textContent="Не удалось загрузить библиотеку входа. Проверьте интернет и обновите страницу.";
-      show("s-unavail");return;
+      guestHome();return;
     }
     sb=window.supabase.createClient(SB_URL,SB_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true,lock:async(n,t,fn)=>await fn()}});
     db={doc:sbDoc,collection:p=>sbCol(p)};
@@ -4127,7 +4181,7 @@ setInterval(()=>{if(db&&uid&&!seenLoaded)seenLoad();seenDraw()},1200);
   let swReg=null;
   try{if("serviceWorker" in navigator)navigator.serviceWorker.getRegistrations().then(a=>a.forEach(r=>r.unregister())).catch(()=>{})}catch(e){}
   /* автообновление: сравниваем версию сборки с version.json на сервере */
-  const BUILD="2d32fd3465c5";
+  const BUILD="864a737dae22";
   if(/^https?:$/.test(location.protocol)&&BUILD.length>8){
     let shown=false,busy=false;
     const bar=()=>{
@@ -4184,6 +4238,7 @@ setInterval(()=>{if(db&&uid&&!seenLoaded)seenLoad();seenDraw()},1200);
 
 /* ---- таблица обновлений: новые записи добавляются в НАЧАЛО массива ---- */
 const UPDATES=[
+  {id:"u65",d:"6 ноября",t:"Быстрые режимы",items:["Новая кнопка «Быстрые режимы» на главной: Выживание, Блиц на время, «Верю — не верю» и «По картинкам»","Ролик за награду: продолжить после проигрыша, +15 секунд в блице, вернуть прерванную серию дней, удвоить очки раунда","Мастерство тем с уровнями, три задания дня и звёзды за них","Комбо за серию верных ответов, рекорды по режимам, таблицы лучших в Яндекс Играх, облачное сохранение","Если вход не удался, быстрые режимы всё равно работают"]},
   {id:"u64",d:"6 ноября",t:"Лучший игрок на главной",items:["Значок лучшего игрока снова виден на главной и сталкивается со знаком вопроса"]},
   {id:"u63",d:"6 ноября",t:"Больше вопросов",items:["Добавили около 250 новых вопросов: кино, музыка, видеоигры, ТВ, компьютеры, спорт, география, история, наука, настольные игры, книги"]},
   {id:"u62",d:"6 ноября",t:"Версия для Яндекс Игр",items:["Игра для одного: 15 вопросов, темы на любой вкус, вопрос дня и серия дней","Режимы с другими игроками, команды и вход по коду в этой версии убраны"]},
@@ -4276,5 +4331,316 @@ function ygReward(ok){
 })();
 </script>
 
+<script>
+/* ---------- Быстрые режимы (отдельный модуль): Выживание, Блиц, Верю — не верю, По картинкам ---------- */
+(function(){
+"use strict";
+const LSK="quiz_arc";
+const MODES_A={
+  surv:{ico:"🛡️",name:"Выживание",desc:"Три жизни, вопросы всё сложнее. Сколько продержитесь?",lives:3,qtime:20,pool:"txt"},
+  blitz:{ico:"⚡",name:"Блиц на время",desc:"60 секунд. Ошибка забирает 5 секунд.",time:60,pen:5,pool:"txt"},
+  tf:{ico:"🤔",name:"Верю — не верю",desc:"Верно ли утверждение? 60 секунд, ошибка −5 секунд.",time:60,pen:5,pool:"txt",kind:"tf"},
+  pic:{ico:"🖼️",name:"По картинкам",desc:"Флаги, места, лица. Три жизни.",lives:3,qtime:20,pool:"pic"},
+  cls:{ico:"🎯",name:"Классика",desc:"15 вопросов подряд, без регистрации.",total:15,qtime:30,pool:"txt"}
+};
+const ORDER=["surv","blitz","tf","pic"];
+const LEV=[10,30,60,100,150];
+const TASKX=[{k:"combo",n:"Набрать комбо ×6",g:6},{k:"surv",n:"Набрать 8 очков в «Выживании»",g:8},{k:"blitz",n:"Набрать 12 очков в «Блице»",g:12},{k:"tf",n:"Набрать 12 очков в «Верю — не верю»",g:12}];
+let S=null,G=null,tm=null,poolC={};
+const $a=id=>document.getElementById(id);
+const E=s=>(typeof esc==="function"?esc(s):String(s));
+const day=()=>typeof dayKey==="function"?dayKey():new Date().toISOString().slice(0,10);
+const wk=()=>typeof weekId==="function"?weekId():Math.floor((Date.now()/864e5+3)/7);
+const hs=s=>typeof hstr==="function"?hstr(String(s)):String(s).length;
+function blank(){return{v:1,rec:{},mast:{},seen:[],day:"",tasks:[],stars:0,tot:0,runs:0,week:{id:0,best:{}}}}
+function load(){
+  let s=null;try{s=JSON.parse(localStorage.getItem(LSK)||"null")}catch(e){}
+  S=Object.assign(blank(),s||{});S.rec=S.rec||{};S.mast=S.mast||{};S.seen=S.seen||[];
+  if(!S.week||S.week.id!==wk())S.week={id:wk(),best:{}};
+  const d=day();
+  if(S.day!==d){
+    const x=TASKX[hs(d)%TASKX.length];
+    S.day=d;S.tasks=[{k:"runs",n:"Сыграть 2 раунда",g:2,p:0},{k:"ok",n:"Дать 15 верных ответов",g:15,p:0},{k:x.k,n:x.n,g:x.g,p:0}];S.claimed=false;
+  }
+}
+function save(){try{localStorage.setItem(LSK,JSON.stringify(S))}catch(e){}cloudPush()}
+let cpT=0;
+function cloudPush(){
+  clearTimeout(cpT);cpT=setTimeout(()=>{try{
+    if(!YG.sdk||!YG.sdk.getPlayer)return;
+    YG.sdk.getPlayer({scopes:false}).then(p=>p.setData({arc:S},false)).catch(()=>{});
+  }catch(e){}},1500);
+}
+function merge(r){
+  if(!r||typeof r!=="object")return;
+  S.tot=Math.max(S.tot|0,r.tot|0);S.runs=Math.max(S.runs|0,r.runs|0);S.stars=Math.max(S.stars|0,r.stars|0);
+  Object.keys(r.rec||{}).forEach(k=>{S.rec[k]=Math.max(S.rec[k]|0,r.rec[k]|0)});
+  Object.keys(r.mast||{}).forEach(k=>{const a=S.mast[k]||{n:0,ok:0},b=r.mast[k]||{};S.mast[k]={n:Math.max(a.n|0,b.n|0),ok:Math.max(a.ok|0,b.ok|0)}});
+  if(r.week&&r.week.id===S.week.id)Object.keys(r.week.best||{}).forEach(k=>{S.week.best[k]=Math.max(S.week.best[k]|0,r.week.best[k]|0)});
+  if(r.day===S.day&&Array.isArray(r.tasks)&&r.tasks.length===S.tasks.length)S.tasks.forEach((t,i)=>{t.p=Math.max(t.p|0,r.tasks[i].p|0)});
+  S.seen=[...new Set([...(r.seen||[]),...S.seen])].slice(-400);
+}
+function cloudPull(){
+  let n=0;const t=setInterval(()=>{
+    if(++n>60){clearInterval(t);return}
+    if(!YG.sdk||!YG.sdk.getPlayer)return;
+    clearInterval(t);
+    YG.sdk.getPlayer({scopes:false}).then(p=>p.getData(["arc"])).then(d=>{if(d&&d.arc){merge(d.arc);try{localStorage.setItem(LSK,JSON.stringify(S))}catch(e){}if(document.body.dataset.scr==="s-arc"&&!G)hub()}}).catch(()=>{});
+  },500);
+}
+/* ---------- пул вопросов ---------- */
+function pool(kind){
+  if(poolC[kind])return poolC[kind];
+  let HQ=null;try{HQ=typeof hiddenQ==="function"?hiddenQ():null}catch(e){}
+  const bad=c=>c>=27||(typeof HID!=="undefined"&&HID.has(c))||c===25||c===26||c===30||c===31||c===24;
+  const out=BANK.filter(x=>{
+    if(HQ&&HQ.size&&HQ.has(String(hs(x.q))))return false;
+    if(kind==="pic")return !!x.i&&x.c<27&&!(typeof HID!=="undefined"&&HID.has(x.c));
+    return !x.i&&!bad(x.c)&&x.q.length<=150&&x.a.length<=60&&x.w.every(w=>w.length<=60);
+  });
+  return poolC[kind]=out;
+}
+function shuf(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+function pick(){
+  const cfg=G.cfg,P=pool(cfg.pool),n=G.n,L=n<4?"e":n<10?"m":(Math.random()<.5?"h":"m");
+  const seen=new Set(S.seen);
+  const free=P.filter(x=>!G.used.has(x));
+  let c=free.filter(x=>x.d===L&&!seen.has(hs(x.q)));
+  if(!c.length)c=free.filter(x=>x.d===L);
+  if(!c.length)c=free.filter(x=>!seen.has(hs(x.q)));
+  if(!c.length)c=free;
+  if(!c.length){G.used.clear();c=P}
+  const x=c[Math.floor(Math.random()*c.length)];
+  G.used.add(x);S.seen.push(hs(x.q));if(S.seen.length>400)S.seen=S.seen.slice(-400);
+  return x;
+}
+/* ---------- экраны ---------- */
+function body(h){$a("arcBody").innerHTML=h}
+function setTitle(t,sub){$a("arcTitle").textContent=t;$a("arcSub").textContent=sub||""}
+function show2(){if(typeof show==="function")show("s-arc");scrollTo(0,0)}
+function stop(){clearInterval(tm);tm=null}
+function back(){
+  stop();G=null;
+  if(online())nav("home");else hub();
+}
+const online=()=>{try{return !!(uid&&ME)}catch(e){return false}};
+function hub(){
+  stop();G=null;load();show2();setTitle("⚡ Быстрые режимы","Короткие раунды: сыграли, побили рекорд, ещё раз");
+  $a("arcBack").hidden=!online();
+  const list=(online()?ORDER:["cls",...ORDER]).map(m=>{const c=MODES_A[m],r=S.rec[m]|0;
+    return `<button type="button" class="arc-mode" data-arc="m:${m}"><span class="ai">${c.ico}</span><span><b>${c.name}</b><small>${c.desc}</small></span><span class="rc">${r?r:"—"}<i>рекорд</i></span></button>`}).join("");
+  const tasks=S.tasks.map(t=>{const p=Math.min(t.p|0,t.g),d=p>=t.g;return `<div class="arc-task${d?" done":""}"><div class="tb">${d?"✅ ":""}${E(t.n)}<div class="tp"><i style="width:${Math.round(p/t.g*100)}%"></i></div></div><span class="tn">${p}/${t.g}</span></div>`}).join("");
+  const stars=S.stars|0;
+  body(`<div class="arc-modes">${list}</div>
+  <div class="card"><div class="cardtitle"><h2>📅 Задания дня</h2><span class="chip2">⭐ ${stars}</span></div>${tasks}<p class="hint" style="margin:8px 0 0">Выполните все три и получите звезду.</p></div>
+  <div class="row2" style="margin-top:12px"><button type="button" class="btn alt" data-arc="mast">🏅 Мастерство тем</button></div>
+  <p class="hint" style="margin-top:10px">Очки всех режимов: <b>${S.tot|0}</b> · раундов сыграно: ${S.runs|0}</p>`);
+}
+function mastery(){
+  stop();load();show2();setTitle("🏅 Мастерство тем","Отвечайте верно в быстрых режимах, чтобы повышать уровень");
+  const rows=[];
+  for(let c=0;c<TOPICS.length;c++){
+    if(c>=27||c===22||c===24||c===25||c===26||c===30||c===31||(typeof HID!=="undefined"&&HID.has(c)))continue;
+    const m=S.mast[c]||{n:0,ok:0},ok=m.ok|0;let lv=0;while(lv<LEV.length&&ok>=LEV[lv])lv++;
+    const nxt=LEV[lv],prv=lv?LEV[lv-1]:0,pc=nxt?Math.round((ok-prv)/(nxt-prv)*100):100;
+    rows.push({c,ok,lv,pc,nxt});
+  }
+  rows.sort((a,b)=>b.lv-a.lv||b.ok-a.ok);
+  const total=rows.reduce((s,r)=>s+r.lv,0);
+  body(`<p class="sub" style="text-align:left">Всего уровней: <b>${total}</b> из ${rows.length*LEV.length}</p><div class="arc-mast">${rows.map(r=>`<div class="arc-mrow"><div class="mt">${E(TOPICS[r.c])}<div class="mb"><i style="width:${r.pc}%"></i></div></div><span class="ml">${r.lv>=LEV.length?"МАКС":`ур. ${r.lv} · ${r.ok}/${r.nxt}`}</span></div>`).join("")}</div>
+  <div class="row2" style="margin-top:14px"><button type="button" class="btn alt" data-arc="hub">← К режимам</button></div>`);
+}
+/* ---------- игра ---------- */
+function start(mode){
+  load();const cfg=MODES_A[mode];if(!cfg||!BANK||!BANK.length)return;
+  if(pool(cfg.pool).length<20)return;
+  G={mode,cfg,score:0,ok:0,wrong:0,combo:0,maxCombo:0,lives:cfg.lives||0,time:cfg.time||0,n:0,used:new Set(),rev:false,ext:false,q:null,lock:false,qLeft:cfg.qtime||0,over:false,topics:{}};
+  show2();setTitle(cfg.ico+" "+cfg.name,"");$a("arcBack").hidden=true;
+  next();
+  stop();tm=setInterval(tick,100);
+}
+function hud(){
+  const c=G.cfg;let left="";
+  if(c.lives)left="❤️".repeat(Math.max(0,G.lives))+"🖤".repeat(Math.max(0,c.lives-G.lives));
+  else if(c.time)left=`⏱ <span id="arcT">${Math.ceil(G.time)}</span> с`;
+  else left=`Вопрос <span id="arcT">${G.n}</span> из ${c.total}`;
+  return `<div class="arc-hud"><span>${left}</span><span class="hc" id="arcCmb"></span><span>★ <span id="arcS">${G.score}</span></span></div><div class="arc-bar" id="arcBar"><i id="arcBi"></i></div>`;
+}
+function next(){
+  G.lock=false;G.n++;
+  if(G.cfg.total&&G.n>G.cfg.total){return finish()}
+  const x=pick();G.q=x;G.qLeft=G.cfg.qtime||0;
+  let h=hud();
+  if(G.cfg.kind==="tf"){
+    G.truth=Math.random()<.5;G.shown=G.truth?x.a:x.w[Math.floor(Math.random()*x.w.length)];
+    h+=`<div class="arc-q">${E(x.q)}</div><div class="arc-ans">Ответ: <b>${E(G.shown)}</b></div><div class="arc-tf"><button type="button" class="opt" data-arc="t:1"><span class="pt" style="text-align:center">✅ Верно</span></button><button type="button" class="opt" data-arc="t:0"><span class="pt" style="text-align:center">❌ Неверно</span></button></div>`;
+  }else{
+    G.opts=shuf([x.a,...x.w]);
+    h+=(x.i?`<img class="arc-img" src="${E(x.i)}" alt="">`:"")+`<div class="arc-q">${E(x.q)}</div><div class="opts">${G.opts.map((o,i)=>`<button type="button" class="opt" data-arc="o:${i}"><span class="ol">${"АБВГ"[i]}</span><span class="pt">${E(o)}</span></button>`).join("")}</div>`;
+  }
+  body(h);upd();
+}
+function upd(){
+  if(!G)return;const c=G.cfg;
+  const t=$a("arcT"),s=$a("arcS"),cm=$a("arcCmb"),bi=$a("arcBi"),bar=$a("arcBar");
+  if(t&&c.time)t.textContent=Math.max(0,Math.ceil(G.time));
+  if(s)s.textContent=G.score;
+  if(cm)cm.textContent=G.combo>=3?"🔥 ×"+G.combo:"";
+  let f=1;
+  if(c.time)f=G.time/(c.time+(G.ext?15:0));else if(c.qtime)f=G.qLeft/c.qtime;else f=1-(G.n-1)/c.total;
+  if(bi)bi.style.width=Math.max(0,Math.min(1,f))*100+"%";
+  if(bar)bar.classList.toggle("low",f<.25&&!c.total);
+}
+function tick(){
+  if(document.body.dataset.scr!=="s-arc"){stop();return}
+  if(!G||G.lock||G.over||document.hidden||YG.paused)return;
+  const c=G.cfg;
+  if(c.time){G.time-=.1;upd();if(G.time<=0){G.time=0;upd();G.lock=true;timeUp()}}
+  else if(c.qtime){G.qLeft-=.1;upd();if(G.qLeft<=0){G.qLeft=0;answer(-1)}}
+}
+function pop(t,bad){const e=document.createElement("div");e.className="arc-pop"+(bad?" bad":"");e.textContent=t;document.body.appendChild(e);setTimeout(()=>e.remove(),900)}
+function snd(ok){try{ok?beep(1):buzz()}catch(e){}}
+function mark(c,ok){const m=S.mast[c]||(S.mast[c]={n:0,ok:0});m.n++;if(ok)m.ok++}
+function answer(i){
+  if(!G||G.lock||G.over)return;G.lock=true;
+  const x=G.q,c=G.cfg;let ok;
+  if(c.kind==="tf"){ok=i===(G.truth?1:0)}
+  else ok=i>=0&&G.opts[i]===x.a;
+  if(c.kind!=="tf"){
+    document.querySelectorAll("#arcBody .opt").forEach((b,k)=>{if(G.opts[k]===x.a)b.classList.add("right");else if(k===i)b.classList.add("wrongpick")});
+  }else{
+    const bs=document.querySelectorAll("#arcBody .opt");bs.forEach(b=>{const v=b.dataset.arc==="t:1";if(v===G.truth)b.classList.add("right");else if(i>=0&&((i===1)===v))b.classList.add("wrongpick")});
+  }
+  mark(x.c,ok);
+  if(ok){
+    G.ok++;G.combo++;G.maxCombo=Math.max(G.maxCombo,G.combo);
+    const pts=1;G.score+=pts;snd(1);
+    if(G.combo>=3&&G.combo%3===0){pop("🔥 ×"+G.combo)}
+  }else{
+    G.wrong++;G.combo=0;snd(0);
+    if(c.lives){G.lives--;pop("−1 ❤️",1)}
+    else if(c.pen){G.time=Math.max(0,G.time-c.pen);pop("−"+c.pen+" с",1)}
+  }
+  upd();
+  const quick=!!c.time;
+  setTimeout(()=>{
+    if(!G)return;
+    if(c.lives&&G.lives<=0){G.lock=true;return deadEnd()}
+    if(c.time&&G.time<=0){return timeUp()}
+    next();
+  },ok?(quick?250:600):(quick?500:1100));
+}
+function canAd(){return !!(YG.sdk&&YG.sdk.adv&&typeof ygReward==="function")}
+function deadEnd(){
+  if(G.rev||!canAd())return finish();
+  stop();
+  body(`${hud()}<div class="card" style="text-align:center"><h2>Жизни закончились</h2><p>Вы набрали <b>${G.score}</b>. Посмотрите короткий ролик и продолжите с одной жизнью.</p><div class="row2"><button type="button" class="btn" data-arc="rev">📺 Продолжить</button><button type="button" class="btn alt" data-arc="fin">Закончить</button></div></div>`);
+}
+function timeUp(){
+  if(G.ext||!canAd())return finish();
+  stop();
+  body(`${hud()}<div class="card" style="text-align:center"><h2>Время вышло</h2><p>Вы набрали <b>${G.score}</b>. Посмотрите короткий ролик и получите ещё 15 секунд.</p><div class="row2"><button type="button" class="btn" data-arc="ext">📺 +15 секунд</button><button type="button" class="btn alt" data-arc="fin">Закончить</button></div></div>`);
+}
+function reward(kind){
+  if(!G)return;
+  ygReward(()=>{
+    if(!G)return;
+    if(kind==="rev"){G.rev=true;G.lives=1;G.lock=false;stop();next();tm=setInterval(tick,100)}
+    else{G.ext=true;G.time=15;G.lock=false;stop();next();tm=setInterval(tick,100)}
+  });
+}
+function lbSend(mode,score){
+  try{if(!YG.sdk||!YG.sdk.getLeaderboards)return;
+    YG.sdk.getLeaderboards().then(lb=>lb.setScore("arc"+mode,score)).catch(()=>{});}catch(e){}
+}
+function lbShow(mode){
+  try{if(!YG.sdk||!YG.sdk.getLeaderboards)return;
+    YG.sdk.getLeaderboards().then(lb=>lb.getEntries("arc"+mode,{quantityTop:5,includeUser:false})).then(r=>{
+      const el=$a("arcLb");if(!el||!r||!r.entries||!r.entries.length)return;
+      el.innerHTML="<b>🏆 Лучшие игроки</b>"+r.entries.map(e=>`<div><span>${e.rank}. ${E((e.player&&e.player.publicName)||"Игрок")}</span><b>${e.score}</b></div>`).join("");
+    }).catch(()=>{});}catch(e){}
+}
+function finish(){
+  if(!G||G.over)return;G.over=true;stop();
+  const c=G.cfg,m=G.mode,sc=G.score;
+  const old=S.rec[m]|0,isRec=sc>old&&sc>0;if(isRec)S.rec[m]=sc;
+  S.week.best[m]=Math.max(S.week.best[m]|0,sc);
+  S.tot=(S.tot|0)+sc;S.runs=(S.runs|0)+1;
+  const done=prog(m,sc);
+  save();lbSend(m,sc);
+  const first=S.runs<=1;
+  body(`<div class="arc-big">${sc}</div><div class="arc-sub">${isRec?"🎉 Новый рекорд!":old?"Рекорд: "+old:"Первый результат"}</div>
+  <div class="arc-stats"><div><b>${G.ok}</b><small>верно</small></div><div><b>${G.wrong}</b><small>ошибок</small></div><div><b>×${G.maxCombo}</b><small>лучшая серия</small></div></div>
+  ${done?`<div class="card" style="text-align:center">⭐ Все задания дня выполнены. Звёзд: <b>${S.stars}</b></div>`:""}
+  <div class="row2" style="margin-top:12px"><button type="button" class="btn" data-arc="again" data-m="${m}">Ещё раз</button><button type="button" class="btn alt" data-arc="hub">Все режимы</button></div>
+  ${canAd()&&sc>0&&!first?`<div class="row2" style="margin-top:8px"><button type="button" class="btn ghost" data-arc="dbl" id="arcDbl">📺 Удвоить очки раунда (+${sc})</button></div>`:""}
+  <div class="arc-lb" id="arcLb"></div>`);
+  setTitle(c.ico+" "+c.name,"Итоги раунда");
+  lbShow(m);
+  try{if(typeof confetti==="function"&&isRec)confetti(60)}catch(e){}
+}
+function prog(mode,sc){
+  let all=true;
+  S.tasks.forEach(t=>{
+    if(t.k==="runs")t.p=(t.p|0)+1;
+    else if(t.k==="ok")t.p=(t.p|0)+G.ok;
+    else if(t.k==="combo")t.p=Math.max(t.p|0,G.maxCombo);
+    else if(t.k===mode)t.p=Math.max(t.p|0,sc);
+    if((t.p|0)<t.g)all=false;
+  });
+  if(all&&!S.claimed){S.claimed=true;S.stars=(S.stars|0)+1;return true}
+  return false;
+}
+function again(mode){
+  const go=()=>start(mode);
+  if(YG.sdk&&YG.sdk.adv&&typeof ygAdv==="function"&&(S.runs|0)>=3&&Date.now()-YG.lastAd>90000){YG.lastAd=Date.now();ygAdv(go)}else go();
+}
+/* ---------- восстановление серии дней за рекламу ---------- */
+function fixDraw(){
+  const box=$a("stkFix");if(!box)return;
+  box.innerHTML="";
+  try{
+    if(typeof ACH==="undefined"||!ACH||!online())return;
+    const a=ACH,t=dayKey(),p2=prevDay(prevDay(t));
+    if(!(a.streak|0)||(a.streak|0)<3||a.lastDay!==p2||!canAd())return;
+    box.innerHTML=`<div class="arc-fix"><p>🔥 Серия в <b>${a.streak}</b> ${a.streak%10===1&&a.streak%100!==11?"день":(a.streak%10>=2&&a.streak%10<=4&&(a.streak%100<10||a.streak%100>=20))?"дня":"дней"} прервалась вчера. Верните её, посмотрев ролик.</p><button type="button" class="btn small" data-arc="fix">📺 Вернуть серию</button></div>`;
+  }catch(e){}
+}
+function fixDo(){
+  ygReward(async()=>{try{
+    const a=ACH;if(!a)return;a.lastDay=prevDay(dayKey());await saveAch(a);
+    try{if(cur==="home")drawStreak()}catch(e){}fixDraw();
+  }catch(e){}});
+}
+/* ---------- события ---------- */
+document.addEventListener("click",e=>{
+  const b=e.target.closest&&e.target.closest("[data-arc]");
+  if(b){
+    const k=b.dataset.arc;e.preventDefault();
+    if(k.startsWith("m:"))start(k.slice(2));
+    else if(k.startsWith("o:"))answer(+k.slice(2));
+    else if(k.startsWith("t:"))answer(+k.slice(2));
+    else if(k==="hub")hub();
+    else if(k==="mast")mastery();
+    else if(k==="again")again(b.dataset.m);
+    else if(k==="rev")reward("rev");
+    else if(k==="ext")reward("ext");
+    else if(k==="fin")finish();
+    else if(k==="fix")fixDo();
+    else if(k==="dbl"){
+      b.disabled=true;
+      ygReward(()=>{const sc=G?G.score:0;S.tot=(S.tot|0)+sc;save();b.textContent="✅ Очки удвоены";})
+    }
+    return;
+  }
+  if(e.target.closest&&e.target.closest("#arcOpen")){e.preventDefault();hub()}
+  if(e.target.closest&&e.target.closest("#arcBack")){e.preventDefault();back()}
+});
+window.arcOpen=hub;
+load();cloudPull();
+try{new MutationObserver(()=>{if(document.body.dataset.scr==="s-home"){try{if(online())loadAch().then(fixDraw).catch(()=>{});else fixDraw()}catch(e){}}}).observe(document.body,{attributes:true,attributeFilter:["data-scr"]})}catch(e){}
+})();
+
+</script>
 </body>
 </html>
