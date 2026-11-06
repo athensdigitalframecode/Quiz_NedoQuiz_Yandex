@@ -25,7 +25,7 @@ Object.defineProperty(window,"localStorage",{configurable:true,value:{getItem:fu
 <style>
 /* layout: one-column phone-first lobby → arena of 13 avatars; single committed dark look (neon quiz night) */
 :root{--bg:#070b16;--card:#141c30;--card2:#1c2744;--line:#2a3760;--txt:#eef2fb;--mut:#8a96b4;--gold:#ffc93c;--ok:#2fe38a;--bad:#ff4d63;--acc:#6ab0ff;color-scheme:dark;--disp:"Unbounded","Trebuchet MS",system-ui,sans-serif}
-#s-home .modes,#invites,#nowplay{display:none!important}
+#s-home .modes,#invites,#nowplay,#codeCard,#s-home [data-guest="in"],.bnav .bn[data-nav="teams"]{display:none!important}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{overscroll-behavior:none}body{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}input,textarea,select{-webkit-user-select:text;user-select:text}
 html,body{min-height:100%}
@@ -1114,7 +1114,7 @@ body[data-scr="s-home"] #bestFloat{display:block}
     <div class="mode wide" data-m="pl"><h2>🎯 Игроки — дуэль</h2><p>Бросьте вызов любому игроку один на один.</p>
       <div class="row2"><button class="btn" data-act="players">Выбрать игрока</button></div></div>
   </div>
-  <div class="card" style="margin-top:14px">
+  <div class="card" id="codeCard" style="margin-top:14px">
     <h2>Войти по коду</h2>
     <input type="text" id="code-in" maxlength="4" autocomplete="off" autocapitalize="characters" style="text-transform:uppercase;letter-spacing:6px;text-align:center;font-size:22px">
     <div class="gap"></div>
@@ -4174,7 +4174,7 @@ setInterval(()=>{if(db&&uid&&!seenLoaded)seenLoad();seenDraw()},1200);
   let swReg=null;
   try{if("serviceWorker" in navigator)navigator.serviceWorker.getRegistrations().then(a=>a.forEach(r=>r.unregister())).catch(()=>{})}catch(e){}
   /* автообновление: сравниваем версию сборки с version.json на сервере */
-  const BUILD="e3653aa6d29f";
+  const BUILD="5ebaea96e895";
   if(/^https?:$/.test(location.protocol)&&BUILD.length>8){
     let shown=false,busy=false;
     const bar=()=>{
