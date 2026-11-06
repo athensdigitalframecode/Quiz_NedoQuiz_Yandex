@@ -700,7 +700,7 @@ input[type=email],input[type=password]{width:100%;background:rgba(255,255,255,.0
 #guestBox{display:none}
 body.guest #guestBox{display:block;text-align:center;border:1px solid rgba(var(--gr),.45);background:linear-gradient(180deg,rgba(var(--gr),.14),rgba(var(--gr),.04))}
 #guestBox h2{margin:0 0 6px}#guestBox p{margin:0 0 14px;color:var(--mut);font-size:14px}
-body.guest .me-bar,body.guest #invites,body.guest #daily,body.guest #seenInfo{display:none!important}
+body.guest .me-bar,body.guest #invites,body.guest #daily,body.guest #dquiz,body.guest #chest,body.guest #seenInfo{display:none!important}
 body.guest[data-scr="s-rules"] .bnav,body.guest[data-scr="s-faq"] .bnav,body.guest[data-scr="s-modes"] .bnav{display:flex}
 body.guest .shi[data-act="suggest"],body.guest .shi[data-act="gstats"]{display:none}
 body.guest .playbig,body.guest .modes,body.guest .topicbox,body.guest #s-home .card:not(#guestBox){opacity:.5;filter:saturate(.6)}
@@ -1157,6 +1157,8 @@ body[data-scr="s-home"] #bestFloat{display:block}
   <div id="invites"></div>
   <div id="nowplay"></div>
   <div id="daily"></div>
+  <div id="dquiz"></div>
+  <div id="chest"></div>
   <div id="boards"></div>
   <p class="hint seen" id="seenInfo"><span id="seenTxt"></span> <button type="button" class="linkbtn" id="seenRst" hidden>сбросить историю</button></p>
   <div class="card" id="duelBox" style="margin:10px 0 0"><h2 style="margin-top:0">🎯 Дуэли</h2><p class="hint" style="margin:0 0 8px">Играть одновременно не нужно: результат вы увидите на главной.</p>
@@ -1472,6 +1474,9 @@ body[data-scr="s-home"] #bestFloat{display:block}
     <details><summary>Что это за игра?</summary><p>«Квиз или Недоквиз» — викторина прямо в браузере. Отвечайте на вопросы на любые темы, копите очки, серии дней и рейтинг.</p></details>
     <details><summary>Как проходит игра?</summary><p>«Сам с собой»: 15 вопросов, на каждый по 45 секунд. Сложность растёт: сначала лёгкие вопросы, в конце самые трудные. В конце вы увидите результат и разбор.</p></details>
     <details><summary>Как считаются очки?</summary><p>Верный ответ приносит от 50 до 100 очков: чем быстрее вы ответили, тем больше.</p></details>
+    <details><summary>Что такое квиз дня?</summary><p>Каждый день все игроки отвечают на одни и те же 15 вопросов: от лёгких к сложным. Попытка одна. После игры вы увидите результат из зелёных (верно) и красных (неверно) квадратов и можете показать его друзьям: ответы он не раскрывает.</p></details>
+    <details><summary>Как работает вызов другу?</summary><p>После раунда нажмите «Вызвать друга» и отправьте ссылку. Друг ответит на те же вопросы, когда ему удобно, а когда он закончит, увидите результат на главной. Победа двигает рейтинг дуэлей.</p></details>
+    <details><summary>Что за сундуки и заморозка серии?</summary><p>Каждые 3 сыгранных раунда дают сундук. Он открывается через 2 часа или сразу, если посмотреть ролик. Внутри рамка или аватар, а иногда заморозка серии: она спасает серию дней, если вы пропустили один день.</p></details>
     <details><summary>Как работают дуэли?</summary><p>Играть одновременно не нужно. «Против призрака»: вы сразу играете 15 вопросов по выбранной теме и сравниваете очки с записанной партией другого игрока. Результат виден сразу. «Найти соперника»: вы отвечаете на вопросы и оставляете вызов, а первый, кто нажмёт эту кнопку, отвечает на те же вопросы. Итог придёт на главную. Можно и вызвать конкретного игрока. Победа в дуэли двигает рейтинг дуэлей; у призрака рейтинг не меняется.</p></details>
     <details><summary>Как меняется рейтинг?</summary><p>Все начинают с 1000 очков. Результаты ваших партий двигают рейтинг вверх или вниз. Звания идут от «Новичка» до «Легенды».</p></details>
     <details><summary>Сколько времени даётся на вопрос?</summary><p>На обычный вопрос — 45 секунд. На вопросы тем «Логика и мышление» и «Что? Где? Зачем?» даётся 2 минуты, а на вопросы темы «Что? Где? Когда?» — 1,5 минуты.</p></details>
@@ -1860,6 +1865,7 @@ async function boot(){
   $("code-in").value="";
   if(!ME){const p={nick:"Игрок"+(1000+Math.floor(Math.random()*9000)),photo:"",team:"",status:"",age:"",frame:"",at:Date.now()};try{await db.doc("profiles/"+uid).set(p);ME=profiles[uid]=p}catch(e){draft={photo:"",charIdx:-1,create:true};nav("profile");return}}
   nav("home");if(PJ){const c=PJ;PJ="";try{localStorage.removeItem("quiz_pj")}catch(e){}try{history.replaceState(null,"",location.pathname)}catch(e){}openGame(c)}
+  linkParamWait().then(id=>{if(id&&ME)takeLink(id)}).catch(()=>{});
 }
 /* ---- гость: главная видна, игры закрыты до регистрации ---- */
 const GUEST_BEST="data:image/svg+xml,"+encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" fill="#16213f"/><circle cx="32" cy="25" r="11" fill="#ffd23f" opacity=".85"/><path d="M10 64c0-14 10-22 22-22s22 8 22 22z" fill="#ffd23f" opacity=".85"/></svg>');
@@ -1925,6 +1931,12 @@ document.addEventListener("click",e=>{
   else if(k==="me")nav("me");
   else if(k==="teams")nav("teams");
   else if(k==="players")nav("players");
+  else if(k==="dqstart")dailyQuizStart();
+  else if(k==="dqshare")dqShare(a);
+  else if(k==="linkch")makeLinkChallenge(a);
+  else if(k==="chestopen")openChest();
+  else if(k==="chestskip")chestSkip();
+  else if(k==="chestok"){CHRES=null;drawChest()}
   else if(k==="ghostduel")ghostDuel();
   else if(k==="opendual")openDuel();
   else if(k==="pprof"){if(cur!=="pprof"){backTo=cur;backArg=curArg}nav("pprof",id)}
@@ -2055,8 +2067,8 @@ function drawHome(){
   const sc=statsCache[uid];
   $("homeRank").textContent=sc?`${sc.top.i} ${sc.top.n}`:"…";
   if(!sc)loadMyStats().then(()=>{if(cur==="home")drawHome()});
-  if(!ACH)loadAch().then(()=>{if(cur==="home"){drawDaily();drawStreak()}});
-  drawDaily();drawStreak();drawResume();drawRankBar();drawBoards();
+  if(!ACH)loadAch().then(()=>{if(cur==="home"){drawDaily();drawStreak();drawChest()}});
+  drawDaily();drawStreak();drawResume();drawRankBar();drawBoards();drawDQuiz();drawChest();
   const mine=ME.team;
   const items=[];
   Object.keys(challenges).sort((a,b)=>((+challenges[b].createdAt||0))-((+challenges[a].createdAt||0))).forEach(id=>{
@@ -2425,7 +2437,7 @@ $("chSend2").onclick=()=>chatSend($("chIn2"));
 $("chIn2").onkeydown=e=>{if(e.key==="Enter"){e.preventDefault();chatSend($("chIn2"))}};
 /* ---- коллекция рамок и аватаров ---- */
 const colA=a=>({...a,sgOk:myOkCount()});
-const colSet=a=>{const b=colA(a);return new Set([...FRAMES.filter(x=>x.f(b)).map(x=>"f:"+x.id),...AVC.filter(x=>x.f(b)).map(x=>"a:"+x.id)])};
+const colSet=a=>{const b=colA(a);return new Set([...FRAMES.filter(x=>x.f(b)).map(x=>"f:"+x.id),...AVC.filter(x=>x.f(b)).map(x=>"a:"+x.id),...(a&&Array.isArray(a.chest)?a.chest:[])])};
 const colName=k=>{const l=k[0]==="f"?FRAMES:AVC,x=l.find(y=>y.id===k.slice(2));return x?(k[0]==="f"?"рамка «":"аватар «")+x.n+"»":""};
 const ENDCOL={};
 async function drawColl(){
@@ -2575,8 +2587,8 @@ const ACHS=[
 const achSet=a=>new Set(ACHS.filter(x=>x.f({...a,sgOk:myOkCount()})).map(x=>x.id));
 async function loadAch(){if(ACH)return ACH;try{const s=await db.doc("ach/"+uid).get();ACH={...emptyAch(),...(s.exists?s.data():{})}}catch(e){ACH=emptyAch()}return ACH}
 async function saveAch(a){ACH=a;try{await db.doc("ach/"+uid).set(a)}catch(e){}}
-function touch(a){const t=dayKey();if(a.lastDay===t)return a;a.streak=a.lastDay===prevDay(t)?(a.streak|0)+1:1;a.bestStreak=Math.max(a.bestStreak|0,a.streak);a.lastDay=t;return a}
-const curStreak=a=>a&&(a.lastDay===dayKey()||a.lastDay===prevDay(dayKey()))?(a.streak|0):0;
+function touch(a){const t=dayKey();if(a.lastDay===t)return a;if(a.lastDay===prevDay(t))a.streak=(a.streak|0)+1;else if((a.fz|0)>0&&a.lastDay===prevDay(prevDay(t))){a.fz=(a.fz|0)-1;a.streak=(a.streak|0)+1}else a.streak=1;a.bestStreak=Math.max(a.bestStreak|0,a.streak);a.lastDay=t;return a}
+const curStreak=a=>a&&(a.lastDay===dayKey()||a.lastDay===prevDay(dayKey())||((a.fz|0)>0&&a.lastDay===prevDay(prevDay(dayKey()))))?(a.streak|0):0;
 
 /* вопрос дня */
 function dailyQ(){const k=dayKey(),p=BANK.map((_,i)=>i).filter(i=>!BANK[i].i&&!(BANK[i].c>=27)&&!HID.has(BANK[i].c));if(!p.length)return null;const x=BANK[p[hstr("d"+k)%p.length]];return{k,x,opts:shuffled([x.a,...x.w],rng(hstr("o"+k)))}}
@@ -2618,6 +2630,7 @@ async function onEnd(){
     a.g=(a.g|0)+1;
     if(win){a.w=(a.w|0)+1;a.run=(a.run|0)+1;a.bestRun=Math.max(a.bestRun|0,a.run)}else if(!game.ch)a.run=0;
     if((ind(m)||game.ch)&&okc>=TOTAL&&!mm.dq)a.perfect=(a.perfect|0)+1;
+    const cb0=chestOf(a).st;chestTick(a);if(cb0===0&&a.ch.st===1)ENDCHEST[c]=1;
     touch(a);ENDNEW[c]=[...achSet(a)].filter(x=>!before.has(x));ENDCOL[c]=[...colSet(a)].filter(x=>!cbef.has(x)).map(colName).filter(Boolean);await saveAch(a);
     if(cur==="end")endExtra();
     for(const q of Object.keys(rec)){const r=rec[q];if(!r.a)continue;
@@ -2639,6 +2652,9 @@ function endExtra(){
   if((ENDCOL[code]||[]).length)h+=`<div class="invite"><span>🎖️ В коллекции открыто: ${ENDCOL[code].map(esc).join(", ")}</span><button class="btn small" data-act="coll">Открыть</button></div>`;
   if(game.ghRes){const r=game.ghRes,nm=r.self?"вашей прошлой партии":"призрака "+esc(nickOf(r.u));h=`<div class="invite"><span>👻 ${r.res==="w"?"Победа":r.res==="l"?"Поражение":"Ничья"} против ${nm}: ${r.mine} : ${r.th}${r.d?" · рейтинг дуэлей "+(r.d>0?"+":"")+r.d:""}</span></div>`+h}
   h+=reactHtml();
+  if(ENDCHEST[code])h=`<div class="invite"><span>🎁 Вы получили сундук! Он ждёт на главной.</span></div>`+h;
+  if(game.dly&&DQ.res)h+=`<div class="gap"></div><button class="btn" data-act="dqshare">🗓️ Поделиться квизом дня</button>`;
+  else if(game.mode==="solo"&&!game.ch&&!game.gh&&!game.dly&&me())h+=`<div class="gap"></div><button class="btn" data-act="linkch">⚔️ Вызвать друга: те же вопросы</button>`;
   h+=`<div class="gap"></div><button class="btn" data-act="share">Поделиться результатом</button>`;
   if(game.mode==="evening"&&players.length>1&&!game.ch)h+=`<div class="gap"></div><button class="btn alt" data-act="awards">🏅 Награды вечера</button>`;
   if(players.length>1&&!game.ch)h+=`<div class="gap"></div><button class="btn alt" data-act="table">🖼️ ${game.mode==="evening"?"Сохранить итоги вечера":"Сохранить таблицу результатов"}</button>`;
@@ -2836,6 +2852,158 @@ async function openDuel(){
     await playAsync(id);
   }catch(e){duelErr("Не удалось найти соперника: "+(e.message||e.code))}
 }
+/* ---------- квиз дня, вызов другу, сундуки ---------- */
+const DQ={k:"",res:undefined,stat:null,busy:false},CHL={},ENDCHEST={};
+const plur=(n,a,b,c)=>n%10===1&&n%100!==11?a:(n%10>=2&&n%10<=4&&(n%100<10||n%100>=20))?b:c;
+function ygLink(pl){
+  try{const id=YG.sdk&&YG.sdk.environment&&YG.sdk.environment.app&&YG.sdk.environment.app.id;if(id)return "https://yandex.ru/games/app/"+id+(pl?"?payload="+pl:"")}catch(e){}
+  return location.href.split("#")[0].split("?")[0]+(pl?"#"+pl.replace("_","="):"");
+}
+async function shareText(t,btn){
+  try{if(navigator.share){await navigator.share({text:t});return}}catch(e){if(e&&e.name==="AbortError")return}
+  let ok=false;
+  try{await navigator.clipboard.writeText(t);ok=true}catch(e){}
+  if(!ok){try{const ta=document.createElement("textarea");ta.value=t;ta.style.cssText="position:fixed;opacity:0";document.body.appendChild(ta);ta.select();ok=document.execCommand("copy");ta.remove()}catch(e){}}
+  if(btn){
+    if(ok)btn.textContent="✅ Скопировано, вставьте в сообщение";
+    else if(!btn.nextElementSibling||btn.nextElementSibling.tagName!=="TEXTAREA"){const ta=document.createElement("textarea");ta.readOnly=true;ta.value=t;ta.style.cssText="width:100%;margin-top:8px;min-height:90px";btn.after(ta);ta.select()}
+  }
+}
+/* квиз дня: 15 вопросов на дату, одинаковые у всех */
+async function dailySet(k){
+  const ref=db.doc("stats/dailyset/days/"+k);
+  let h=null;try{const s=await ref.get();if(s.exists&&Array.isArray(s.data().h))h=s.data().h}catch(e){}
+  const idx=new Map();BANK.forEach((x,i)=>idx.set(String(hstr(x.q)),i));
+  if(!h||h.length<TOTAL){
+    const HQ=hiddenQ(),r=rng(hstr("dq"+k)),ok=x=>!x.i&&x.c<27&&x.c!==25&&x.c!==26&&!HID.has(x.c)&&!HQ.has(String(hstr(x.q)));
+    const pool=BANK.map((_,i)=>i).filter(i=>ok(BANK[i])),out=[],cats=new Set();
+    for(const [L,n] of [["e",5],["m",5],["h",5]]){
+      const c=shuffled(pool.filter(i=>BANK[i].d===L),r),take=[];
+      for(const i of c){if(take.length>=n)break;if(!cats.has(BANK[i].c)){take.push(i);cats.add(BANK[i].c)}}
+      for(const i of c){if(take.length>=n)break;if(!take.includes(i))take.push(i)}
+      out.push(...take);
+    }
+    h=out.map(i=>String(hstr(BANK[i].q)));
+    try{await ref.set({h,at:Date.now()});const s2=await ref.get();if(s2.exists&&Array.isArray(s2.data().h)&&s2.data().h.length>=TOTAL)h=s2.data().h}catch(e){}
+  }
+  const qs=h.map(x=>idx.get(String(x))).filter(v=>v!=null);
+  if(qs.length<TOTAL){const used=new Set(qs),r=rng(hstr("dqp"+k));for(const i of shuffled(BANK.map((_,i)=>i).filter(i=>!BANK[i].i&&BANK[i].c<27&&BANK[i].c!==25&&BANK[i].c!==26&&!HID.has(BANK[i].c)),r)){if(qs.length>=TOTAL)break;if(!used.has(i)){qs.push(i);used.add(i)}}}
+  return qs.slice(0,TOTAL);
+}
+async function loadDQ(){
+  const k=dayKey();
+  if(DQ.k!==k){DQ.k=k;DQ.res=undefined;DQ.stat=null}
+  if(DQ.res!==undefined||DQ.busy)return;
+  DQ.busy=true;
+  try{
+    const s=await db.doc("dailyans/q"+k+"_"+uid).get();DQ.res=s.exists?s.data():null;
+    if(DQ.res){
+      const l=(await db.collection("dailyans").where("key","==","q"+k).get()).docs.map(d=>d.data()),me0=DQ.res.pts|0,o=l.filter(x=>x.u!==uid);
+      DQ.stat={n:l.length,pct:o.length?Math.round(100*o.filter(x=>(x.pts|0)<me0).length/o.length):null};
+    }
+  }catch(e){if(DQ.res===undefined)DQ.res=null}
+  DQ.busy=false;if(cur==="home"&&!code)drawDQuiz();
+}
+function drawDQuiz(){
+  const el=$("dquiz");if(!el)return;
+  if(!ME||!BANK.length){el.innerHTML="";return}
+  if(DQ.k!==dayKey()||DQ.res===undefined){loadDQ();if(DQ.res===undefined){el.innerHTML="";return}}
+  const r=DQ.res;
+  if(!r){el.innerHTML=`<div class="card"><div class="cardtitle"><h2 style="margin:0">🗓️ Квиз дня</h2><span class="chip2">новый</span></div><p class="hint" style="margin:6px 0 10px">15 вопросов, одни и те же у всех игроков сегодня. Одна попытка. Результат можно показать друзьям.</p><button type="button" class="btn" data-act="dqstart">Играть</button><div class="err" id="dq-err"></div></div>`;return}
+  const st=DQ.stat,rows=(r.grid||"").match(/.{1,10}/gu)||[];
+  el.innerHTML=`<div class="card"><div class="cardtitle"><h2 style="margin:0">🗓️ Квиз дня</h2><span class="dstat done">✓ сыграно</span></div><p style="margin:8px 0 2px"><b>${r.okc|0} из ${TOTAL}</b> · ${r.pts|0} очков</p><p style="font-size:22px;line-height:1.3;margin:2px 0 6px;letter-spacing:2px">${((r.grid||"").match(/(?:🟩|🟥){1,5}/gu)||[]).join("<br>")}</p>${st&&st.n>1?`<p class="hint" style="margin:0 0 8px">Сегодня сыграло ${st.n} ${plur(st.n,"игрок","игрока","игроков")}${st.pct!=null?`. Вы лучше, чем ${st.pct}% из них`:""}</p>`:""}<button type="button" class="btn alt" data-act="dqshare">Поделиться результатом</button><p class="hint" style="margin:8px 0 0">Новый квиз появится завтра</p></div>`;
+}
+async function dailyQuizStart(){
+  const err=m=>{const e=$("dq-err");if(e)e.textContent=m||""};err("");
+  if(!BANK.length){err("Вопросы пока не загружены");return}
+  const k=dayKey();
+  try{
+    const s=await db.doc("dailyans/q"+k+"_"+uid).get();if(s.exists){DQ.res=s.data();drawDQuiz();return}
+    const old=LSg("dq_"+k);
+    if(old){const g=await db.doc("games/"+old).get();if(g.exists&&g.data().status!=="end"){await openGame(old);return}}
+    const qs=await dailySet(k);
+    const c=await makeGame("solo",[],{qs,sq:sqOf(qs),dly:k,topic:-1});
+    LSs("dq_"+k,c);await enter(c);await joinGame();
+  }catch(e){err("Не удалось начать: "+(e.message||e.code))}
+}
+async function finishDaily(g,ps){
+  const p=ps[0]||{},R=REC[code]||{};let grid="";
+  for(let q=0;q<TOTAL;q++){const r=R[q];grid+=r&&r.a&&r.a===r.c?"🟩":"🟥"}
+  const k=g.dly,res={key:"q"+k,u:uid,pts:p.dq?0:(p.pts|0),okc:p.okc|0,grid,at:Date.now()};
+  try{await db.doc("dailyans/q"+k+"_"+uid).set(res)}catch(e){}
+  if(k===dayKey()){DQ.k=k;DQ.res=res;DQ.stat=null}
+}
+function dqShare(btn){
+  const r=DQ.res;if(!r)return;
+  const rows=(r.grid||"").match(/(?:🟩|🟥){1,5}/gu)||[],d=new Date();
+  shareText(`🗓️ Квиз дня ${String(d.getDate()).padStart(2,"0")}.${String(d.getMonth()+1).padStart(2,"0")}: ${r.okc|0} из ${TOTAL}, ${r.pts|0} очков\n${rows.join("\n")}\nСыграй те же вопросы: ${ygLink("")}`,btn);
+}
+/* вызов другу по ссылке */
+async function makeLinkChallenge(btn){
+  const mm=me();if(!game||!mm||game.ch||game.gh||game.dly)return;
+  try{
+    let id=CHL[code];const mine={pts:mm.dq?0:(mm.pts|0),okc:mm.okc|0,dq:!!mm.dq,at:Date.now()};
+    if(!id){
+      id=newCode()+newCode();
+      const c={by:uid,invited:"",link:true,topic:game.topic==null?-1:game.topic,qs:game.qs,sq:game.sq||{},createdAt:Date.now(),statsDone:false,["d_"+uid]:mine};
+      await db.doc("challenges/"+id).set(c);CHL[code]=id;challenges[id]=c;
+    }
+    shareText(`⚔️ Побей мой счёт в «Квиз или Недоквиз»: ${mine.okc} из ${TOTAL}, ${mine.pts} очков. Те же вопросы, посмотрим, кто лучше! ${ygLink("d_"+id)}`,btn);
+  }catch(e){if(btn)btn.textContent="Не удалось создать вызов"}
+}
+async function linkParamWait(){
+  const rx=/(?:^|[#&?])d[=_]([A-Za-z0-9]{6,12})\b/;
+  for(let i=0;i<40&&window.YaGames&&!YG.sdk;i++)await new Promise(r=>setTimeout(r,100));
+  let p="";try{p=(YG.sdk&&YG.sdk.environment&&YG.sdk.environment.payload)||""}catch(e){}
+  let m=rx.exec(String(p))||rx.exec(location.hash+location.search);
+  if(m){try{history.replaceState(null,"",location.pathname)}catch(e){}return m[1]}
+  return "";
+}
+async function takeLink(id){
+  try{
+    const ref=db.doc("challenges/"+id),s=await ref.get();
+    if(!s.exists){$("home-err").textContent="Вызов не найден или уже устарел";return}
+    const c=s.data();
+    if(c.by===uid||c["d_"+uid]||c.teams)return;
+    if(c.invited&&c.invited!==uid){$("home-err").textContent="Этот вызов уже принял другой игрок";return}
+    if(!c.invited){
+      const lk=await ref.collection("locks").doc("take").acquire({holder:uid,ttlMs:25000});
+      const c2=(await ref.get()).data();
+      if(!lk.acquired||!c2||(c2.invited&&c2.invited!==uid)){$("home-err").textContent="Этот вызов уже принял другой игрок";return}
+      await ref.update({invited:uid});
+    }
+    challenges[id]={...c,invited:uid};
+    await playAsync(id);
+  }catch(e){$("home-err").textContent="Не удалось принять вызов: "+(e.message||e.code)}
+}
+/* сундуки: каждые 3 раунда, открывается через 2 часа или сразу за ролик */
+const CH_WAIT=2*3600*1000;
+const chestOf=a=>{const c=(a&&a.ch)||{};return{n:c.n|0,st:c.st|0,at:+c.at||0}};
+function chestTick(a){const c=chestOf(a);if(c.st===0){c.n++;if(c.n>=3){c.st=1;c.at=Date.now()+CH_WAIT}}a.ch=c}
+let CHRES=null;
+const fmtLeft=ms=>{const s=Math.max(0,Math.ceil(ms/1000)),h=Math.floor(s/3600),m=Math.floor(s%3600/60),x=s%60;return (h?h+":":"")+String(m).padStart(h?2:1,"0")+":"+String(x).padStart(2,"0")};
+function drawChest(){
+  const el=$("chest");if(!el)return;const a=ACH;
+  if(!a||!ME){el.innerHTML="";return}
+  const c=chestOf(a),now=Date.now();let h="";
+  if(CHRES){h=`<div class="card"><div class="cardtitle"><h2 style="margin:0">🎉 Из сундука</h2></div><p style="margin:8px 0">${CHRES.item?"Открыт: <b>"+esc(CHRES.item)+"</b>":""}${CHRES.item&&CHRES.fz?"<br>":""}${CHRES.fz?"❄️ <b>Заморозка серии</b>: один пропущенный день не сбросит серию":""}</p><div class="row2">${CHRES.item?'<button type="button" class="btn" data-act="coll">В коллекцию</button>':""}<button type="button" class="btn alt" data-act="chestok">Ок</button></div></div>`}
+  else if(c.st===0){h=`<div class="card"><div class="cardtitle"><h2 style="margin:0">🎁 Сундук</h2><span class="chip2">${c.n} из 3</span></div><p class="hint" style="margin:6px 0 0">Сыграйте ещё ${3-c.n} ${plur(3-c.n,"раунд","раунда","раундов")}: в сундуке рамка или аватар, а иногда заморозка серии</p></div>`}
+  else if(c.at>now){h=`<div class="card"><div class="cardtitle"><h2 style="margin:0">🎁 Сундук открывается</h2><span class="chip2" id="chestT">${fmtLeft(c.at-now)}</span></div>${(YG.sdk&&YG.sdk.adv)?`<button type="button" class="btn" style="margin-top:8px" data-act="chestskip">📺 Открыть сейчас за ролик</button>`:'<p class="hint" style="margin:6px 0 0">Загляните позже</p>'}</div>`}
+  else{h=`<div class="card"><div class="cardtitle"><h2 style="margin:0">🎁 Сундук готов</h2></div><button type="button" class="btn" style="margin-top:8px" data-act="chestopen">Открыть</button></div>`}
+  if(el.dataset.h!==h){el.dataset.h=h;el.innerHTML=h}
+}
+setInterval(()=>{if(cur!=="home"||code||!ACH)return;const c=chestOf(ACH),t=$("chestT"),now=Date.now();if(c.st===1){if(c.at>now&&t)t.textContent=fmtLeft(c.at-now);else drawChest()}},1000);
+async function openChest(){
+  const a={...(await loadAch())},c=chestOf(a);
+  if(!(c.st===1&&c.at<=Date.now()))return;
+  const have=colSet(a),pool=[...FRAMES.map(x=>"f:"+x.id),...AVC.map(x=>"a:"+x.id)].filter(k=>!have.has(k));
+  let item="";
+  if(pool.length){const k=pool[Math.floor(Math.random()*pool.length)];a.chest=[...(Array.isArray(a.chest)?a.chest:[]),k];item=colName(k)}
+  const fz=!pool.length||Math.random()<.3;if(fz)a.fz=(a.fz|0)+1;
+  a.ch={n:0,st:0,at:0};CHRES={item,fz};
+  await saveAch(a);drawChest();drawStreak();
+}
+function chestSkip(){ygReward(async()=>{const a={...(await loadAch())},c=chestOf(a);if(c.st===1){c.at=Date.now()-1;a.ch=c;await saveAch(a)}openChest()})}
 async function playAsync(id){
   try{
     const s=await db.doc("challenges/"+id).get();if(!s.exists)return;
@@ -3482,6 +3650,7 @@ async function pvpRatings(ids){const o={};for(const u of ids){try{const s=await 
 function eloD(ra,rb,S){const d=Math.round(32*(S-eloExp(ra,rb)));return S===1?Math.max(2,d):S===0?Math.min(-2,d):d}
 async function saveStats(g,ps){
   if(g.ch){await finishCh(g,ps);return}
+  if(g.dly){await finishDaily(g,ps);return}
   if(g.gh){await finishGhost(g,ps);return}
   if(g.mode==="solo")ghostSave(g,ps);
   const q=g.qi|0,m=g.mode,hist={mode:m,at:Date.now(),rounds:q+1,winner:"",teams:[],ps:[],topic:g.topic==null?-1:g.topic};
@@ -4265,7 +4434,7 @@ setInterval(()=>{if(db&&uid&&!seenLoaded)seenLoad();seenDraw()},1200);
   let swReg=null;
   try{if("serviceWorker" in navigator)navigator.serviceWorker.getRegistrations().then(a=>a.forEach(r=>r.unregister())).catch(()=>{})}catch(e){}
   /* автообновление: сравниваем версию сборки с version.json на сервере */
-  const BUILD="7e1fca03bb4a";
+  const BUILD="6a7ec888ee94";
   if(/^https?:$/.test(location.protocol)&&BUILD.length>8){
     let shown=false,busy=false;
     const bar=()=>{
@@ -4322,6 +4491,7 @@ setInterval(()=>{if(db&&uid&&!seenLoaded)seenLoad();seenDraw()},1200);
 
 /* ---- таблица обновлений: новые записи добавляются в НАЧАЛО массива ---- */
 const UPDATES=[
+  {id:"u73",d:"6 ноября",t:"Квиз дня, вызов другу и сундуки",items:["🗓️ Квиз дня: каждый день 15 одинаковых для всех вопросов, одна попытка и результат из зелёных и красных квадратов, которым можно поделиться","⚔️ Вызов другу: после раунда отправьте ссылку, друг ответит на те же вопросы, а победитель получит рейтинг","🎁 Сундуки: за каждые 3 раунда сундук с рамкой, аватаром или заморозкой серии; открывается через 2 часа или сразу за ролик","❄️ Заморозка серии сохраняет серию дней, если вы пропустили один день"]},
   {id:"u72",d:"6 ноября",t:"Без предупреждений об уходе с вкладки",items:["Убрали надпись про дисквалификацию: в играх для одного и в дуэлях выход из вкладки ничем не грозит"]},
   {id:"u71",d:"6 ноября",t:"Новая тема: «Счёт в уме»",items:["3450 примеров на сложение, вычитание, умножение, деление, проценты, дроби, квадраты, ряды и задачи на скорость и площадь","Три уровня сложности: от таблицы умножения до двузначных множителей и процентов от больших чисел"]},
   {id:"u70",d:"6 ноября",t:"Дуэли: призрак и поиск соперника",items:["Дуэль против призрака: сыграйте сразу и сравните очки с записанной партией другого игрока","«Найти соперника»: оставьте вызов, и любой желающий ответит на те же вопросы","Вернули дуэли 1×1: бросьте вызов игроку, а сыграть можно в разное время","Вызовы и результаты видны на главном экране","В рейтинге появилась вкладка «Дуэль 1×1»: победа двигает рейтинг, как в шахматах"]},
