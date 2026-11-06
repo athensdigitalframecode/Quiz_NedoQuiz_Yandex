@@ -1089,7 +1089,6 @@ body[data-scr="s-home"] #bestFloat{display:block}
   <h1>Квиз <em>или</em> Недоквиз</h1>
   <p class="sub">Блиц-квиз · дуэли команд · массовые турниры</p>
     <button class="btn alt small" type="button" data-guest="in">Уже есть аккаунт? Войти</button>
-  </div>
   <div class="me-bar" data-act="me"><img class="pic" id="homePic" alt=""><div class="nm"><b id="homeNick"></b><small id="homeStatus" class="statusline"></small><small id="homeTeam"></small></div><span class="chip2" id="homeRank"></span></div>
   <div id="rankbar"></div>
   <div id="streak"></div>
@@ -4175,7 +4174,7 @@ setInterval(()=>{if(db&&uid&&!seenLoaded)seenLoad();seenDraw()},1200);
   let swReg=null;
   try{if("serviceWorker" in navigator)navigator.serviceWorker.getRegistrations().then(a=>a.forEach(r=>r.unregister())).catch(()=>{})}catch(e){}
   /* автообновление: сравниваем версию сборки с version.json на сервере */
-  const BUILD="b72026b41a91";
+  const BUILD="e3653aa6d29f";
   if(/^https?:$/.test(location.protocol)&&BUILD.length>8){
     let shown=false,busy=false;
     const bar=()=>{
