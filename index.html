@@ -1152,7 +1152,7 @@ body[data-scr="s-home"] #bestFloat{display:block}
   <div id="daily"></div>
   <div id="boards"></div>
   <p class="hint seen" id="seenInfo"><span id="seenTxt"></span> <button type="button" class="linkbtn" id="seenRst" hidden>сбросить историю</button></p>
-  <button type="button" class="btn alt" id="arcOpen" style="width:100%;margin:10px 0">⚡ Быстрые режимы: Выживание, Блиц, «Верю — не верю»</button>
+  <button type="button" class="btn alt" id="arcOpen" style="width:100%;margin:10px 0">⚡ Быстрые режимы<small id="arcThm" style="display:block;font-weight:400;opacity:.8"></small></button>
   <button class="btn playbig" data-act="new" data-mode="solo" type="button"><span class="pbi"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13l11-6.5z" fill="currentColor" stroke="none"/></svg></span><span class="pbt"><b>Играть</b><small>Быстрая игра: 15 вопросов, вы против себя</small></span></button>
   <div class="topicbox"><label for="topicSel" class="toplab">Тема вопросов<small>по умолчанию микс всех тем</small></label><select id="topicSel"></select><div class="chips" id="topicChips"></div><button type="button" class="chipsmore" id="chipsMore">Все темы ▾</button></div>
   <div class="modes">
@@ -3095,7 +3095,7 @@ function drawGame(){
   tickUI();
 }
 /* ---------- серия верных ответов, вибрация, итоги игры ---------- */
-const MY={code:"",rows:[],streak:0,best:0,lost:0};
+const MY={code:"",rows:[],streak:0,best:0,lost:0};let RECAP=null;
 const vib=v=>{try{if(navigator.vibrate)navigator.vibrate(v)}catch(e){}};
 const tick3=()=>note(1500,.07,"square",.07);
 function streakNote(n){const f=520+Math.min(n,12)*55;note(f,.1,"sine",.1);note(f*1.5,.16,"sine",.09,.09)}
@@ -3128,11 +3128,31 @@ function myRecap(){
   const tp={};R.forEach(r=>{if(typeof r.c!=="number")return;const t=tp[r.c]||(tp[r.c]={n:0,k:0});t.n++;if(r.ok)t.k++});
   let bt=null;Object.keys(tp).forEach(c=>{const t=tp[c];if(t.n>=2&&t.k>=1&&(!bt||t.k/t.n>bt.r||(t.k/t.n===bt.r&&t.k>bt.k)))bt={c:+c,r:t.k/t.n,k:t.k}});
   if(!el){el=document.createElement("div");el.id="myRecap";el.className="card myrecap";const ex=$("endExtra");ex.parentNode.insertBefore(el,ex)}
-  const h=`<h2>Твоя игра</h2><div class="rgrid"><div><b>🔥 ${MY.best}</b><small>лучшая серия</small></div><div><b>⚡ ${fast===null?"—":fast.toFixed(1)+" с"}</b><small>самый быстрый верный</small></div><div><b>${bt&&TOPICS[bt.c]?esc(TOPICS[bt.c]):"—"}</b><small>сильная тема</small></div></div><button class="btn alt" data-rc="chal">⚔️ Бросить вызов другу</button>`;
+  const tpc=(game&&typeof game.topic==="number"&&game.topic>=0&&game.topic<TOPICS.length)?game.topic:-1;
+  const bad=R.filter(r=>!r.ok&&game.qs&&typeof game.qs[r.q]==="number").map(r=>game.qs[r.q]);
+  RECAP={topic:tpc,bad,ok:ok.length,n:R.length};
+  const h=`<h2>Твоя игра</h2><div class="rgrid"><div><b>🔥 ${MY.best}</b><small>лучшая серия</small></div><div><b>⚡ ${fast===null?"—":fast.toFixed(1)+" с"}</b><small>самый быстрый верный</small></div><div><b>${bt&&TOPICS[bt.c]?esc(TOPICS[bt.c]):"—"}</b><small>сильная тема</small></div></div><div class="row2" style="margin-top:10px">${tpc>=0?'<button class="btn" data-rc="rev">🔁 Реванш по теме</button>':""}${bad.length>=2?'<button class="btn" data-rc="err">🎯 По своим ошибкам</button>':""}</div><button class="btn alt" data-rc="share" style="margin-top:8px">📤 Поделиться результатом</button>`;
   if(el.dataset.h!==h){el.dataset.h=h;el.innerHTML=h}
 }
 document.addEventListener("click",e=>{
   const b=e.target.closest&&e.target.closest("[data-rc]");if(!b)return;
+  const rc=b.dataset.rc;
+  if(rc==="share"){
+    const t=`Я ответил верно на ${RECAP?RECAP.ok:0} из ${RECAP?RECAP.n:0} в «Квиз или Недоквиз». Сыграешь лучше?`;
+    try{if(navigator.share)navigator.share({text:t,url:location.href.split("#")[0]}).catch(()=>{});else if(navigator.clipboard){navigator.clipboard.writeText(t+" "+location.href.split("#")[0]);b.textContent="✅ Скопировано"}}catch(e){}
+    return;
+  }
+  const R0=RECAP;
+  if(rc==="rev"&&R0&&R0.topic>=0){leaveGame();nav("home");curTopic=R0.topic;newGame("solo");return}
+  if(rc==="err"&&R0&&R0.bad.length>=2){
+    leaveGame();nav("home");
+    (async()=>{try{
+      const seenK=new Set(R0.bad);let qs=R0.bad.slice(0,TOTAL);
+      if(qs.length<TOTAL){const more=pickQs(R0.topic,QP_PLAN).filter(k=>!seenK.has(k));qs=qs.concat(more).slice(0,TOTAL)}
+      const c=await makeGame("solo",[],{qs:shuffled(qs,rng(Date.now())),sq:{}});await enter(c);await joinGame();
+    }catch(e){$("home-err").textContent="Не удалось начать: "+(e.message||e.code)}})();
+    return;
+  }
   const m=game&&game.mode;leaveGame();nav("home");
   if(b.dataset.rc==="again"&&m&&ind(m))newGame(m);
   else if(b.dataset.rc==="chal")setTimeout(()=>{const c=document.querySelector('#s-home [data-act="challenge"]');if(c)c.click()},60);
@@ -4181,7 +4201,7 @@ setInterval(()=>{if(db&&uid&&!seenLoaded)seenLoad();seenDraw()},1200);
   let swReg=null;
   try{if("serviceWorker" in navigator)navigator.serviceWorker.getRegistrations().then(a=>a.forEach(r=>r.unregister())).catch(()=>{})}catch(e){}
   /* автообновление: сравниваем версию сборки с version.json на сервере */
-  const BUILD="864a737dae22";
+  const BUILD="54ee8a8b8284";
   if(/^https?:$/.test(location.protocol)&&BUILD.length>8){
     let shown=false,busy=false;
     const bar=()=>{
@@ -4238,6 +4258,7 @@ setInterval(()=>{if(db&&uid&&!seenLoaded)seenLoad();seenDraw()},1200);
 
 /* ---- таблица обновлений: новые записи добавляются в НАЧАЛО массива ---- */
 const UPDATES=[
+  {id:"u66",d:"6 ноября",t:"Итоги, тема недели, рекорд-призрак",items:["На итогах партии: «Реванш по теме», «По своим ошибкам», «Поделиться результатом»","Тема недели: верные ответы по ней в быстрых режимах дают ×2 очков","В быстрых режимах во время раунда видно ваш рекорд и сообщение, когда вы его побили"]},
   {id:"u65",d:"6 ноября",t:"Быстрые режимы",items:["Новая кнопка «Быстрые режимы» на главной: Выживание, Блиц на время, «Верю — не верю» и «По картинкам»","Ролик за награду: продолжить после проигрыша, +15 секунд в блице, вернуть прерванную серию дней, удвоить очки раунда","Мастерство тем с уровнями, три задания дня и звёзды за них","Комбо за серию верных ответов, рекорды по режимам, таблицы лучших в Яндекс Играх, облачное сохранение","Если вход не удался, быстрые режимы всё равно работают"]},
   {id:"u64",d:"6 ноября",t:"Лучший игрок на главной",items:["Значок лучшего игрока снова виден на главной и сталкивается со знаком вопроса"]},
   {id:"u63",d:"6 ноября",t:"Больше вопросов",items:["Добавили около 250 новых вопросов: кино, музыка, видеоигры, ТВ, компьютеры, спорт, география, история, наука, настольные игры, книги"]},
@@ -4311,6 +4332,7 @@ function ygReward(ok){
   let tries=0;const t=setInterval(()=>{
     if(window.YaGames){clearInterval(t);
       YaGames.init().then(s=>{YG.sdk=s;
+        try{const l=s.environment&&s.environment.i18n&&s.environment.i18n.lang;if(l){YG.lang=l;document.documentElement.lang=l}}catch(e){}
         try{s.on("game_api_pause",()=>ygPause(true));s.on("game_api_resume",()=>ygPause(false))}catch(e){}
         const rw=setInterval(()=>{if(document.body.dataset.scr==="s-home"){clearInterval(rw);try{s.features.LoadingAPI.ready()}catch(e){}}},300);
       }).catch(()=>{});
@@ -4400,6 +4422,10 @@ function pool(kind){
   });
   return poolC[kind]=out;
 }
+function themeOf(){
+  const ok=[];for(let c=0;c<TOPICS.length;c++){if(c>=27||c===22||c===24||c===25||c===26||c===30||c===31||(typeof HID!=="undefined"&&HID.has(c)))continue;if(BANK.some(x=>x.c===c&&!x.i))ok.push(c)}
+  return ok.length?ok[hs("theme"+wk())%ok.length]:-1;
+}
 function shuf(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
 function pick(){
   const cfg=G.cfg,P=pool(cfg.pool),n=G.n,L=n<4?"e":n<10?"m":(Math.random()<.5?"h":"m");
@@ -4410,6 +4436,8 @@ function pick(){
   if(!c.length)c=free.filter(x=>!seen.has(hs(x.q)));
   if(!c.length)c=free;
   if(!c.length){G.used.clear();c=P}
+  const th=themeOf();
+  if(th>=0&&cfg.pool==="txt"&&Math.random()<.3){const tc=free.filter(x=>x.c===th);if(tc.length)c=tc}
   const x=c[Math.floor(Math.random()*c.length)];
   G.used.add(x);S.seen.push(hs(x.q));if(S.seen.length>400)S.seen=S.seen.slice(-400);
   return x;
@@ -4430,8 +4458,8 @@ function hub(){
   const list=(online()?ORDER:["cls",...ORDER]).map(m=>{const c=MODES_A[m],r=S.rec[m]|0;
     return `<button type="button" class="arc-mode" data-arc="m:${m}"><span class="ai">${c.ico}</span><span><b>${c.name}</b><small>${c.desc}</small></span><span class="rc">${r?r:"—"}<i>рекорд</i></span></button>`}).join("");
   const tasks=S.tasks.map(t=>{const p=Math.min(t.p|0,t.g),d=p>=t.g;return `<div class="arc-task${d?" done":""}"><div class="tb">${d?"✅ ":""}${E(t.n)}<div class="tp"><i style="width:${Math.round(p/t.g*100)}%"></i></div></div><span class="tn">${p}/${t.g}</span></div>`}).join("");
-  const stars=S.stars|0;
-  body(`<div class="arc-modes">${list}</div>
+  const stars=S.stars|0,th=themeOf(),thb=th>=0?`<div class="card" style="text-align:center;margin-bottom:10px">🌟 <b>Тема недели:</b> ${E(TOPICS[th])}<br><small>Верные ответы по ней дают ×2 очков</small></div>`:"";
+  body(`${thb}<div class="arc-modes">${list}</div>
   <div class="card"><div class="cardtitle"><h2>📅 Задания дня</h2><span class="chip2">⭐ ${stars}</span></div>${tasks}<p class="hint" style="margin:8px 0 0">Выполните все три и получите звезду.</p></div>
   <div class="row2" style="margin-top:12px"><button type="button" class="btn alt" data-arc="mast">🏅 Мастерство тем</button></div>
   <p class="hint" style="margin-top:10px">Очки всех режимов: <b>${S.tot|0}</b> · раундов сыграно: ${S.runs|0}</p>`);
@@ -4464,7 +4492,7 @@ function hud(){
   if(c.lives)left="❤️".repeat(Math.max(0,G.lives))+"🖤".repeat(Math.max(0,c.lives-G.lives));
   else if(c.time)left=`⏱ <span id="arcT">${Math.ceil(G.time)}</span> с`;
   else left=`Вопрос <span id="arcT">${G.n}</span> из ${c.total}`;
-  return `<div class="arc-hud"><span>${left}</span><span class="hc" id="arcCmb"></span><span>★ <span id="arcS">${G.score}</span></span></div><div class="arc-bar" id="arcBar"><i id="arcBi"></i></div>`;
+  return `<div class="arc-hud"><span>${left}</span><span class="hc" id="arcCmb"></span><span>★ <span id="arcS">${G.score}</span></span></div><div class="arc-bar" id="arcBar"><i id="arcBi"></i></div>${(S.rec[G.mode]|0)>0&&!G.cfg.total?`<div class="hint" id="arcGh" style="margin:4px 2px 0;text-align:right">👻 Ваш рекорд: ${S.rec[G.mode]}</div>`:""}`;
 }
 function next(){
   G.lock=false;G.n++;
@@ -4514,7 +4542,7 @@ function answer(i){
   mark(x.c,ok);
   if(ok){
     G.ok++;G.combo++;G.maxCombo=Math.max(G.maxCombo,G.combo);
-    const pts=1;G.score+=pts;snd(1);
+    const th2=x.c===themeOf(),pts=th2?2:1;G.score+=pts;snd(1);if(th2)pop("🌟 ×2");const rc0=S.rec[G.mode]|0;if(rc0>0&&!G.cfg.total&&!G.beat&&G.score>rc0){G.beat=true;pop("👻 Рекорд побит!")}
     if(G.combo>=3&&G.combo%3===0){pop("🔥 ×"+G.combo)}
   }else{
     G.wrong++;G.combo=0;snd(0);
@@ -4637,6 +4665,7 @@ document.addEventListener("click",e=>{
   if(e.target.closest&&e.target.closest("#arcBack")){e.preventDefault();back()}
 });
 window.arcOpen=hub;
+try{const _t=themeOf(),_e=$a("arcThm");if(_e&&_t>=0)_e.textContent="🌟 Тема недели: "+TOPICS[_t]+" (×2)"}catch(e){}
 load();cloudPull();
 try{new MutationObserver(()=>{if(document.body.dataset.scr==="s-home"){try{if(online())loadAch().then(fixDraw).catch(()=>{});else fixDraw()}catch(e){}}}).observe(document.body,{attributes:true,attributeFilter:["data-scr"]})}catch(e){}
 })();
