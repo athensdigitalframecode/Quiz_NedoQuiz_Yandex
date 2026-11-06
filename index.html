@@ -25,7 +25,7 @@ Object.defineProperty(window,"localStorage",{configurable:true,value:{getItem:fu
 <style>
 /* layout: one-column phone-first lobby → arena of 13 avatars; single committed dark look (neon quiz night) */
 :root{--bg:#070b16;--card:#141c30;--card2:#1c2744;--line:#2a3760;--txt:#eef2fb;--mut:#8a96b4;--gold:#ffc93c;--ok:#2fe38a;--bad:#ff4d63;--acc:#6ab0ff;color-scheme:dark;--disp:"Unbounded","Trebuchet MS",system-ui,sans-serif}
-#s-home .modes,#invites,#nowplay,#codeCard,#tabMode,#tabScope,#rankTeamBox,#homeTeam,#meTeam,#ppTeam,#ppLive,#ppAsync,#s-home [data-guest="in"],.bnav .bn[data-nav="teams"]{display:none!important}
+#s-home .modes,#nowplay,#codeCard,#tabMode,#tabScope,#rankTeamBox,#homeTeam,#meTeam,#ppTeam,#ppLive,.plbtns [data-act="pvpch"],#s-home [data-guest="in"],.bnav .bn[data-nav="teams"]{display:none!important}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{overscroll-behavior:none}body{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}input,textarea,select{-webkit-user-select:text;user-select:text}
 html,body{min-height:100%}
@@ -1159,6 +1159,7 @@ body[data-scr="s-home"] #bestFloat{display:block}
   <div id="daily"></div>
   <div id="boards"></div>
   <p class="hint seen" id="seenInfo"><span id="seenTxt"></span> <button type="button" class="linkbtn" id="seenRst" hidden>сбросить историю</button></p>
+  <button type="button" class="btn alt" id="duelOpen" data-act="players" style="width:100%;margin:10px 0 0">🎯 Отложенная дуэль<small style="display:block;font-weight:400;opacity:.8">Вызовите игрока: каждый играет, когда удобно</small></button>
   <button type="button" class="btn alt" id="arcOpen" style="width:100%;margin:10px 0">⚡ Быстрые режимы<small id="arcThm" style="display:block;font-weight:400;opacity:.8"></small></button>
   <button class="btn playbig" data-act="new" data-mode="solo" type="button"><span class="pbi"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13l11-6.5z" fill="currentColor" stroke="none"/></svg></span><span class="pbt"><b>Играть</b><small>Быстрая игра: 15 вопросов, вы против себя</small></span></button>
   <div class="topicbox"><label for="topicSel" class="toplab">Тема вопросов<small>по умолчанию микс всех тем</small></label><select id="topicSel"></select><div class="chips" id="topicChips"></div><button type="button" class="chipsmore" id="chipsMore">Все темы ▾</button></div>
@@ -1255,7 +1256,7 @@ body[data-scr="s-home"] #bestFloat{display:block}
 <section id="s-players" class="screen">
   <div class="top"><button class="btn alt small" data-act="home">← Назад</button></div>
   <h1>Игроки</h1>
-  <p class="sub">Выберите соперника и бросьте вызов на дуэль 1×1</p>
+  <p class="sub">Выберите соперника и бросьте вызов на отложенную дуэль: играть одновременно не нужно</p>
   <p class="hint" id="plTopic" style="text-align:center"></p>
   <input type="text" id="plSearch" placeholder="Поиск по нику" autocomplete="off">
   <div class="gap"></div>
@@ -1470,6 +1471,7 @@ body[data-scr="s-home"] #bestFloat{display:block}
     <details><summary>Что это за игра?</summary><p>«Квиз или Недоквиз» — викторина прямо в браузере. Отвечайте на вопросы на любые темы, копите очки, серии дней и рейтинг.</p></details>
     <details><summary>Как проходит игра?</summary><p>«Сам с собой»: 15 вопросов, на каждый по 45 секунд. Сложность растёт: сначала лёгкие вопросы, в конце самые трудные. В конце вы увидите результат и разбор.</p></details>
     <details><summary>Как считаются очки?</summary><p>Верный ответ приносит от 50 до 100 очков: чем быстрее вы ответили, тем больше.</p></details>
+    <details><summary>Что такое отложенная дуэль?</summary><p>Дуэль с другим игроком, в которой не нужно играть одновременно. Нажмите «Отложенная дуэль» на главной, выберите игрока и сыграйте свои 15 вопросов. Соперник увидит вызов на главном экране и ответит на те же вопросы, когда ему удобно. Побеждает тот, кто набрал больше очков, а результат попадает в рейтинг дуэлей.</p></details>
     <details><summary>Как меняется рейтинг?</summary><p>Все начинают с 1000 очков. Результаты ваших партий двигают рейтинг вверх или вниз. Звания идут от «Новичка» до «Легенды».</p></details>
     <details><summary>Сколько времени даётся на вопрос?</summary><p>На обычный вопрос — 45 секунд. На вопросы тем «Логика и мышление» и «Что? Где? Зачем?» даётся 2 минуты, а на вопросы темы «Что? Где? Когда?» — 1,5 минуты.</p></details>
     <details><summary>Что такое вопрос дня и серия?</summary><p>Каждый день на главной странице есть один особый вопрос. Если отвечать на него несколько дней подряд, растёт серия, а за достижения вы получаете значки в профиле.</p></details>
@@ -2057,6 +2059,7 @@ function drawHome(){
   Object.keys(challenges).sort((a,b)=>((+challenges[b].createdAt||0))-((+challenges[a].createdAt||0))).forEach(id=>{
     const c=challenges[id];
     if(!chMine(c))return;
+    if(c.teams)return;
     if(c.teams){
       const ot=c.teams.find(t=>t!==ME.team),my=c["d_"+uid],nm=teams[ot]?esc(teams[ot].name):"команда";
       if(c.statsDone){ if(Date.now()-(+c.doneAt||0)>86400000)return;
@@ -2080,6 +2083,7 @@ function drawHome(){
   });
   const live=[];
   lobbies.forEach(g=>{
+    if(g.mode==="pvp")return;
     if(g.mode==="pvp"){
       if(g.invited===uid)items.push(`<div class="invite"><span>Дуэль 1×1: вас вызывает ${esc(nickOf(g.by))}</span><button class="btn small" data-act="open" data-id="${g.id}">Принять</button></div>`);
       else if(g.by===uid)items.push(`<div class="invite"><span>Ваш вызов ждёт: ${esc(nickOf(g.invited))}</span><button class="btn small" data-act="open" data-id="${g.id}">Открыть</button><button class="btn alt small" data-act="endg" data-id="${g.id}">Отменить</button></div>`);
@@ -4208,7 +4212,7 @@ setInterval(()=>{if(db&&uid&&!seenLoaded)seenLoad();seenDraw()},1200);
   let swReg=null;
   try{if("serviceWorker" in navigator)navigator.serviceWorker.getRegistrations().then(a=>a.forEach(r=>r.unregister())).catch(()=>{})}catch(e){}
   /* автообновление: сравниваем версию сборки с version.json на сервере */
-  const BUILD="31efefc6edd9";
+  const BUILD="e592fdede340";
   if(/^https?:$/.test(location.protocol)&&BUILD.length>8){
     let shown=false,busy=false;
     const bar=()=>{
@@ -4265,6 +4269,7 @@ setInterval(()=>{if(db&&uid&&!seenLoaded)seenLoad();seenDraw()},1200);
 
 /* ---- таблица обновлений: новые записи добавляются в НАЧАЛО массива ---- */
 const UPDATES=[
+  {id:"u70",d:"6 ноября",t:"Отложенные дуэли",items:["Вернули дуэли 1×1: бросьте вызов игроку, а сыграть можно в разное время","Вызовы и результаты видны на главном экране, а победа двигает рейтинг дуэлей"]},
   {id:"u69",d:"6 ноября",t:"Новые аватары",items:["Вместо фотографий появились аватары-животные: лиса, панда, кот, сова и другие","Игра стала надёжнее запускаться в каталоге Яндекс Игр"]},
   {id:"u68",d:"6 ноября",t:"Картины мастеров и флаги",items:["246 новых вопросов с картинами в теме «Искусство»: узнайте автора и век","139 новых флагов в «Географии»","Картины из открытой коллекции Метрополитен-музея"]},
   {id:"u67",d:"6 ноября",t:"Слово дня",items:["Новая игра в разделе «Быстрые режимы»: одно слово из 5 букв в день, 6 попыток, цветные подсказки","Серия угаданных слов и звезда за каждую победу","Подсказка с буквой за просмотр ролика"]},
