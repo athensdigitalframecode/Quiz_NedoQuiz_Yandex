@@ -1099,6 +1099,7 @@ body[data-scr="s-home"] #bestFloat{display:block}
 .arc-mrow .mb{height:5px;border-radius:3px;background:rgba(255,255,255,.08);margin-top:5px;overflow:hidden}
 .arc-mrow .mb i{display:block;height:100%;background:var(--acc)}
 .arc-mrow .ml{font:700 12px var(--disp);color:var(--gold);flex:none;white-space:nowrap}
+.arc-streak{margin:0 0 10px;padding:10px 14px;border-radius:14px;border:1px solid var(--line);text-align:center}.arc-streak b{display:block;font-size:15px}.arc-streak small{color:var(--mut)}.arc-streak.ok{border-color:#ff8c28;background:rgba(255,140,40,.1)}
 .arc-lb{margin-top:10px;font-size:13px}
 .arc-lb div{display:flex;justify-content:space-between;padding:4px 2px;border-bottom:1px solid var(--line)}
 .arc-fix{margin:8px 0;padding:12px;border-radius:14px;border:1px solid #ff8c28;background:rgba(255,140,40,.12);text-align:center}
@@ -4459,7 +4460,7 @@ setInterval(()=>{if(db&&uid&&!seenLoaded)seenLoad();seenDraw()},1200);
   let swReg=null;
   try{if("serviceWorker" in navigator)navigator.serviceWorker.getRegistrations().then(a=>a.forEach(r=>r.unregister())).catch(()=>{})}catch(e){}
   /* автообновление: сравниваем версию сборки с version.json на сервере */
-  const BUILD="7c7d66a3ac0e";
+  const BUILD="223ff5d1ddb7";
   if(/^https?:$/.test(location.protocol)&&BUILD.length>8){
     let shown=false,busy=false;
     const bar=()=>{
@@ -4516,7 +4517,8 @@ setInterval(()=>{if(db&&uid&&!seenLoaded)seenLoad();seenDraw()},1200);
 
 /* ---- таблица обновлений: новые записи добавляются в НАЧАЛО массива ---- */
 const UPDATES=[
-  {id:"u78",d:"6 ноября",t:"Магазин за звёзды",items:["🛍 В быстрых режимах появился магазин: аватары и рамки за ⭐","📺 +15⭐ за ролик (до трёх раз в день), за задания дня теперь 10⭐, за слово дня 3⭐","✨ Особые рамки «Старт» и «Основатель» — для тех, кто поддержал игру"]},
+  {id:"u79",d:"6 ноября",t:"Серия дней, рейтинг и «Поделиться»",items:["Серия дней в быстрых режимах: награды на 3, 7, 14 и 30-й день","Кнопка «Поделиться» после раунда","Экран рейтинга с вашим местом и входом через Яндекс"]},
+ {id:"u78",d:"6 ноября",t:"Магазин за звёзды",items:["🛍 В быстрых режимах появился магазин: аватары и рамки за ⭐","📺 +15⭐ за ролик (до трёх раз в день), за задания дня теперь 10⭐, за слово дня 3⭐","✨ Особые рамки «Старт» и «Основатель» — для тех, кто поддержал игру"]},
   {id:"u77",d:"6 ноября",t:"Столкновение значков",items:["🫧 На главной значки теперь отталкиваются только при настоящем касании"]},
   {id:"u76",d:"6 ноября",t:"Ещё 145 вопросов",items:["🎬 Больше сложных вопросов в «Кино», «Музыке», «Видеоиграх», «Науке» и «Книгах»","🍳 Дополнили «Еду и кулинарию» и «Моду и дизайн»"]},
   {id:"u75",d:"6 ноября",t:"Три новые темы",items:["🍳 «Еда и кулинария»: от пасты до науки о вкусе","🚀 «Космос»: планеты, миссии, телескопы и космонавты","👗 «Мода и дизайн»: дома моды, ткани, шрифты и вещи, которые изменили стиль"]},{id:"u74",d:"6 ноября",t:"Ещё 578 вопросов",items:["📚 Больше вопросов в самых популярных темах: «Кино», «Музыка», «История», «Видеоигры», «Животные», «Наука», «Книги»","🚆 Подтянули «Транспорт», «Гаджеты», «Комиксы», «Политику» и «Что? Где? Зачем?»","🔥 Среди новых вопросов много сложных"]},
@@ -4643,10 +4645,10 @@ const E=s=>(typeof esc==="function"?esc(s):String(s));
 const day=()=>typeof dayKey==="function"?dayKey():new Date().toISOString().slice(0,10);
 const wk=()=>typeof weekId==="function"?weekId():Math.floor((Date.now()/864e5+3)/7);
 const hs=s=>typeof hstr==="function"?hstr(String(s)):String(s).length;
-function blank(){return{v:1,rec:{},mast:{},seen:[],day:"",tasks:[],stars:0,tot:0,runs:0,week:{id:0,best:{}},own:{},tok:[],eq:{av:"",fr:""}}}
+function blank(){return{v:1,rec:{},mast:{},seen:[],day:"",tasks:[],stars:0,tot:0,runs:0,week:{id:0,best:{}},own:{},tok:[],eq:{av:"",fr:""},sk:{n:0,b:0,l:"",g:{}}}}
 function load(){
   let s=null;try{s=JSON.parse(localStorage.getItem(LSK)||"null")}catch(e){}
-  S=Object.assign(blank(),s||{});S.rec=S.rec||{};S.mast=S.mast||{};S.seen=S.seen||[];S.own=S.own||{};S.tok=S.tok||[];S.eq=S.eq||{av:"",fr:""};YG.noads=!!S.own.noads;
+  S=Object.assign(blank(),s||{});S.rec=S.rec||{};S.mast=S.mast||{};S.seen=S.seen||[];S.own=S.own||{};S.tok=S.tok||[];S.eq=S.eq||{av:"",fr:""};S.sk=Object.assign({n:0,b:0,l:"",g:{}},S.sk||{});S.sk.g=S.sk.g||{};YG.noads=!!S.own.noads;
   if(!S.week||S.week.id!==wk())S.week={id:wk(),best:{}};
   const d=day();
   if(S.day!==d){
@@ -4682,6 +4684,8 @@ function merge(r){
   S.tok=[...new Set([...(r.tok||[]),...S.tok])].slice(-60);
   if(r.eq&&(!S.eq||(!S.eq.av&&!S.eq.fr)))S.eq={av:r.eq.av||"",fr:r.eq.fr||""};
   if(r.rw&&S.rw&&r.rw.d===S.rw.d)S.rw.n=Math.max(S.rw.n|0,r.rw.n|0);
+  if(r.sk&&(String(r.sk.l)>String(S.sk.l)||(r.sk.l===S.sk.l&&(r.sk.n|0)>(S.sk.n|0)))){S.sk.n=r.sk.n|0;S.sk.l=r.sk.l||""}
+  if(r.sk){S.sk.b=Math.max(S.sk.b|0,r.sk.b|0);Object.keys(r.sk.g||{}).forEach(k=>{if(r.sk.g[k])S.sk.g[k]=1})}
   YG.noads=!!S.own.noads;
 }
 function cloudPull(){
@@ -4741,10 +4745,10 @@ function hub(){
     return `<button type="button" class="arc-mode" data-arc="m:${m}"><span class="ai">${c.ico}</span><span><b>${c.name}</b><small>${c.desc}</small></span><span class="rc">${r?r:"—"}<i>рекорд</i></span></button>`}).join("");
   const tasks=S.tasks.map(t=>{const p=Math.min(t.p|0,t.g),d=p>=t.g;return `<div class="arc-task${d?" done":""}"><div class="tb">${d?"✅ ":""}${E(t.n)}<div class="tp"><i style="width:${Math.round(p/t.g*100)}%"></i></div></div><span class="tn">${p}/${t.g}</span></div>`}).join("");
   const stars=S.stars|0,th=themeOf(),thb=th>=0?`<div class="card" style="text-align:center;margin-bottom:10px">🌟 <b>Тема недели:</b> ${E(TOPICS[th])}<br><small>Верные ответы по ней дают ×2 очков</small></div>`:"";
-  body(`${meRow()}${thb}<div class="arc-modes">${list}</div>
+  body(`${meRow()}${skHtml()}${thb}<div class="arc-modes">${list}</div>
   <button type="button" class="arc-mode" data-arc="wd"><span class="ai">🔤</span><span><b>Слово дня</b><small>${S.wd&&S.wd.day===day()&&S.wd.done?(S.wd.win?"Сегодня угадано ✅":"Попытки закончились"):"Одно слово в день: 6 попыток"}</small></span><span class="rc">${(S.wdS&&S.wdS.best)||"—"}<i>серия</i></span></button>
   <div class="card"><div class="cardtitle"><h2>📅 Задания дня</h2><span class="chip2">⭐ ${stars}</span></div>${tasks}<p class="hint" style="margin:8px 0 0">Выполните все три и получите 10 звёзд.</p></div>
-  <div class="row2" style="margin-top:12px"><button type="button" class="btn alt" data-arc="mast">🏅 Мастерство тем</button></div>
+  <div class="row2" style="margin-top:12px"><button type="button" class="btn alt" data-arc="mast">🏅 Мастерство тем</button><button type="button" class="btn alt" data-arc="bd:surv">🏆 Рейтинг</button></div>
   <p class="hint" style="margin-top:10px">Очки всех режимов: <b>${S.tot|0}</b> · раундов сыграно: ${S.runs|0}</p>`);
 }
 function mastery(){
@@ -4861,15 +4865,78 @@ function reward(kind){
     else{G.ext=true;G.time=15;G.lock=false;stop();next();tm=setInterval(tick,100)}
   });
 }
+
+/* ---------- серия дней, поделиться, рейтинг ---------- */
+const SK_MS={3:20,7:50,14:100,30:250};
+function skCur(){const t=day();return S.sk.l===t||S.sk.l===prevDay(t)?(S.sk.n|0):0}
+function skNext(){const n=skCur();for(const k of Object.keys(SK_MS).map(Number).sort((a,b)=>a-b)){if(k>n&&!S.sk.g[k])return k}return 0}
+function skTouch(){
+  const t=day();if(S.sk.l===t)return 0;
+  S.sk.n=S.sk.l===prevDay(t)?(S.sk.n|0)+1:1;S.sk.l=t;S.sk.b=Math.max(S.sk.b|0,S.sk.n);
+  let got=0;
+  Object.keys(SK_MS).forEach(k=>{if(S.sk.n>=+k&&!S.sk.g[k]){S.sk.g[k]=1;got+=SK_MS[k];S.stars=(S.stars|0)+SK_MS[k]}});
+  try{met("sk")}catch(e){}
+  return got;
+}
+function dWord(n){return n%10===1&&n%100!==11?"день":(n%10>=2&&n%10<=4&&(n%100<10||n%100>=20))?"дня":"дней"}
+function skHtml(){
+  const n=skCur(),nx=skNext(),t=day();
+  if(!n)return `<div class="arc-streak"><b>🔥 Серия дней</b><small>Сыграйте раунд сегодня и начните серию. На 3-й день награда ${SK_MS[3]}⭐</small></div>`;
+  const today=S.sk.l===t;
+  return `<div class="arc-streak${today?" ok":""}"><b>🔥 ${n} ${dWord(n)} подряд</b><small>${today?"Сегодня засчитано. ":"Сыграйте сегодня, чтобы не прервать. "}${nx?`До награды +${SK_MS[nx]}⭐: ещё ${nx-n} ${dWord(nx-n)}`:"Все награды серии получены"}</small></div>`;
+}
+function toast(t){
+  let e=document.getElementById("arcToast");
+  if(!e){e=document.createElement("div");e.id="arcToast";e.style.cssText="position:fixed;left:50%;bottom:24px;transform:translateX(-50%);z-index:300;background:#222;color:#fff;padding:10px 16px;border-radius:12px;font-size:14px;max-width:86vw;text-align:center;box-shadow:0 6px 24px rgba(0,0,0,.4)";document.body.appendChild(e)}
+  e.textContent=t;e.style.display="block";clearTimeout(e._t);e._t=setTimeout(()=>{e.style.display="none"},2600);
+}
+function gameUrl(){
+  try{const id=YG.sdk&&YG.sdk.environment&&YG.sdk.environment.app&&YG.sdk.environment.app.id;if(id)return "https://yandex.ru/games/app/"+id}catch(e){}
+  return location.href.split("#")[0];
+}
+async function shareRes(mode,sc){
+  const c=MODES_A[mode],url=gameUrl();
+  const text=sc>0?`Я набрал ${sc} в режиме «${c.name}» в «Квиз или Недоквиз». Сможешь больше?`:`Играю в «Квиз или Недоквиз». Заходи, сыграем!`;
+  met("shr");
+  try{if(navigator.share){await navigator.share({title:"Квиз или Недоквиз",text,url});return}}catch(e){if(e&&e.name==="AbortError")return}
+  const full=text+" "+url;
+  try{await navigator.clipboard.writeText(full);toast("Текст со ссылкой скопирован. Отправьте его друзьям");return}catch(e){}
+  try{const ta=document.createElement("textarea");ta.value=full;ta.style.cssText="position:fixed;opacity:0";document.body.appendChild(ta);ta.select();document.execCommand("copy");ta.remove();toast("Текст со ссылкой скопирован")}catch(e){toast(full)}
+}
+async function board(m){
+  stop();load();show2();m=MODES_A[m]&&m!=="cls"?m:"surv";
+  setTitle("🏆 Рейтинг","Лучшие игроки Яндекс Игр");
+  const tabs=ORDER.map(k=>`<button type="button" class="btn ${k===m?"":"alt"} small" data-arc="bd:${k}">${MODES_A[k].ico}</button>`).join("");
+  body(`<div class="row2" style="margin-bottom:10px;flex-wrap:wrap">${tabs}</div><div class="card"><b>${MODES_A[m].name}</b><div class="arc-lb" id="arcBd"><small>Загружаем…</small></div></div>
+  <div id="arcBdAuth"></div><div class="row2" style="margin-top:12px"><button type="button" class="btn alt" data-arc="hub">← К режимам</button></div>`);
+  const el=$a("arcBd");
+  if(!YG.sdk||!YG.sdk.getLeaderboards){el.innerHTML="<small>Рейтинг доступен на Яндекс Играх</small>";return}
+  try{
+    const lb=await YG.sdk.getLeaderboards();
+    let authed=true;try{const pl=await getPl();authed=!!(pl.isAuthorized?pl.isAuthorized():true)}catch(e){}
+    const r=await lb.getEntries("arc"+m,{quantityTop:10,includeUser:authed,quantityAround:2});
+    const me=r.userRank|0;
+    if(!r.entries||!r.entries.length){el.innerHTML="<small>Пока никого нет. Станьте первым</small>"}
+    else el.innerHTML=r.entries.map(e=>`<div${me&&e.rank===me?' style="font-weight:800"':""}><span>${e.rank}. ${E((e.player&&e.player.publicName)||"Игрок")}</span><b>${e.score}</b></div>`).join("")+(me?`<p class="hint" style="margin:8px 0 0">Ваше место: <b>${me}</b></p>`:"");
+    if(!authed)$a("arcBdAuth").innerHTML=`<div class="card" style="text-align:center;margin-top:10px"><p style="margin:0 0 8px">Войдите через Яндекс, чтобы ваш рекорд попал в рейтинг</p><button type="button" class="btn" data-arc="bdauth" data-m="${m}">Войти</button></div>`;
+  }catch(e){el.innerHTML="<small>Не удалось загрузить рейтинг</small>"}
+}
+async function bdAuth(m){
+  try{await YG.sdk.auth.openAuthDialog();await getPl(true);
+    for(const k of ORDER){if(S.rec[k])lbSend(k,S.rec[k]|0)}
+    toast("Готово. Ваши рекорды отправлены");
+  }catch(e){}
+  board(m);
+}
 function lbSend(mode,score){
   try{if(!YG.sdk||!YG.sdk.getLeaderboards)return;
     YG.sdk.getLeaderboards().then(lb=>lb.setScore("arc"+mode,score)).catch(()=>{});}catch(e){}
 }
 function lbShow(mode){
   try{if(!YG.sdk||!YG.sdk.getLeaderboards)return;
-    YG.sdk.getLeaderboards().then(lb=>lb.getEntries("arc"+mode,{quantityTop:5,includeUser:false})).then(r=>{
+    YG.sdk.getLeaderboards().then(lb=>lb.getEntries("arc"+mode,{quantityTop:5,includeUser:true,quantityAround:1})).then(r=>{
       const el=$a("arcLb");if(!el||!r||!r.entries||!r.entries.length)return;
-      el.innerHTML="<b>🏆 Лучшие игроки</b>"+r.entries.map(e=>`<div><span>${e.rank}. ${E((e.player&&e.player.publicName)||"Игрок")}</span><b>${e.score}</b></div>`).join("");
+      el.innerHTML="<b>🏆 Лучшие игроки</b>"+r.entries.map(e=>`<div${r.userRank&&e.rank===r.userRank?' style="font-weight:800"':""}><span>${e.rank}. ${E((e.player&&e.player.publicName)||"Игрок")}</span><b>${e.score}</b></div>`).join("")+(r.userRank?`<p class="hint" style="margin:6px 0 0">Ваше место: <b>${r.userRank}</b></p>`:"");
     }).catch(()=>{});}catch(e){}
 }
 function finish(){
@@ -4879,13 +4946,15 @@ function finish(){
   const old=S.rec[m]|0,isRec=sc>old&&sc>0;if(isRec)S.rec[m]=sc;
   S.week.best[m]=Math.max(S.week.best[m]|0,sc);
   S.tot=(S.tot|0)+sc;S.runs=(S.runs|0)+1;
-  const done=prog(m,sc);
+  const done=prog(m,sc);const skGot=skTouch();
   save();lbSend(m,sc);
   const first=S.runs<=1;
   body(`<div class="arc-big">${sc}</div><div class="arc-sub">${isRec?"🎉 Новый рекорд!":old?"Рекорд: "+old:"Первый результат"}</div>
   <div class="arc-stats"><div><b>${G.ok}</b><small>верно</small></div><div><b>${G.wrong}</b><small>ошибок</small></div><div><b>×${G.maxCombo}</b><small>лучшая серия</small></div></div>
+  ${skGot?`<div class="card" style="text-align:center">🔥 Серия ${S.sk.n} ${dWord(S.sk.n)}: награда +${skGot}⭐</div>`:""}
   ${done?`<div class="card" style="text-align:center">⭐ Все задания дня выполнены: +10. Звёзд: <b>${S.stars}</b>${canAd()&&S.dbl!==day()?`<div class="row2" style="margin-top:8px"><button type="button" class="btn ghost" data-arc="dt">📺 Ещё +10⭐ за ролик</button></div>`:""}</div>`:""}
   <div class="row2" style="margin-top:12px"><button type="button" class="btn" data-arc="again" data-m="${m}">Ещё раз</button><button type="button" class="btn alt" data-arc="hub">Все режимы</button></div>
+  <div class="row2" style="margin-top:8px"><button type="button" class="btn ghost" data-arc="share" data-m="${m}" data-s="${sc}">📤 Поделиться</button><button type="button" class="btn ghost" data-arc="bd:${m}">🏆 Рейтинг</button></div>
   ${canAd()&&sc>0&&!first?`<div class="row2" style="margin-top:8px"><button type="button" class="btn ghost" data-arc="dbl" id="arcDbl">📺 Удвоить очки раунда (+${sc})</button></div>`:""}
   <div class="arc-lb" id="arcLb"></div>`);
   setTitle(c.ico+" "+c.name,"Итоги раунда");
@@ -4938,6 +5007,9 @@ document.addEventListener("click",e=>{
     else if(k.startsWith("k:"))wdKey(k.slice(2));
     else if(k==="wdh")wdHint();
     else if(k==="mast")mastery();
+    else if(k.startsWith("bd:"))board(k.slice(3));
+    else if(k==="bdauth")bdAuth(b.dataset.m);
+    else if(k==="share")shareRes(b.dataset.m,+b.dataset.s||0);
     else if(k==="again")again(b.dataset.m);
     else if(k==="rev")reward("rev");
     else if(k==="ext")reward("ext");
