@@ -1159,7 +1159,9 @@ body[data-scr="s-home"] #bestFloat{display:block}
   <div id="daily"></div>
   <div id="boards"></div>
   <p class="hint seen" id="seenInfo"><span id="seenTxt"></span> <button type="button" class="linkbtn" id="seenRst" hidden>сбросить историю</button></p>
-  <button type="button" class="btn alt" id="duelOpen" data-act="players" style="width:100%;margin:10px 0 0">🎯 Отложенная дуэль<small style="display:block;font-weight:400;opacity:.8">Вызовите игрока: каждый играет, когда удобно</small></button>
+  <div class="card" id="duelBox" style="margin:10px 0 0"><h2 style="margin-top:0">🎯 Дуэли</h2><p class="hint" style="margin:0 0 8px">Играть одновременно не нужно: результат вы увидите на главной.</p>
+    <div class="row2"><button type="button" class="btn" data-act="ghostduel">👻 Против призрака<small style="display:block;font-weight:400;opacity:.8">результат сразу</small></button><button type="button" class="btn alt" data-act="opendual">🔍 Найти соперника<small style="display:block;font-weight:400;opacity:.8">ответит позже</small></button></div>
+    <div class="gap"></div><button type="button" class="btn alt small" id="duelOpen" data-act="players">Вызвать игрока по имени</button><div class="err" id="duel-err"></div></div>
   <button type="button" class="btn alt" id="arcOpen" style="width:100%;margin:10px 0">⚡ Быстрые режимы<small id="arcThm" style="display:block;font-weight:400;opacity:.8"></small></button>
   <button class="btn playbig" data-act="new" data-mode="solo" type="button"><span class="pbi"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13l11-6.5z" fill="currentColor" stroke="none"/></svg></span><span class="pbt"><b>Играть</b><small>Быстрая игра: 15 вопросов, вы против себя</small></span></button>
   <div class="topicbox"><label for="topicSel" class="toplab">Тема вопросов<small>по умолчанию микс всех тем</small></label><select id="topicSel"></select><div class="chips" id="topicChips"></div><button type="button" class="chipsmore" id="chipsMore">Все темы ▾</button></div>
@@ -1471,7 +1473,7 @@ body[data-scr="s-home"] #bestFloat{display:block}
     <details><summary>Что это за игра?</summary><p>«Квиз или Недоквиз» — викторина прямо в браузере. Отвечайте на вопросы на любые темы, копите очки, серии дней и рейтинг.</p></details>
     <details><summary>Как проходит игра?</summary><p>«Сам с собой»: 15 вопросов, на каждый по 45 секунд. Сложность растёт: сначала лёгкие вопросы, в конце самые трудные. В конце вы увидите результат и разбор.</p></details>
     <details><summary>Как считаются очки?</summary><p>Верный ответ приносит от 50 до 100 очков: чем быстрее вы ответили, тем больше.</p></details>
-    <details><summary>Что такое отложенная дуэль?</summary><p>Дуэль с другим игроком, в которой не нужно играть одновременно. Нажмите «Отложенная дуэль» на главной, выберите игрока и сыграйте свои 15 вопросов. Соперник увидит вызов на главном экране и ответит на те же вопросы, когда ему удобно. Побеждает тот, кто набрал больше очков, а результат попадает в рейтинг дуэлей.</p></details>
+    <details><summary>Как работают дуэли?</summary><p>Играть одновременно не нужно. «Против призрака»: вы сразу играете 15 вопросов по выбранной теме и сравниваете очки с записанной партией другого игрока. Результат виден сразу. «Найти соперника»: вы отвечаете на вопросы и оставляете вызов, а первый, кто нажмёт эту кнопку, отвечает на те же вопросы. Итог придёт на главную. Можно и вызвать конкретного игрока. Победа в дуэли двигает рейтинг дуэлей; у призрака рейтинг не меняется.</p></details>
     <details><summary>Как меняется рейтинг?</summary><p>Все начинают с 1000 очков. Результаты ваших партий двигают рейтинг вверх или вниз. Звания идут от «Новичка» до «Легенды».</p></details>
     <details><summary>Сколько времени даётся на вопрос?</summary><p>На обычный вопрос — 45 секунд. На вопросы тем «Логика и мышление» и «Что? Где? Зачем?» даётся 2 минуты, а на вопросы темы «Что? Где? Когда?» — 1,5 минуты.</p></details>
     <details><summary>Что такое вопрос дня и серия?</summary><p>Каждый день на главной странице есть один особый вопрос. Если отвечать на него несколько дней подряд, растёт серия, а за достижения вы получаете значки в профиле.</p></details>
@@ -1924,6 +1926,8 @@ document.addEventListener("click",e=>{
   else if(k==="me")nav("me");
   else if(k==="teams")nav("teams");
   else if(k==="players")nav("players");
+  else if(k==="ghostduel")ghostDuel();
+  else if(k==="opendual")openDuel();
   else if(k==="pprof"){if(cur!=="pprof"){backTo=cur;backArg=curArg}nav("pprof",id)}
   else if(k==="pback")nav(backTo,backArg);
   else if(k==="suggest")nav("suggest");
@@ -2073,13 +2077,13 @@ function drawHome(){
       }
       return;
     }
-    const opp=c.by===uid?c.invited:c.by,my=c["d_"+uid],th=c["d_"+opp];
+    const opp=c.by===uid?c.invited:c.by,my=c["d_"+uid],th=c["d_"+opp],OPPN=opp?esc(nickOf(opp)):"любой игрок";
     if(c.statsDone){
       if(Date.now()-(+c.doneAt||0)>86400000)return;
       const r=c.winner===uid?"победа":c.winner?"поражение":"ничья";
       items.push(`<div class="invite"><span>Отложенная дуэль с ${esc(nickOf(opp))}: ${r} · ${(my&&my.pts)|0} : ${(th&&th.pts)|0}</span></div>`);
-    }else if(!my)items.push(`<div class="invite"><span>Отложенная дуэль: ${c.by===uid?"вы вызвали":"вас вызывает"} ${esc(nickOf(opp))}${th?" · соперник уже сыграл":""}</span><button class="btn small" data-act="achplay" data-id="${id}">Играть</button>${c.by===uid&&!th?`<button class="btn alt small" data-act="chcancel" data-id="${id}">Отменить</button>`:""}</div>`);
-    else items.push(`<div class="invite"><span>Вы сыграли (${my.pts|0}). Ждём результат: ${esc(nickOf(opp))}</span>${c.by===uid&&!th?`<button class="btn alt small" data-act="chcancel" data-id="${id}">Отменить</button>`:""}</div>`);
+    }else if(!my)items.push(`<div class="invite"><span>Отложенная дуэль: ${c.by===uid?"вы вызвали":"вас вызывает"} ${OPPN}${th?" · соперник уже сыграл":""}</span><button class="btn small" data-act="achplay" data-id="${id}">Играть</button>${c.by===uid&&!th?`<button class="btn alt small" data-act="chcancel" data-id="${id}">Отменить</button>`:""}</div>`);
+    else items.push(`<div class="invite"><span>Вы сыграли (${my.pts|0}). ${opp?"Ждём результат: "+OPPN:"Ваш открытый вызов ждёт соперника"}</span>${c.by===uid&&!th?`<button class="btn alt small" data-act="chcancel" data-id="${id}">Отменить</button>`:""}</div>`);
   });
   const live=[];
   lobbies.forEach(g=>{
@@ -2634,6 +2638,7 @@ function endExtra(){
   const rec=REC[code]||{},keys=Object.keys(rec).map(Number).sort((a,b)=>a-b),nw=ENDNEW[code]||[];
   let h=nw.length?`<div class="invite"><span>Новое достижение: ${nw.map(id=>esc(ACHS.find(x=>x.id===id).n)).join(", ")}</span></div>`:"";
   if((ENDCOL[code]||[]).length)h+=`<div class="invite"><span>🎖️ В коллекции открыто: ${ENDCOL[code].map(esc).join(", ")}</span><button class="btn small" data-act="coll">Открыть</button></div>`;
+  if(game.ghRes){const r=game.ghRes,nm=r.self?"вашей прошлой партии":"призрака "+esc(nickOf(r.u));h=`<div class="invite"><span>👻 ${r.res==="w"?"Победа":r.res==="l"?"Поражение":"Ничья"} против ${nm}: ${r.mine} : ${r.th}${r.d?" · рейтинг дуэлей "+(r.d>0?"+":"")+r.d:""}</span></div>`+h}
   h+=reactHtml();
   h+=`<div class="gap"></div><button class="btn" data-act="share">Поделиться результатом</button>`;
   if(game.mode==="evening"&&players.length>1&&!game.ch)h+=`<div class="gap"></div><button class="btn alt" data-act="awards">🏅 Награды вечера</button>`;
@@ -2784,6 +2789,53 @@ async function startAsync(target){
     challenges[id]={by:uid,invited:target,topic:curTopic,createdAt:Date.now()};
     await playAsync(id);
   }catch(e){$("pl-err").textContent="Не удалось создать вызов: "+(e.message||e.code)}
+}
+
+/* ---------- призраки и открытые вызовы ---------- */
+const ghKey=t=>"stats/ghost/t"+(t==null?"x":t);
+const duelErr=m=>{const e=$("duel-err");if(e)e.textContent=m||""};
+async function ghostSave(g,ps){
+  const p=ps[0];if(!p||p.dq||!(p.pts>0))return;
+  try{await db.doc(ghKey(g.topic)+"/"+uid).set({u:uid,pts:p.pts|0,okc:p.okc|0,topic:g.topic==null?-1:g.topic,g:grpOf(uid),at:Date.now()})}catch(e){}
+}
+async function ghostDuel(){
+  duelErr("");
+  if(!BANK.length){duelErr("Вопросы пока не загружены");return}
+  try{
+    const arr=(await db.collection(ghKey(curTopic)).get()).docs.map(d=>d.data()).filter(x=>x&&x.u&&x.pts>0&&Date.now()-(+x.at||0)<30*86400000&&sameG(x.u));
+    const others=arr.filter(x=>x.u!==uid),pool=others.length?others:arr;
+    if(!pool.length){duelErr("По этой теме призраков пока нет. Сыграйте раунд в «Играть», и ваша партия станет призраком для других.");return}
+    const gh=pool[Math.floor(Math.random()*pool.length)];
+    const c=await makeGame("solo",[],{gh:{u:gh.u,pts:gh.pts|0,okc:gh.okc|0,self:gh.u===uid}});
+    await enter(c);await joinGame();
+  }catch(e){duelErr("Не удалось начать: "+(e.message||e.code))}
+}
+async function finishGhost(g,ps){
+  const p=ps[0]||{},gh=g.gh,mine=p.dq?0:(p.pts|0),th=gh.pts|0,S=p.dq?0:mine>th?1:mine===th?.5:0;
+  let d=0;
+  if(!gh.self){const RT=await pvpRatings([uid,gh.u]);d=p.dq?-20:eloD(RT[uid],RT[gh.u],S);await bump(`stats/pvp/players/${uid}`,d,{win:S===1,score:mine});statsCache={}}
+  await gref.update({ghRes:{mine,th,res:S===1?"w":S===0?"l":"d",d,u:gh.u,self:!!gh.self}});
+}
+async function openDuel(){
+  duelErr("");
+  if(!BANK.length){duelErr("Вопросы пока не загружены");return}
+  try{
+    const all=Object.entries(challenges).filter(([id,c])=>c.open&&!c.invited&&!c.teams&&!c.statsDone&&c.by!==uid&&sameG(c.by)&&!c["d_"+uid]&&Date.now()-(+c.createdAt||0)<3*86400000);
+    all.sort((a,b)=>((a[1].topic==curTopic?0:1)-(b[1].topic==curTopic?0:1))||((+a[1].createdAt||0)-(+b[1].createdAt||0)));
+    for(const [id] of all){
+      const ref=db.doc("challenges/"+id),lk=await ref.collection("locks").doc("take").acquire({holder:uid,ttlMs:25000});
+      if(!lk.acquired)continue;
+      const cur0=(await ref.get()).data();if(!cur0||cur0.invited||cur0.statsDone)continue;
+      await ref.update({invited:uid});challenges[id]={...cur0,invited:uid};
+      await playAsync(id);return;
+    }
+    const mineOpen=Object.entries(challenges).find(([id,c])=>c.open&&!c.invited&&c.by===uid&&!c.statsDone&&Date.now()-(+c.createdAt||0)<3*86400000);
+    if(mineOpen){duelErr("Ваш открытый вызов уже ждёт соперника. Результат появится на главной.");return}
+    const id=newCode()+newCode(),qsA=pickQs(curTopic,QP_PLAN);
+    await db.doc("challenges/"+id).set({by:uid,invited:"",open:true,topic:curTopic,qs:qsA,sq:sqOf(qsA),createdAt:Date.now(),statsDone:false});
+    challenges[id]={by:uid,invited:"",open:true,topic:curTopic,createdAt:Date.now()};
+    await playAsync(id);
+  }catch(e){duelErr("Не удалось найти соперника: "+(e.message||e.code))}
 }
 async function playAsync(id){
   try{
@@ -3431,6 +3483,8 @@ async function pvpRatings(ids){const o={};for(const u of ids){try{const s=await 
 function eloD(ra,rb,S){const d=Math.round(32*(S-eloExp(ra,rb)));return S===1?Math.max(2,d):S===0?Math.min(-2,d):d}
 async function saveStats(g,ps){
   if(g.ch){await finishCh(g,ps);return}
+  if(g.gh){await finishGhost(g,ps);return}
+  if(g.mode==="solo")ghostSave(g,ps);
   const q=g.qi|0,m=g.mode,hist={mode:m,at:Date.now(),rounds:q+1,winner:"",teams:[],ps:[],topic:g.topic==null?-1:g.topic};
   if(m==="pvp"){
     const sc=p=>p.dq?-1:(p.pts|0),top=Math.max(...ps.map(sc)),wn=ps.filter(p=>sc(p)===top);
@@ -4212,7 +4266,7 @@ setInterval(()=>{if(db&&uid&&!seenLoaded)seenLoad();seenDraw()},1200);
   let swReg=null;
   try{if("serviceWorker" in navigator)navigator.serviceWorker.getRegistrations().then(a=>a.forEach(r=>r.unregister())).catch(()=>{})}catch(e){}
   /* автообновление: сравниваем версию сборки с version.json на сервере */
-  const BUILD="ffd56ed0db9a";
+  const BUILD="808cb6333442";
   if(/^https?:$/.test(location.protocol)&&BUILD.length>8){
     let shown=false,busy=false;
     const bar=()=>{
@@ -4269,7 +4323,7 @@ setInterval(()=>{if(db&&uid&&!seenLoaded)seenLoad();seenDraw()},1200);
 
 /* ---- таблица обновлений: новые записи добавляются в НАЧАЛО массива ---- */
 const UPDATES=[
-  {id:"u70",d:"6 ноября",t:"Отложенные дуэли",items:["Вернули дуэли 1×1: бросьте вызов игроку, а сыграть можно в разное время","Вызовы и результаты видны на главном экране","В рейтинге появилась вкладка «Дуэль 1×1»: победа двигает рейтинг, как в шахматах"]},
+  {id:"u70",d:"6 ноября",t:"Дуэли: призрак и поиск соперника",items:["Дуэль против призрака: сыграйте сразу и сравните очки с записанной партией другого игрока","«Найти соперника»: оставьте вызов, и любой желающий ответит на те же вопросы","Вернули дуэли 1×1: бросьте вызов игроку, а сыграть можно в разное время","Вызовы и результаты видны на главном экране","В рейтинге появилась вкладка «Дуэль 1×1»: победа двигает рейтинг, как в шахматах"]},
   {id:"u69",d:"6 ноября",t:"Новые аватары",items:["Вместо фотографий появились аватары-животные: лиса, панда, кот, сова и другие","Игра стала надёжнее запускаться в каталоге Яндекс Игр"]},
   {id:"u68",d:"6 ноября",t:"Картины мастеров и флаги",items:["246 новых вопросов с картинами в теме «Искусство»: узнайте автора и век","139 новых флагов в «Географии»","Картины из открытой коллекции Метрополитен-музея"]},
   {id:"u67",d:"6 ноября",t:"Слово дня",items:["Новая игра в разделе «Быстрые режимы»: одно слово из 5 букв в день, 6 попыток, цветные подсказки","Серия угаданных слов и звезда за каждую победу","Подсказка с буквой за просмотр ролика"]},
