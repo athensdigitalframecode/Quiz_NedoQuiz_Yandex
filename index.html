@@ -25,7 +25,7 @@ Object.defineProperty(window,"localStorage",{configurable:true,value:{getItem:fu
 <style>
 /* layout: one-column phone-first lobby → arena of 13 avatars; single committed dark look (neon quiz night) */
 :root{--bg:#070b16;--card:#141c30;--card2:#1c2744;--line:#2a3760;--txt:#eef2fb;--mut:#8a96b4;--gold:#ffc93c;--ok:#2fe38a;--bad:#ff4d63;--acc:#6ab0ff;color-scheme:dark;--disp:"Unbounded","Trebuchet MS",system-ui,sans-serif}
-#s-home .modes,#nowplay,#codeCard,#tabMode,#tabScope,#rankTeamBox,#homeTeam,#meTeam,#ppTeam,#ppLive,.plbtns [data-act="pvpch"],#s-home [data-guest="in"],.bnav .bn[data-nav="teams"]{display:none!important}
+#s-home .modes,#nowplay,#codeCard,#tabMode [data-m="blitz"],#tabMode [data-m="duel"],#tabMode [data-m="evening"],#tabMode [data-m="mass"],#tabScope,#rankTeamBox,#homeTeam,#meTeam,#ppTeam,#ppLive,.plbtns [data-act="pvpch"],#s-home [data-guest="in"],.bnav .bn[data-nav="teams"]{display:none!important}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{overscroll-behavior:none}body{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}input,textarea,select{-webkit-user-select:text;user-select:text}
 html,body{min-height:100%}
@@ -4212,7 +4212,7 @@ setInterval(()=>{if(db&&uid&&!seenLoaded)seenLoad();seenDraw()},1200);
   let swReg=null;
   try{if("serviceWorker" in navigator)navigator.serviceWorker.getRegistrations().then(a=>a.forEach(r=>r.unregister())).catch(()=>{})}catch(e){}
   /* автообновление: сравниваем версию сборки с version.json на сервере */
-  const BUILD="e592fdede340";
+  const BUILD="ffd56ed0db9a";
   if(/^https?:$/.test(location.protocol)&&BUILD.length>8){
     let shown=false,busy=false;
     const bar=()=>{
@@ -4269,7 +4269,7 @@ setInterval(()=>{if(db&&uid&&!seenLoaded)seenLoad();seenDraw()},1200);
 
 /* ---- таблица обновлений: новые записи добавляются в НАЧАЛО массива ---- */
 const UPDATES=[
-  {id:"u70",d:"6 ноября",t:"Отложенные дуэли",items:["Вернули дуэли 1×1: бросьте вызов игроку, а сыграть можно в разное время","Вызовы и результаты видны на главном экране, а победа двигает рейтинг дуэлей"]},
+  {id:"u70",d:"6 ноября",t:"Отложенные дуэли",items:["Вернули дуэли 1×1: бросьте вызов игроку, а сыграть можно в разное время","Вызовы и результаты видны на главном экране","В рейтинге появилась вкладка «Дуэль 1×1»: победа двигает рейтинг, как в шахматах"]},
   {id:"u69",d:"6 ноября",t:"Новые аватары",items:["Вместо фотографий появились аватары-животные: лиса, панда, кот, сова и другие","Игра стала надёжнее запускаться в каталоге Яндекс Игр"]},
   {id:"u68",d:"6 ноября",t:"Картины мастеров и флаги",items:["246 новых вопросов с картинами в теме «Искусство»: узнайте автора и век","139 новых флагов в «Географии»","Картины из открытой коллекции Метрополитен-музея"]},
   {id:"u67",d:"6 ноября",t:"Слово дня",items:["Новая игра в разделе «Быстрые режимы»: одно слово из 5 букв в день, 6 попыток, цветные подсказки","Серия угаданных слов и звезда за каждую победу","Подсказка с буквой за просмотр ролика"]},
