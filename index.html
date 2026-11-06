@@ -2090,6 +2090,15 @@ function bestSet(u){
   bestDraw(d);
 }
 try{const d=JSON.parse(localStorage.getItem("quiz_best")||"null");if(d&&!document.body.classList.contains("guest"))bestDraw(d)}catch(e){}
+/* без сохранённого лучшего игрока: заглушка «Это ты?», затем настоящий лидер с сервера */
+(async()=>{try{
+  let d=null;try{d=JSON.parse(localStorage.getItem("quiz_best")||"null")}catch(e){}
+  if(!d||!d.u)bestDraw({u:"guest",n:"Это ты?",p:GUEST_BEST});
+  for(let i=0;i<20&&!sb;i++)await new Promise(r=>setTimeout(r,500));
+  if(!sb)return;
+  const r=await sb.rpc("best_player"),x=r&&r.data;
+  if(x&&x.n)bestDraw({u:"guest",n:String(x.n).slice(0,40),p:photoOfProfile({nick:x.n,photo:x.p})});
+}catch(e){}})();
 const weekId=()=>Math.floor((Date.now()/864e5+3)/7);
 let WQC=null,WQAt=0;const WQMY={};
 async function wqLoad(){
@@ -4118,7 +4127,7 @@ setInterval(()=>{if(db&&uid&&!seenLoaded)seenLoad();seenDraw()},1200);
   let swReg=null;
   try{if("serviceWorker" in navigator)navigator.serviceWorker.getRegistrations().then(a=>a.forEach(r=>r.unregister())).catch(()=>{})}catch(e){}
   /* автообновление: сравниваем версию сборки с version.json на сервере */
-  const BUILD="6572c490edb8";
+  const BUILD="2d32fd3465c5";
   if(/^https?:$/.test(location.protocol)&&BUILD.length>8){
     let shown=false,busy=false;
     const bar=()=>{
@@ -4175,6 +4184,7 @@ setInterval(()=>{if(db&&uid&&!seenLoaded)seenLoad();seenDraw()},1200);
 
 /* ---- таблица обновлений: новые записи добавляются в НАЧАЛО массива ---- */
 const UPDATES=[
+  {id:"u64",d:"6 ноября",t:"Лучший игрок на главной",items:["Значок лучшего игрока снова виден на главной и сталкивается со знаком вопроса"]},
   {id:"u63",d:"6 ноября",t:"Больше вопросов",items:["Добавили около 250 новых вопросов: кино, музыка, видеоигры, ТВ, компьютеры, спорт, география, история, наука, настольные игры, книги"]},
   {id:"u62",d:"6 ноября",t:"Версия для Яндекс Игр",items:["Игра для одного: 15 вопросов, темы на любой вкус, вопрос дня и серия дней","Режимы с другими игроками, команды и вход по коду в этой версии убраны"]},
   {id:"u61",d:"6 ноября",t:"Связь, шкала и темы по порядку",items:["Если пропал интернет, сверху появляется сообщение, а когда связь вернётся, оно исчезает","В одиночной игре крупнее «Вопрос N из 15» и толще шкала прогресса","Темы в списке сгруппированы по смыслу: языки, культура, игры и техника, наука и мир, мышление, детские"]}
