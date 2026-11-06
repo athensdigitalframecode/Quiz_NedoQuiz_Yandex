@@ -1081,6 +1081,13 @@ body[data-scr="s-home"] #bestFloat{display:block}
 .arc-fix{margin:8px 0;padding:12px;border-radius:14px;border:1px solid #ff8c28;background:rgba(255,140,40,.12);text-align:center}
 .arc-fix p{margin:0 0 8px;font-size:14px}
 
+
+.wd-grid{display:grid;gap:6px;margin:10px auto;max-width:320px}.wd-r{display:grid;grid-template-columns:repeat(5,1fr);gap:6px}
+.wd-c{aspect-ratio:1;display:flex;align-items:center;justify-content:center;border:2px solid var(--line);border-radius:10px;font:800 24px var(--disp);background:var(--card2)}
+.wd-c.w0{background:#3b3f55;border-color:#3b3f55}.wd-c.w1{background:#c9a227;border-color:#c9a227;color:#111}.wd-c.w2{background:#2fb86e;border-color:#2fb86e;color:#08210f}
+.wd-kb{max-width:420px;margin:0 auto 10px}.wd-kr{display:flex;justify-content:center;gap:4px;margin-bottom:5px}
+.wd-k{flex:1;min-width:0;height:44px;border-radius:8px;border:1px solid var(--line);background:var(--card2);color:var(--txt);font:700 15px var(--disp);cursor:pointer;padding:0}.wd-k.wide{flex:2}
+.wd-k.k1{background:#3b3f55;color:#8a8fa8}.wd-k.k2{background:#c9a227;color:#111}.wd-k.k3{background:#2fb86e;color:#08210f}
 </style>
 </head>
 <body>
@@ -4201,7 +4208,7 @@ setInterval(()=>{if(db&&uid&&!seenLoaded)seenLoad();seenDraw()},1200);
   let swReg=null;
   try{if("serviceWorker" in navigator)navigator.serviceWorker.getRegistrations().then(a=>a.forEach(r=>r.unregister())).catch(()=>{})}catch(e){}
   /* автообновление: сравниваем версию сборки с version.json на сервере */
-  const BUILD="61975ce20a84";
+  const BUILD="ecbe199c10a4";
   if(/^https?:$/.test(location.protocol)&&BUILD.length>8){
     let shown=false,busy=false;
     const bar=()=>{
@@ -4258,6 +4265,7 @@ setInterval(()=>{if(db&&uid&&!seenLoaded)seenLoad();seenDraw()},1200);
 
 /* ---- таблица обновлений: новые записи добавляются в НАЧАЛО массива ---- */
 const UPDATES=[
+  {id:"u67",d:"6 ноября",t:"Слово дня",items:["Новая игра в разделе «Быстрые режимы»: одно слово из 5 букв в день, 6 попыток, цветные подсказки","Серия угаданных слов и звезда за каждую победу","Подсказка с буквой за просмотр ролика"]},
   {id:"u66",d:"6 ноября",t:"Итоги, тема недели, рекорд-призрак",items:["На итогах партии: «Реванш по теме», «По своим ошибкам», «Поделиться результатом»","Тема недели: верные ответы по ней в быстрых режимах дают ×2 очков","В быстрых режимах во время раунда видно ваш рекорд и сообщение, когда вы его побили"]},
   {id:"u65",d:"6 ноября",t:"Быстрые режимы",items:["Новая кнопка «Быстрые режимы» на главной: Выживание, Блиц на время, «Верю — не верю» и «По картинкам»","Ролик за награду: продолжить после проигрыша, +15 секунд в блице, вернуть прерванную серию дней, удвоить очки раунда","Мастерство тем с уровнями, три задания дня и звёзды за них","Комбо за серию верных ответов, рекорды по режимам, таблицы лучших в Яндекс Играх, облачное сохранение","Если вход не удался, быстрые режимы всё равно работают"]},
   {id:"u64",d:"6 ноября",t:"Лучший игрок на главной",items:["Значок лучшего игрока снова виден на главной и сталкивается со знаком вопроса"]},
@@ -4460,6 +4468,7 @@ function hub(){
   const tasks=S.tasks.map(t=>{const p=Math.min(t.p|0,t.g),d=p>=t.g;return `<div class="arc-task${d?" done":""}"><div class="tb">${d?"✅ ":""}${E(t.n)}<div class="tp"><i style="width:${Math.round(p/t.g*100)}%"></i></div></div><span class="tn">${p}/${t.g}</span></div>`}).join("");
   const stars=S.stars|0,th=themeOf(),thb=th>=0?`<div class="card" style="text-align:center;margin-bottom:10px">🌟 <b>Тема недели:</b> ${E(TOPICS[th])}<br><small>Верные ответы по ней дают ×2 очков</small></div>`:"";
   body(`${thb}<div class="arc-modes">${list}</div>
+  <button type="button" class="arc-mode" data-arc="wd"><span class="ai">🔤</span><span><b>Слово дня</b><small>${S.wd&&S.wd.day===day()&&S.wd.done?(S.wd.win?"Сегодня угадано ✅":"Попытки закончились"):"Одно слово в день: 6 попыток"}</small></span><span class="rc">${(S.wdS&&S.wdS.best)||"—"}<i>серия</i></span></button>
   <div class="card"><div class="cardtitle"><h2>📅 Задания дня</h2><span class="chip2">⭐ ${stars}</span></div>${tasks}<p class="hint" style="margin:8px 0 0">Выполните все три и получите звезду.</p></div>
   <div class="row2" style="margin-top:12px"><button type="button" class="btn alt" data-arc="mast">🏅 Мастерство тем</button></div>
   <p class="hint" style="margin-top:10px">Очки всех режимов: <b>${S.tot|0}</b> · раундов сыграно: ${S.runs|0}</p>`);
@@ -4648,7 +4657,10 @@ document.addEventListener("click",e=>{
     if(k.startsWith("m:"))start(k.slice(2));
     else if(k.startsWith("o:"))answer(+k.slice(2));
     else if(k.startsWith("t:"))answer(+k.slice(2));
-    else if(k==="hub")hub();
+    else if(k==="hub"){WD=null;hub()}
+    else if(k==="wd")wdOpen();
+    else if(k.startsWith("k:"))wdKey(k.slice(2));
+    else if(k==="wdh")wdHint();
     else if(k==="mast")mastery();
     else if(k==="again")again(b.dataset.m);
     else if(k==="rev")reward("rev");
@@ -4664,6 +4676,84 @@ document.addEventListener("click",e=>{
   if(e.target.closest&&e.target.closest("#arcOpen")){e.preventDefault();hub()}
   if(e.target.closest&&e.target.closest("#arcBack")){e.preventDefault();back()}
 });
+/* ---------- Слово дня ---------- */
+const WDW="аллея ангел арбуз арена бабка банка бегун берег билет блюдо бочка брюки будка буква вагон вальс ванна ветер взрыв вилка вихрь вишня волна ворон выбор вывод вьюга гамак гараж герой глина голос гонка город горох грипп гроза груша губка двери дверь дождь дымка жабра жажда жарка жених жизнь жираф забор зайка закон замок заряд зебра земля зерно игрок икона ислам кабан казна калач камыш канал капля карта касса квест кивок кисть клоун книга комар короб кость кошка крыша кукла купол кухня лавка лампа лапка ласка левша лента лодка ложка лунка магия мадам майка маска масло матка метро мечта мешок мираж молот мотор набор навык нация нитка номер носок обувь овраг огонь океан олень орган осень отряд палец палка парад парта пасха перец песок пилот пират пирог плечо плита повар пожар полка порог поток право прага принц птица пудра пушка пчела пятка радио рамка редис репка рынок сабля садик салат самбо санки сахар свеча север седло сироп скала склон слива слово смола совет сосна спина спорт ссора стадо стена степь сумка сфера сцена табло тайга танец театр терем тираж тоска трава тропа туман уголь удача улица успех факел фасад ферма фикус филин форма фраза фрукт халва хаски хобби хомяк хутор цифра чайка червь чехол шагом шапка шарик шахта шашка школа шляпа шорох штаны штраф шутка экран эмаль эпоха эскиз юноша ягода якорь ясень".split(" ");
+const KB=["йцукенгшщзхъ","фывапролджэ","ячсмитьбю"];
+let WD=null;
+function wdWord(){return WDW[hs("wd"+day())%WDW.length]}
+function wdLoad(){
+  load();
+  if(!S.wd||S.wd.day!==day()){
+    const prev=S.wd,y=typeof prevDay==="function"?prevDay(day()):"";
+    const keep=prev&&prev.day===y&&prev.win?(prev.st|0):0;
+    S.wd={day:day(),g:[],done:false,win:false,st:keep,hint:""};
+  }
+  S.wdS=S.wdS||{w:0,p:0,best:0,cur:0};
+}
+function wdScore(g,w){
+  const r=Array(5).fill(0),left={};
+  for(let i=0;i<5;i++){if(g[i]===w[i])r[i]=2;else left[w[i]]=(left[w[i]]||0)+1}
+  for(let i=0;i<5;i++){if(r[i]!==2&&left[g[i]]>0){r[i]=1;left[g[i]]--}}
+  return r;
+}
+function wdOpen(){
+  stop();G=null;wdLoad();WD={cur:""};show2();$a("arcBack").hidden=true;
+  setTitle("🔤 Слово дня","Угадайте слово из 5 букв за 6 попыток. Новое слово каждый день");
+  wdDraw();
+}
+function wdDraw(){
+  const w=wdWord(),st=S.wd,rows=[];
+  const keyc={};
+  for(let r=0;r<6;r++){
+    let cells="";
+    const g=st.g[r],isCur=!g&&r===st.g.length&&!st.done;
+    const sc=g?wdScore(g,w):null;
+    if(g)for(let i=0;i<5;i++){const k=sc[i];keyc[g[i]]=Math.max(keyc[g[i]]||0,k+1)}
+    for(let i=0;i<5;i++){
+      const ch=g?g[i]:(isCur?(WD.cur[i]||(st.hint&&i===st.hintI?"":"")):"");
+      const cls=g?["w0","w1","w2"][sc[i]]:"";
+      cells+=`<span class="wd-c ${cls}">${E((ch||"").toUpperCase())}</span>`;
+    }
+    rows.push(`<div class="wd-r">${cells}</div>`);
+  }
+  const kb=KB.map(row=>`<div class="wd-kr">${[...row].map(c=>`<button type="button" class="wd-k k${keyc[c]||0}" data-arc="k:${c}">${c.toUpperCase()}</button>`).join("")}</div>`).join("")+`<div class="wd-kr"><button type="button" class="wd-k wide" data-arc="k:ent">ВВОД</button><button type="button" class="wd-k wide" data-arc="k:del">⌫</button></div>`;
+  let msg="";
+  if(st.done)msg=st.win?`<div class="card" style="text-align:center">🎉 Угадали за ${st.g.length} из 6!${st.st>1?`<br>Серия: ${st.st} дн.`:""}</div>`:`<div class="card" style="text-align:center">Слово было: <b>${E(w.toUpperCase())}</b>. Завтра будет новое.</div>`;
+  else if(st.hint)msg=`<p class="hint" style="text-align:center">💡 В слове есть буква <b>${E(st.hint.toUpperCase())}</b></p>`;
+  const ss=S.wdS;
+  const act=st.done?`<div class="row2"><button type="button" class="btn alt" data-arc="hub">← К режимам</button></div>`:(canAd()&&!st.hint?`<div class="row2"><button type="button" class="btn ghost" data-arc="wdh">📺 Подсказка: одна буква</button><button type="button" class="btn alt" data-arc="hub">← Назад</button></div>`:`<div class="row2"><button type="button" class="btn alt" data-arc="hub">← Назад</button></div>`);
+  body(`<div class="wd-grid">${rows.join("")}</div><p id="wdErr" class="hint" style="text-align:center;min-height:18px;margin:6px 0"></p>${msg}${st.done?"":`<div class="wd-kb">${kb}</div>`}${act}<p class="hint" style="text-align:center;margin-top:8px">Отгадано слов: ${ss.w|0} · лучшая серия: ${ss.best|0}</p>`);
+}
+function wdKey(k){
+  if(!WD||!S||!S.wd||S.wd.done)return;
+  const st=S.wd,err=$a("wdErr");
+  if(k==="del"){WD.cur=WD.cur.slice(0,-1);return wdDraw()}
+  if(k==="ent"){
+    if(WD.cur.length<5){if(err)err.textContent="Нужно 5 букв";return}
+    const g=WD.cur,w=wdWord();
+    st.g.push(g);WD.cur="";
+    if(g===w){st.done=true;st.win=true;st.st=(st.st|0)+1;S.wdS.w=(S.wdS.w|0)+1;S.wdS.p=(S.wdS.p|0)+1;S.wdS.best=Math.max(S.wdS.best|0,st.st);S.stars=(S.stars|0)+1;try{beep(1);confetti(70)}catch(e){}}
+    else if(st.g.length>=6){st.done=true;st.win=false;st.st=0;S.wdS.p=(S.wdS.p|0)+1;try{buzz()}catch(e){}}
+    save();return wdDraw();
+  }
+  if(WD.cur.length<5){WD.cur+=k;wdDraw()}
+}
+function wdHint(){
+  ygReward(()=>{
+    if(!S||!S.wd||S.wd.done)return;
+    const w=wdWord(),open=new Set(S.wd.g.join("").split(""));
+    const c=[...w].filter(x=>!open.has(x));
+    S.wd.hint=(c.length?c:[...w])[Math.floor(Math.random()*(c.length||5))];
+    save();wdDraw();
+  });
+}
+document.addEventListener("keydown",e=>{
+  if(document.body.dataset.scr!=="s-arc"||!WD||G||e.ctrlKey||e.metaKey||e.altKey)return;
+  if(e.key==="Enter")wdKey("ent");
+  else if(e.key==="Backspace")wdKey("del");
+  else{const c=e.key.toLowerCase().replace("ё","е");if(/^[а-я]$/.test(c))wdKey(c)}
+});
+
 window.arcOpen=hub;
 try{const _t=themeOf(),_e=$a("arcThm");if(_e&&_t>=0)_e.textContent="🌟 Тема недели: "+TOPICS[_t]+" (×2)"}catch(e){}
 load();cloudPull();
