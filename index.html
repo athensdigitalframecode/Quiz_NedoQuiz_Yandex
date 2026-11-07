@@ -1173,25 +1173,25 @@ body[data-scr="s-home"] #bestFloat{display:block}
   <h1>Квиз <em>или</em> Недоквиз</h1>
   <p class="sub">Квиз на любую тему · 15 вопросов · рейтинг</p>
     <button class="btn alt small" type="button" data-guest="in">Уже есть аккаунт? Войти</button>
+    <div id="resume"></div>
+  <div id="invites"></div>
+  <div id="nowplay"></div>
+  <button class="btn playbig" data-act="new" data-mode="solo" type="button"><span class="pbi"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13l11-6.5z" fill="currentColor" stroke="none"/></svg></span><span class="pbt"><b>Играть</b><small>Быстрая игра: 15 вопросов, вы против себя</small></span></button>
+  <div class="topicbox"><label for="topicSel" class="toplab">Тема вопросов<small>по умолчанию микс всех тем</small></label><select id="topicSel"></select><div class="chips" id="topicChips"></div><button type="button" class="chipsmore" id="chipsMore">Все темы ▾</button></div>
+  <button type="button" class="btn alt" id="arcOpen" style="width:100%;margin:0 0 10px">⚡ Быстрые режимы<small id="arcThm" style="display:block;font-weight:400;opacity:.8"></small></button>
+  <div id="dquiz"></div>
+  <div id="daily"></div>
+  <div id="chest"></div>
   <div class="me-bar" data-act="me"><img class="pic" id="homePic" alt=""><div class="nm"><b id="homeNick"></b><small id="homeStatus" class="statusline"></small><small id="homeTeam"></small></div><span class="chip2" id="homeRank"></span></div>
   <div id="rankbar"></div>
   <div id="streak"></div>
   <div id="stkFix"></div>
-  <div id="resume"></div>
-  <div id="invites"></div>
-  <div id="nowplay"></div>
-  <div id="daily"></div>
-  <div id="dquiz"></div>
-  <div id="chest"></div>
-  <div id="boards"></div>
-  <p class="hint seen" id="seenInfo"><span id="seenTxt"></span> <button type="button" class="linkbtn" id="seenRst" hidden>сбросить историю</button></p>
-  <div class="card" id="duelBox" style="margin:10px 0 0"><h2 style="margin-top:0">🎯 Дуэли</h2><p class="hint" style="margin:0 0 8px">Играть одновременно не нужно: результат вы увидите на главной.</p>
+  <div class="card" id="duelBox" style="margin:10px 0 0"><h2 style="margin-top:0">🎯 Дуэли</h2>
     <div class="row2"><button type="button" class="btn" data-act="ghostduel">👻 Против призрака<small style="display:block;font-weight:400;opacity:.8">результат сразу</small></button><button type="button" class="btn alt" data-act="opendual">🔍 Найти соперника<small style="display:block;font-weight:400;opacity:.8">ответит позже</small></button></div>
     <div class="gap"></div><button type="button" class="btn alt small" id="duelOpen" data-act="players">Вызвать игрока по имени</button><div class="err" id="duel-err"></div></div>
-  <button type="button" class="btn alt" id="arcOpen" style="width:100%;margin:10px 0">⚡ Быстрые режимы<small id="arcThm" style="display:block;font-weight:400;opacity:.8"></small></button>
-  <button class="btn playbig" data-act="new" data-mode="solo" type="button"><span class="pbi"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13l11-6.5z" fill="currentColor" stroke="none"/></svg></span><span class="pbt"><b>Играть</b><small>Быстрая игра: 15 вопросов, вы против себя</small></span></button>
-  <div class="topicbox"><label for="topicSel" class="toplab">Тема вопросов<small>по умолчанию микс всех тем</small></label><select id="topicSel"></select><div class="chips" id="topicChips"></div><button type="button" class="chipsmore" id="chipsMore">Все темы ▾</button></div>
-  <div class="modes">
+  <div id="boards"></div>
+  <p class="hint seen" id="seenInfo"><span id="seenTxt"></span> <button type="button" class="linkbtn" id="seenRst" hidden>сбросить историю</button></p>
+<div class="modes">
     <div class="mode feat" data-m="evening"><h2>🎭 Квиз-вечер</h2><p>Раунды, ставки и блиц, как на настоящем квизе. До 30 человек.</p>
       <div class="row2"><button class="btn" data-act="new" data-mode="evening">Создать вечер</button><button class="btn alt" data-act="newhost" type="button">📺 С экраном ТВ</button></div></div>
     <div class="mode" data-m="solo"><h2>🧍 Сам с собой</h2><p>15 вопросов, вы против себя.</p>
@@ -4460,7 +4460,7 @@ setInterval(()=>{if(db&&uid&&!seenLoaded)seenLoad();seenDraw()},1200);
   let swReg=null;
   try{if("serviceWorker" in navigator)navigator.serviceWorker.getRegistrations().then(a=>a.forEach(r=>r.unregister())).catch(()=>{})}catch(e){}
   /* автообновление: сравниваем версию сборки с version.json на сервере */
-  const BUILD="c516f8007c5e";
+  const BUILD="98748bf41531";
   if(/^https?:$/.test(location.protocol)&&BUILD.length>8){
     let shown=false,busy=false;
     const bar=()=>{
