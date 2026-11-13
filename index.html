@@ -19,6 +19,7 @@ Object.defineProperty(window,"localStorage",{configurable:true,value:{getItem:fu
 </script>
 <link rel="preconnect" href="https://cxblrsfnvqqblncvsjhn.supabase.co" crossorigin>
 <script async src="supabase.js"></script><!-- @supabase/supabase-js 2.58.0 UMD, локальная копия -->
+<script src="gp-config.js"></script><script src="gp-adapter.js"></script><!-- GamePush: включается только если в gp-config.js есть projectId -->
 <script async src="/sdk.js"></script>
 <style>
 /* layout: one-column phone-first lobby → arena of 13 avatars; single committed dark look (neon quiz night) */
@@ -2984,7 +2985,7 @@ async function makeLinkChallenge(btn){
 }
 async function linkParamWait(){
   const rx=/(?:^|[#&?])d[=_]([A-Za-z0-9]{6,12})\b/;
-  for(let i=0;i<40&&window.YaGames&&!YG.sdk;i++)await new Promise(r=>setTimeout(r,100));
+  for(let i=0;i<40&&(window.YaGames||YG.pending)&&!YG.sdk;i++)await new Promise(r=>setTimeout(r,100));
   let p="";try{p=(YG.sdk&&YG.sdk.environment&&YG.sdk.environment.payload)||""}catch(e){}
   let m=rx.exec(String(p))||rx.exec(location.hash+location.search);
   if(m){try{history.replaceState(null,"",location.pathname)}catch(e){}return m[1]}
@@ -4505,7 +4506,7 @@ setInterval(()=>{if(db&&uid&&!seenLoaded)seenLoad();seenDraw()},1200);
   let swReg=null;
   try{if("serviceWorker" in navigator)navigator.serviceWorker.getRegistrations().then(a=>a.forEach(r=>r.unregister())).catch(()=>{})}catch(e){}
   /* автообновление: сравниваем версию сборки с version.json на сервере */
-  const BUILD="116c25f55a5f";
+  const BUILD="ef6aaf7a824e";
   if(/^https?:$/.test(location.protocol)&&BUILD.length>8){
     let shown=false,busy=false;
     const bar=()=>{
@@ -4648,15 +4649,21 @@ function ygReward(ok,fin){
   try{s.adv.showRewardedVideo({callbacks:{onOpen:()=>{ygPause(true);try{QMET("ar")}catch(e){}},onRewarded:()=>{got=true;try{QMET("ark")}catch(e){}},onClose:()=>{end();if(got)ok()},onError:end}})}catch(e){end()}
 }
 (function(){
-  let tries=0;const t=setInterval(()=>{
-    if(window.YaGames){clearInterval(t);
-      YaGames.init().then(s=>{YG.sdk=s;
-        try{const l=s.environment&&s.environment.i18n&&s.environment.i18n.lang;if(l){YG.lang=l;document.documentElement.lang=l}}catch(e){}
-        try{s.on("game_api_pause",()=>ygPause(true));s.on("game_api_resume",()=>ygPause(false))}catch(e){}
-        const t0=Date.now(),rw=setInterval(()=>{const sc=document.body.dataset.scr;if(sc==="s-home"||sc==="s-arc"||Date.now()-t0>8000){clearInterval(rw);try{s.features.LoadingAPI.ready()}catch(e){}}},300);
-      }).catch(()=>{});
-    }else if(++tries>75)clearInterval(t);
-  },200);
+  function boot(s,plat){YG.sdk=s;YG.platform=plat;
+    try{const l=s.environment&&s.environment.i18n&&s.environment.i18n.lang;if(l){YG.lang=l;document.documentElement.lang=l}}catch(e){}
+    try{s.on("game_api_pause",()=>ygPause(true));s.on("game_api_resume",()=>ygPause(false))}catch(e){}
+    const t0=Date.now(),rw=setInterval(()=>{const sc=document.body.dataset.scr;if(sc==="s-home"||sc==="s-arc"||Date.now()-t0>8000){clearInterval(rw);try{s.features.LoadingAPI.ready()}catch(e){}}},300);
+  }
+  const gc=window.GP_CONFIG;
+  if(gc&&gc.projectId&&gc.publicToken&&window.GPAdapter){ // сборка под GamePush: SDK Яндекса не ждём
+    YG.pending=true;
+    GPAdapter.load(gc).then(async gp=>{try{await gp.player.ready}catch(e){}boot(GPAdapter.make(gp),"gamepush")}).catch(()=>{}).then(()=>{YG.pending=false});
+  }else{
+    let tries=0;const t=setInterval(()=>{
+      if(window.YaGames){clearInterval(t);YaGames.init().then(s=>boot(s,"yandex")).catch(()=>{})}
+      else if(++tries>75)clearInterval(t);
+    },200);
+  }
   setInterval(()=>{
     const f=YG.sdk&&YG.sdk.features&&YG.sdk.features.GameplayAPI;if(!f)return;
     const on=!!(code&&game&&game.status==="q")&&!document.hidden&&!YG.paused;

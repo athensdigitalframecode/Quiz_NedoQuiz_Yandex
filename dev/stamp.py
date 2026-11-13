@@ -9,7 +9,7 @@ assert re.search(pat_h, html) and re.search(pat_s, swj), "якорь BUILD ил�
 # хеш без самой версии, чтобы повторный запуск давал тот же результат
 body = re.sub(pat_h, "", html) + re.sub(pat_s, "", swj)
 # локальные зависимости тоже в хеше: сервис-воркер отдаёт их из кэша до смены версии
-for f in [root / "supabase.js", *sorted((root / "fonts").glob("*.css"))]:
+for f in [root / "supabase.js", root / "gp-adapter.js", root / "gp-config.js", *sorted((root / "fonts").glob("*.css"))]:
     if f.exists(): body += f.read_text(encoding="utf-8")
 v = hashlib.sha1(body.encode("utf-8")).hexdigest()[:12]
 idx.write_text(re.sub(pat_h, f'const BUILD="{v}"', html), encoding="utf-8", newline="")

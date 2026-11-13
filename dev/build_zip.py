@@ -6,7 +6,7 @@ ROOT = pathlib.Path(__file__).resolve().parent.parent
 v = subprocess.check_output([sys.executable, str(ROOT / "dev/stamp.py"), str(ROOT)], text=True).strip()
 files = [p for p in ROOT.iterdir() if p.is_file() and not p.name.startswith(".") and p.suffix.lower() != ".md"]
 files += sorted((ROOT / "fonts").glob("*"))
-need = {"index.html", "supabase.js", "fonts/fonts.css", "manifest.json", "version.json"}
+need = {"index.html", "supabase.js", "gp-adapter.js", "gp-config.js", "fonts/fonts.css", "manifest.json", "version.json"}
 names = {p.relative_to(ROOT).as_posix() for p in files}
 assert need <= names, f"нет файлов: {need - names}"
 bad = [n for n in names if not re.fullmatch(r"[A-Za-z0-9._/-]+", n)]

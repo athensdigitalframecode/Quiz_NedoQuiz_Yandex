@@ -61,7 +61,7 @@ class Run:
         self.n += 1
         if not cond: self.fails += 1
         print(("OK   " if cond else "FAIL ") + what)
-    def page(self, sdk=True, db="fake", query="", viewport=(412, 732), failsave=False, skip_onb=True, seed=None):
+    def page(self, sdk=True, db="fake", query="", viewport=(412, 732), failsave=False, skip_onb=True, seed=None, gp=False, gpinit=""):
         """sdk: подставной SDK Яндекса или 404; db: "fake" (база в памяти) или "down" (supabase.js не грузится)."""
         ctx = self.br.new_context(viewport={"width": viewport[0], "height": viewport[1]}, service_workers="block")
         pg = ctx.new_page()
@@ -75,6 +75,8 @@ class Run:
                 try: pg.track.append(rt.request.post_data_json)
                 except Exception: pass
                 return rt.abort()
+            if gp and u.split("?")[0].endswith("/sdk/game-score.js"):  # подставной SDK GamePush вместо настоящего
+                return rt.fulfill(path=str(T / "mock_gp.js"), content_type="application/javascript")
             if not u.startswith(self.base):
                 # API Supabase разрешён игре (обрываем, чтобы не писать в рабочую базу); антивирус встраивает свои скрипты
                 if ".supabase.co/" not in u and "kaspersky-labs.com" not in u: pg.external.append(u)
@@ -82,6 +84,8 @@ class Run:
             path = u[len(self.base):].split("?")[0]
             if path == "/sdk.js":
                 return rt.fulfill(path=str(T / "mock_sdk.js")) if sdk else rt.fulfill(status=404, body="")
+            if gp and path == "/gp-config.js":
+                return rt.fulfill(body='window.GP_CONFIG={projectId:"1",publicToken:"test"};', content_type="application/javascript")
             if path == "/supabase.js":
                 return rt.fulfill(path=str(T / "fake_supabase.js")) if db == "fake" else rt.abort()
             return rt.continue_()
@@ -90,6 +94,7 @@ class Run:
         if skip_onb:  # обучение для новичка закрывает экран; его проверяет отдельный сценарий
             pg.add_init_script("try{localStorage.setItem('quiz_onb','1');localStorage.setItem('yg_quiz_onb','1')}catch(e){}")
         pg.add_init_script("window.__confirms=0;window.confirm=()=>{window.__confirms++;return true};window.alert=()=>{window.__confirms++}")
+        if gpinit: pg.add_init_script(gpinit)  # например "window.__adblock=true"
         if seed: pg.add_init_script(f"window.__seed={json.dumps(seed)}")
         pg.goto(self.base + "/index.html" + ("?failsave=1" if failsave else query))
         return pg
