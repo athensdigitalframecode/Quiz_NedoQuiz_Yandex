@@ -17,10 +17,8 @@
 (function(){try{var ls=window.localStorage,pk=function(k){return /^(sb-|supabase)/.test(k)?k:"yg_"+k};
 Object.defineProperty(window,"localStorage",{configurable:true,value:{getItem:function(k){return ls.getItem(pk(k))},setItem:function(k,v){ls.setItem(pk(k),v)},removeItem:function(k){ls.removeItem(pk(k))},key:function(i){return ls.key(i)},clear:function(){ls.clear()},get length(){return ls.length}}})}catch(e){}})();
 </script>
-<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
 <link rel="preconnect" href="https://cxblrsfnvqqblncvsjhn.supabase.co" crossorigin>
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<script async src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.58.0/dist/umd/supabase.js"></script>
+<script async src="supabase.js"></script><!-- @supabase/supabase-js 2.58.0 UMD, локальная копия -->
 <script async src="/sdk.js"></script>
 <style>
 /* layout: one-column phone-first lobby → arena of 13 avatars; single committed dark look (neon quiz night) */
@@ -914,6 +912,7 @@ body[data-scr=s-tv] .bnav,body[data-scr=s-tv] #donate,body[data-scr=s-tv] #updBt
 .dlg{width:100%;max-width:420px;background:#162046;border:1px solid rgba(255,255,255,.14);border-radius:20px;padding:18px;box-shadow:0 20px 60px rgba(0,0,0,.6)}
 .dlg h2{margin:0 0 8px}.dlg p{margin:0 0 10px;line-height:1.4}.dlg input{width:100%;box-sizing:border-box}
 .dlgrow{display:flex;gap:10px;margin-top:12px}.dlgrow .btn{flex:1}
+html[data-theme="light"] .dlg{background:var(--card);border-color:var(--line);color:var(--txt)}
 .dangerbtn{color:#ff8a8a!important;border-color:rgba(255,120,120,.5)!important}
 .dlgrow .dangerbtn{background:rgba(220,60,60,.25)}.dlgrow .dangerbtn:disabled{opacity:.4}
 
@@ -1029,7 +1028,7 @@ body[data-scr="s-home"] #bestFloat{display:block}
 .rgrid b{display:block;font:800 15px var(--disp);overflow-wrap:anywhere}
 .rgrid small{color:var(--mut);font-size:11px}
 </style>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;500;600;700&family=Inter:wght@400;500;600&family=Playfair+Display:ital,wght@1,600;1,700&display=swap" media="print" onload="this.media='all'">
+<link rel="stylesheet" href="fonts/fonts.css" media="print" onload="this.media='all'">
 <canvas id="stars"></canvas>
 <canvas id="fx"></canvas>
 <div id="mesh" aria-hidden="true"><div class="bl b1"></div><div class="bl b2"></div><div class="bl b3"></div><div class="dots"></div></div>
@@ -1986,7 +1985,7 @@ document.addEventListener("click",e=>{
   else if(k==="pvpch")startPvp(id);
   else if(k==="pvpa")startAsync(id);
   else if(k==="achplay")playAsync(id);
-  else if(k==="chcancel"){const c=challenges[id];if(c&&c.by===uid&&!c.statsDone&&confirm("Отменить предложенную дуэль?")){const gid=c["g_"+uid];delete challenges[id];if(gid)db.doc("games/"+gid).update({status:"end"}).catch(()=>{});db.doc("challenges/"+id).delete().catch(()=>{});drawHome()}}
+  else if(k==="chcancel"){const c=challenges[id];if(c&&c.by===uid&&!c.statsDone)askYes("Отменить дуэль?","Предложенная дуэль будет отменена.","Отменить","Оставить").then(ok=>{if(!ok||challenges[id]!==c)return;const gid=c["g_"+uid];delete challenges[id];if(gid)db.doc("games/"+gid).update({status:"end"}).catch(()=>{});db.doc("challenges/"+id).delete().catch(()=>{});drawHome()})}
   else if(k==="endg"){const g=lobbies.find(x=>x.id===id);if(g&&g.by===uid){lobbies=lobbies.filter(x=>x.id!==id);db.doc("games/"+id).update({status:"end"}).catch(()=>{});drawHome()}}
   else if(k==="newteam")nav("newteam");
   else if(k==="team")nav("team",id);
@@ -2851,11 +2850,12 @@ async function ghostDuel(){
     const others=arr.filter(x=>x.u!==uid),pool=others.length?others:arr;
     if(!pool.length){duelErr("По этой теме призраков пока нет. Сыграйте раунд в «Играть», и ваша партия станет призраком для других.");return}
     const gh=pool[Math.floor(Math.random()*pool.length)];
-    const c=await makeGame("solo",[],{gh:{u:gh.u,pts:gh.pts|0,okc:gh.okc|0,self:gh.u===uid}});
+    const c=await makeGame("solo",[],{gh:{u:gh.u,pts:gh.pts|0,okc:gh.okc|0,self:gh.u===uid}});qm("gh");
     await enter(c);await joinGame();
   }catch(e){duelErr("Не удалось начать: "+(e.message||e.code))}
 }
 async function finishGhost(g,ps){
+  qmOnce("ghf",code);
   const p=ps[0]||{},gh=g.gh,mine=p.dq?0:(p.pts|0),th=gh.pts|0,S=p.dq?0:mine>th?1:mine===th?.5:0;
   let d=0;
   if(!gh.self){const RT=await pvpRatings([uid,gh.u]);d=p.dq?-20:eloD(RT[uid],RT[gh.u],S);await bump(`stats/pvp/players/${uid}`,d,{win:S===1,score:mine});statsCache={}}
@@ -2952,13 +2952,14 @@ async function dailyQuizStart(){
     const old=LSg("dq_"+k);
     if(old){const g=await db.doc("games/"+old).get();if(g.exists&&g.data().status!=="end"){await openGame(old);return}}
     const qs=await dailySet(k);
-    const c=await makeGame("solo",[],{qs,sq:sqOf(qs),dly:k,topic:-1});
+    const c=await makeGame("solo",[],{qs,sq:sqOf(qs),dly:k,topic:-1});qm("dqs");
     LSs("dq_"+k,c);await enter(c);await joinGame();
   }catch(e){err("Не удалось начать: "+(e.message||e.code))}
 }
 async function finishDaily(g,ps){
   const p=ps[0]||{},R=REC[code]||{};let grid="";
   for(let q=0;q<TOTAL;q++){const r=R[q];grid+=r&&r.a&&r.a===r.c?"🟩":"🟥"}
+  qmOnce("dqf",code);
   const k=g.dly,res={key:"q"+k,u:uid,pts:p.dq?0:(p.pts|0),okc:p.okc|0,grid,at:Date.now()};
   try{await db.doc("dailyans/q"+k+"_"+uid).set(res)}catch(e){}
   if(k===dayKey()){DQ.k=k;DQ.res=res;DQ.stat=null}
@@ -2976,7 +2977,7 @@ async function makeLinkChallenge(btn){
     if(!id){
       id=newCode()+newCode();
       const c={by:uid,invited:"",link:true,topic:game.topic==null?-1:game.topic,qs:game.qs,sq:game.sq||{},createdAt:Date.now(),statsDone:false,["d_"+uid]:mine};
-      await db.doc("challenges/"+id).set(c);CHL[code]=id;challenges[id]=c;
+      await db.doc("challenges/"+id).set(c);CHL[code]=id;challenges[id]=c;qm("chc");
     }
     shareText(`⚔️ Побей мой счёт в «Квиз или Недоквиз»: ${mine.okc} из ${TOTAL}, ${mine.pts} очков. Те же вопросы, посмотрим, кто лучше! ${ygLink("d_"+id)}`,btn);
   }catch(e){if(btn)btn.textContent="Не удалось создать вызов"}
@@ -2995,6 +2996,7 @@ async function takeLink(id){
     if(!s.exists){$("home-err").textContent="Вызов не найден или уже устарел";return}
     const c=s.data();
     if(c.by===uid||c["d_"+uid]||c.teams)return;
+    qmOnce("cho",id);
     if(c.invited&&c.invited!==uid){$("home-err").textContent="Этот вызов уже принял другой игрок";return}
     if(!c.invited){
       const lk=await ref.collection("locks").doc("take").acquire({holder:uid,ttlMs:25000});
@@ -3119,6 +3121,21 @@ document.addEventListener("change",async e=>{
   try{const logo=await readSquare(f,160);await db.doc("teams/"+id).update({logo})}catch(err){const x=$("cap-err");if(x)x.textContent="Не удалось сохранить логотип"}
   e.target.value="";
 });
+// воронка основного режима: события в счётчик дня (met → day_stats); ключи описаны в dev/sql/funnel.sql
+window.QMQ=[];// события до загрузки модуля счётчиков (он ниже в файле) ждут в очереди
+function qm(k){try{window.QMET?QMET(k):QMQ.push(k)}catch(e){}}
+const QMO=new Set();function qmOnce(k,id){const x=k+":"+id;if(QMO.has(x))return;QMO.add(x);qm(k)}
+const plainSolo=g=>!!g&&g.mode==="solo"&&!g.gh&&!g.dly&&!g.ch;// «Играть», без призрака, квиза дня и вызова
+// окно подтверждения внутри игры: confirm() в iframe Яндекс Игр может не открыться и вернуть false
+function askYes(title,text,yes,no){return new Promise(res=>{
+  const w=document.createElement("div");w.className="dlgbg";
+  w.innerHTML=`<div class="dlg" role="dialog" aria-modal="true" aria-labelledby="ayT"><h2 id="ayT">${esc(title)}</h2><p>${esc(text)}</p><div class="dlgrow"><button type="button" class="btn alt" id="ayNo">${esc(no)}</button><button type="button" class="btn" id="ayYes">${esc(yes)}</button></div></div>`;
+  document.body.appendChild(w);
+  const done=v=>{document.removeEventListener("keydown",key);w.remove();res(v)},key=e=>{if(e.key==="Escape")done(false)};
+  document.addEventListener("keydown",key);
+  w.querySelector("#ayNo").onclick=()=>done(false);w.querySelector("#ayYes").onclick=()=>done(true);w.onclick=e=>{if(e.target===w)done(false)};
+  setTimeout(()=>w.querySelector("#ayYes").focus(),50);
+})}
 function askDelTeam(id){
   const T=teams[id];if(!T||(T.captain||T.owner)!==uid)return;
   const n=members(id).length,w=document.createElement("div");w.className="dlgbg";
@@ -3171,7 +3188,7 @@ async function newHost(){
 async function newGame(mode){
   if(!BANK.length){$("home-err").textContent="Вопросы пока не загружены, игру создать нельзя";return}
   if(!ind(mode)&&!(ME&&ME.team)){alert2("Для этого режима нужна команда. Вступите в неё или создайте свою.");nav("teams");return}
-  try{const c=await makeGame(mode,mode==="mass"?[ME.team]:[]);await enter(c);await joinGame()}catch(e){$("home-err").textContent="Не удалось создать игру: "+(e.message||e.code)}
+  try{const c=await makeGame(mode,mode==="mass"?[ME.team]:[]);if(mode==="solo")qm("ss");await enter(c);await joinGame()}catch(e){$("home-err").textContent="Не удалось создать игру: "+(e.message||e.code)}
 }
 function alert2(t){$("home-err").textContent=t}
 function drawChallenge(){
@@ -3216,11 +3233,16 @@ document.querySelectorAll("[data-leave]").forEach(b=>b.onclick=async()=>{
   if(game&&game.mode==="solo"&&(game.status==="q"||game.status==="reveal")&&gref){
     const done=(game.qi|0)+(game.status==="reveal"?1:0),m0=me();
     if(done>=1&&m0&&!m0.dq){
-      if(!confirm("Завершить игру? Вы ответили на "+done+" из "+tn(game)+", верно "+(m0.okc|0)+". Результат сохранится."))return;
-      try{await gref.update({status:"end",stopAt:done});return}catch(e){}
+      if(!await askYes("Завершить игру?","Вы ответили на "+done+" из "+tn(game)+", верно "+(m0.okc|0)+". Результат сохранится.","Завершить","Продолжить"))return;
+      if(!game||!gref)return;// партия могла закончиться, пока окно было открыто
+      if(game.status==="q"||game.status==="reveal"){
+        const d2=(game.qi|0)+(game.status==="reveal"?1:0);
+        try{await gref.update({status:"end",stopAt:d2});return}catch(e){}
+      }else return;
     }
   }
   if(game&&game.status==="lobby"&&me()){try{await pcol.doc(uid).delete()}catch(e){}}
+  if(plainSolo(game)&&(game.status==="q"||game.status==="reveal"))qmOnce("sq",code);
   leaveGame();nav("home");
 });
 $("again").onclick=()=>{leaveGame();nav("home")};
@@ -3509,7 +3531,9 @@ async function hintExtra(bt){
 $("hintRow").onclick=async e=>{
   const gv=e.target.closest("[data-ghv]");
   if(gv&&game&&game.status==="q"){const m=me(),q=game.qi|0;if(!m||m.hq===q||m.aq===q)return;
-    ygReward(async()=>{hid[code+":"+q]=hintPick(q);try{await pcol.doc(uid).update({hq:q,hf:q})}catch(err){delete hid[code+":"+q]}drawGame()});return}
+    const tAd=Date.now(); // время ролика не списывается с вопроса: сдвигаем срок на длительность паузы
+    ygReward(async()=>{hid[code+":"+q]=hintPick(q);try{await pcol.doc(uid).update({hq:q,hf:q})}catch(err){delete hid[code+":"+q]}drawGame()},
+      ()=>{if(game&&(game.qi|0)===q&&game.status==="q"&&endAt[q])endAt[q]+=Date.now()-tAd});return}
   if(game&&game.status==="q"){const bt=e.target.closest("[data-x],[data-skip],[data-vb]");if(bt){hintExtra(bt);return}}
   if(!e.target.closest("[data-hint]")||!game||game.status!=="q")return;
   const m=me(),q=game.qi|0;if(!m||m.hq===q||(m.hn|0)>=3||m.aq===q)return;
@@ -3523,6 +3547,7 @@ $("opts").onclick=e=>{
   const q=game.qi|0,o=el.dataset.o;vib(12);
   if(ind(game.mode)){
     if(m.aq===q)return;
+    if(plainSolo(game))qmOnce("sa1",code);
     const rt=Math.max(0,((endAt[q]||Date.now())-Date.now())/1000);
     pcol.doc(uid).update({aq:q,a:o,rt:Math.round(rt*10)/10,...(game.mode==="evening"&&RND[rndOf(q)].bet?{bet:curBet}:{})}).then(()=>beep(1)).catch(()=>{$("gstatus").textContent="Не удалось отправить, попробуйте ещё раз"});
     return;
@@ -3795,7 +3820,8 @@ function drawEnd0(){
       <div class="statgrid" style="margin-top:12px"><div><b>${k} из ${n}</b><small>верных ответов</small></div><div><b>${p.pts|0}</b><small>очков</small></div><div><b>${d>0?"+":""}${d}</b><small>к рейтингу</small></div></div>
       <button class="btn" style="margin-top:14px" data-act="new" data-mode="solo">Сыграть ещё раз</button>
       ${p.dq?"":`<button class="btn alt" id="soloShare" type="button" style="margin-top:8px">📤 Бросить вызов другу</button>`}`;
-    {const sb=$("soloShare");if(sb)sb.onclick=()=>shareText(`Я набрал ${k} из ${n} в «Квиз или Недоквиз». Сможешь больше? ${ygLink()}`,sb)}
+    if(plainSolo(game)){qmOnce(part?"sq":"sf",code);const ag=$("endBody").querySelector('[data-act="new"]');if(ag)ag.addEventListener("click",()=>qm("sag"))}
+    {const sb=$("soloShare");if(sb)sb.onclick=()=>{qm("sch");shareText(`Я набрал ${k} из ${n} в «Квиз или Недоквиз». Сможешь больше? ${ygLink()}`,sb)}}
   }else if(m==="blitz"){
     const alive=ps.filter(p=>p.alive);
     if(alive.length===1){
@@ -4479,7 +4505,7 @@ setInterval(()=>{if(db&&uid&&!seenLoaded)seenLoad();seenDraw()},1200);
   let swReg=null;
   try{if("serviceWorker" in navigator)navigator.serviceWorker.getRegistrations().then(a=>a.forEach(r=>r.unregister())).catch(()=>{})}catch(e){}
   /* автообновление: сравниваем версию сборки с version.json на сервере */
-  const BUILD="c5eeb9b3891d";
+  const BUILD="116c25f55a5f";
   if(/^https?:$/.test(location.protocol)&&BUILD.length>8){
     let shown=false,busy=false;
     const bar=()=>{
@@ -4536,6 +4562,8 @@ setInterval(()=>{if(db&&uid&&!seenLoaded)seenLoad();seenDraw()},1200);
 
 /* ---- таблица обновлений: новые записи добавляются в НАЧАЛО массива ---- */
 const UPDATES=[
+  {id:"u82",d:"13 ноября",t:"Ролик не съедает время",items:["Пока идёт ролик за подсказку 50/50, таймер вопроса стоит на паузе"]},
+  {id:"u81",d:"12 ноября",t:"Окно выхода в стиле игры",items:["Выход из игры и отмена дуэли подтверждаются окном в оформлении игры, а не системным окном браузера"]},
   {id:"u80",d:"7 ноября",t:"Игра стала короче, главная удобнее",items:["«Играть» теперь 10 вопросов вместо 15; квиз дня, дуэли и вечер остались на 15","Кнопка «Играть» на главной сразу под названием","Можно выйти посреди игры: ответы засчитаются, а в конце покажем «ответили на N, верно K»","Таймер на вопросе заметен только в последние 10 секунд, а после ответа есть кнопка «Дальше»","После игры можно бросить вызов другу"]},
   {id:"u79",d:"6 ноября",t:"Серия дней, рейтинг и «Поделиться»",items:["Серия дней в быстрых режимах: награды на 3, 7, 14 и 30-й день","Кнопка «Поделиться» после раунда","Экран рейтинга с вашим местом и входом через Яндекс"]},
  {id:"u78",d:"6 ноября",t:"Магазин за звёзды",items:["🛍 В быстрых режимах появился магазин: аватары и рамки за ⭐","📺 +15⭐ за ролик (до трёх раз в день), за задания дня теперь 10⭐, за слово дня 3⭐","✨ Особые рамки «Старт» и «Основатель» — для тех, кто поддержал игру"]},
@@ -4615,9 +4643,9 @@ function ygAdv(done){
   if(!s||!s.adv||YG.noads){end();return}
   try{s.adv.showFullscreenAdv({callbacks:{onOpen:()=>{ygPause(true);try{QMET("ai")}catch(e){}},onClose:end,onError:end}})}catch(e){end()}
 }
-function ygReward(ok){
-  const s=YG.sdk;if(!s||!s.adv)return;let got=false;
-  try{s.adv.showRewardedVideo({callbacks:{onOpen:()=>{ygPause(true);try{QMET("ar")}catch(e){}},onRewarded:()=>{got=true;try{QMET("ark")}catch(e){}},onClose:()=>{ygPause(false);if(got)ok()},onError:()=>ygPause(false)}})}catch(e){ygPause(false)}
+function ygReward(ok,fin){
+  const s=YG.sdk;if(!s||!s.adv)return;let got=false,done=false;const end=()=>{if(done)return;done=true;ygPause(false);try{fin&&fin()}catch(e){}};
+  try{s.adv.showRewardedVideo({callbacks:{onOpen:()=>{ygPause(true);try{QMET("ar")}catch(e){}},onRewarded:()=>{got=true;try{QMET("ark")}catch(e){}},onClose:()=>{end();if(got)ok()},onError:end}})}catch(e){end()}
 }
 (function(){
   let tries=0;const t=setInterval(()=>{
@@ -4930,9 +4958,9 @@ async function board(m){
   body(`<div class="row2" style="margin-bottom:10px;flex-wrap:wrap">${tabs}</div><div class="card"><b>${MODES_A[m].name}</b><div class="arc-lb" id="arcBd"><small>Загружаем…</small></div></div>
   <div id="arcBdAuth"></div><div class="row2" style="margin-top:12px"><button type="button" class="btn alt" data-arc="hub">← К режимам</button></div>`);
   const el=$a("arcBd");
-  if(!YG.sdk||!YG.sdk.getLeaderboards){el.innerHTML="<small>Рейтинг доступен на Яндекс Играх</small>";return}
+  const lb=lbApi();
+  if(!lb){el.innerHTML="<small>Рейтинг доступен на Яндекс Играх</small>";return}
   try{
-    const lb=await YG.sdk.getLeaderboards();
     let authed=true;try{const pl=await getPl();authed=!!(pl.isAuthorized?pl.isAuthorized():true)}catch(e){}
     const r=await lb.getEntries("arc"+m,{quantityTop:10,includeUser:authed,quantityAround:2});
     const me=r.userRank|0;
@@ -4943,18 +4971,20 @@ async function board(m){
 }
 async function bdAuth(m){
   try{await YG.sdk.auth.openAuthDialog();await getPl(true);
-    for(const k of ORDER){if(S.rec[k])lbSend(k,S.rec[k]|0)}
+    for(const k of ORDER){if(S.rec[k]){lbSend(k,S.rec[k]|0);await new Promise(r=>setTimeout(r,1100))}}// setScore: не чаще 1 раза в секунду
     toast("Готово. Ваши рекорды отправлены");
   }catch(e){}
   board(m);
 }
+// ysdk.leaderboards (setScore/getEntries); у устаревшего getLeaderboards() этих методов нет
+function lbApi(){return (YG.sdk&&YG.sdk.leaderboards)||null}
 function lbSend(mode,score){
-  try{if(!YG.sdk||!YG.sdk.getLeaderboards)return;
-    YG.sdk.getLeaderboards().then(lb=>lb.setScore("arc"+mode,score)).catch(()=>{});}catch(e){}
+  try{const lb=lbApi();if(!lb)return;
+    lb.setScore("arc"+mode,score).catch(()=>{});}catch(e){}
 }
 function lbShow(mode){
-  try{if(!YG.sdk||!YG.sdk.getLeaderboards)return;
-    YG.sdk.getLeaderboards().then(lb=>lb.getEntries("arc"+mode,{quantityTop:5,includeUser:true,quantityAround:1})).then(r=>{
+  try{const lb=lbApi();if(!lb)return;
+    lb.getEntries("arc"+mode,{quantityTop:5,includeUser:true,quantityAround:1}).then(r=>{
       const el=$a("arcLb");if(!el||!r||!r.entries||!r.entries.length)return;
       el.innerHTML="<b>🏆 Лучшие игроки</b>"+r.entries.map(e=>`<div${r.userRank&&e.rank===r.userRank?' style="font-weight:800"':""}><span>${e.rank}. ${E((e.player&&e.player.publicName)||"Игрок")}</span><b>${e.score}</b></div>`).join("")+(r.userRank?`<p class="hint" style="margin:6px 0 0">Ваше место: <b>${r.userRank}</b></p>`:"");
     }).catch(()=>{});}catch(e){}
@@ -4967,7 +4997,7 @@ function finish(){
   S.week.best[m]=Math.max(S.week.best[m]|0,sc);
   S.tot=(S.tot|0)+sc;S.runs=(S.runs|0)+1;
   const done=prog(m,sc);const skGot=skTouch();
-  save();lbSend(m,sc);
+  save();if(S.rec[m])lbSend(m,S.rec[m]|0);// в рейтинг — личный рекорд, а не последний счёт
   const first=S.runs<=1;
   body(`<div class="arc-big">${sc}</div><div class="arc-sub">${isRec?"🎉 Новый рекорд!":old?"Рекорд: "+old:"Первый результат"}</div>
   <div class="arc-stats"><div><b>${G.ok}</b><small>верно</small></div><div><b>${G.wrong}</b><small>ошибок</small></div><div><b>×${G.maxCombo}</b><small>лучшая серия</small></div></div>
@@ -5053,9 +5083,9 @@ document.addEventListener("click",e=>{
 
 /* ---------- метрики дня ---------- */
 let SHOPON=false,SES=false;
-function met(k,n){try{if(!S)load();S.md=S.md&&S.md.d===day()?S.md:{d:day(),v:{}};S.md.v[k]=(S.md.v[k]|0)+(n||1);mflush();clearTimeout(msT);msT=setTimeout(()=>{try{localStorage.setItem(LSK,JSON.stringify(S))}catch(e){}},1500)}catch(e){}}
-window.QMET=met;
-let mfT=0,msT=0;
+function met(k,n){try{if(!S)load();S.md=S.md&&S.md.d===day()?S.md:{d:day(),v:{}};S.md.v[k]=(S.md.v[k]|0)+(n||1);mflush();try{localStorage.setItem(LSK,JSON.stringify(S))}catch(e){}}catch(e){}}// сразу: load() перечитывает S из localStorage, отложенная запись теряла события
+window.QMET=met;setTimeout(()=>{try{(window.QMQ||[]).splice(0).forEach(k=>met(k))}catch(e){}},0);// после выполнения всего модуля: ниже ещё объявляются константы
+let mfT=0;
 function mflush(){clearTimeout(mfT);mfT=setTimeout(mpost,20000)}
 function mvid(){let v="";try{v=localStorage.getItem("qv")||"";if(!v){v=(crypto.randomUUID?crypto.randomUUID():String(Math.random()).slice(2)+Date.now());localStorage.setItem("qv",v)}}catch(e){}return v}
 function mpost(){
@@ -5119,8 +5149,10 @@ async function procBuys(list){
   for(const pu of list){
     const id=pu&&pu.productID,pd=PROD[id];if(!pd)continue;
     if(pd.c){
-      if(!S.tok.includes(pu.purchaseToken)){grant(id);S.tok.push(pu.purchaseToken);save();await cloudFlush()}
-      try{await PAY.consumePurchase(pu.purchaseToken)}catch(e){}
+      if(!S.tok.includes(pu.purchaseToken)){grant(id);S.tok.push(pu.purchaseToken);save()}
+      // потреблять только после успешного облачного сохранения: иначе покупка пропадёт; повтор — при следующем запуске
+      let saved=false;try{clearTimeout(cpT);await getPl().then(p=>p.setData({arc:S},true));saved=true}catch(e){}
+      if(saved)try{await PAY.consumePurchase(pu.purchaseToken)}catch(e){}
     }else grant(id);
   }
   save();
