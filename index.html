@@ -1180,6 +1180,7 @@ body[data-scr="s-home"] #bestFloat{display:block}
   <button class="btn playbig" data-act="new" data-mode="solo" type="button"><span class="pbi"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13l11-6.5z" fill="currentColor" stroke="none"/></svg></span><span class="pbt"><b>Играть</b><small>Быстрая игра: 10 вопросов, вы против себя</small></span></button>
   <div class="topicbox"><label for="topicSel" class="toplab">Тема вопросов<small>по умолчанию микс всех тем</small></label><select id="topicSel"></select><div class="chips" id="topicChips"></div><button type="button" class="chipsmore" id="chipsMore">Все темы ▾</button></div>
   <button type="button" class="btn alt" id="arcOpen" style="width:100%;margin:0 0 10px">⚡ Быстрые режимы<small id="arcThm" style="display:block;font-weight:400;opacity:.8"></small></button>
+  <button type="button" class="btn alt" id="arcShop" style="width:100%;margin:0 0 10px">🛍 Магазин</button>
   <div id="dquiz"></div>
   <div id="daily"></div>
   <div id="chest"></div>
@@ -4506,7 +4507,7 @@ setInterval(()=>{if(db&&uid&&!seenLoaded)seenLoad();seenDraw()},1200);
   let swReg=null;
   try{if("serviceWorker" in navigator)navigator.serviceWorker.getRegistrations().then(a=>a.forEach(r=>r.unregister())).catch(()=>{})}catch(e){}
   /* автообновление: сравниваем версию сборки с version.json на сервере */
-  const BUILD="ef6aaf7a824e";
+  const BUILD="3f2655e76725";
   if(/^https?:$/.test(location.protocol)&&BUILD.length>8){
     let shown=false,busy=false;
     const bar=()=>{
@@ -5085,6 +5086,7 @@ document.addEventListener("click",e=>{
     return;
   }
   if(e.target.closest&&e.target.closest("#arcOpen")){e.preventDefault();hub()}
+  if(e.target.closest&&e.target.closest("#arcShop")){e.preventDefault();shop();try{met("shm")}catch(x){}}
   if(e.target.closest&&e.target.closest("#arcBack")){e.preventDefault();back()}
 });
 
