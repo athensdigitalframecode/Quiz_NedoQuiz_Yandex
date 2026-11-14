@@ -76,4 +76,5 @@ with Run("t_gamepush") as r:
     pg.wait_for_function("document.querySelectorAll('[data-arc^=\"pay:\"]').length===3", timeout=8000)
     r.ok(True, "в магазине три платных товара: starter, noads, founder")
     r.ok(pg.evaluate("__gp.calls.every(c=>!c[0].startsWith('consume'))"), "без прошлой покупки набор новичка не выдан")
+    r.ok("Яндекс" not in pg.inner_text("body"), "в магазине на GamePush нет упоминаний Яндекса")
     r.ok(not pg.errors, f"нет ошибок консоли ({pg.errors[:3]})")

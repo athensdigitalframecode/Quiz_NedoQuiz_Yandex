@@ -3,9 +3,9 @@
 (function(){
   const calls=[],log=(...a)=>calls.push(a),F=/failsave=1/.test(location.search);
   const store={arc:"",arcsurv:0};
-  const products=[{id:101,tag:"starter",name:"Набор новичка",description:"300 звёзд",price:49,currency:"RUB",currencySymbol:"₽"},
-    {id:102,tag:"noads",name:"Без рекламы",description:"",price:99,currency:"RUB",currencySymbol:"₽"},
-    {id:103,tag:"founder",name:"Основатель",description:"",price:199,currency:"RUB",currencySymbol:"₽"}];
+  const products=[{id:101,tag:"starter",name:"Набор новичка",description:"300 звёзд и рамка «Старт»",price:59,currency:"RUB",currencySymbol:"₽"},
+    {id:102,tag:"noads",name:"Без полноэкранной рекламы",description:"Ролики за награду остаются по желанию",price:149,currency:"RUB",currencySymbol:"₽"},
+    {id:103,tag:"founder",name:"Основатель",description:"Значок и рамка навсегда",price:399,currency:"RUB",currencySymbol:"₽"}];
   const purchases=window.__gpBought===false?[]:[{productId:101,createdAt:"2026-11-14T10:00:00Z"}]; // набор новичка куплен, но не потреблён
   const ev={};
   const gp={

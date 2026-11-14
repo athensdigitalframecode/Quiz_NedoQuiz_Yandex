@@ -61,9 +61,9 @@ class Run:
         self.n += 1
         if not cond: self.fails += 1
         print(("OK   " if cond else "FAIL ") + what)
-    def page(self, sdk=True, db="fake", query="", viewport=(412, 732), failsave=False, skip_onb=True, seed=None, gp=False, gpinit=""):
+    def page(self, sdk=True, db="fake", query="", viewport=(412, 732), failsave=False, skip_onb=True, seed=None, gp=False, gpinit="", scale=1):
         """sdk: подставной SDK Яндекса или 404; db: "fake" (база в памяти) или "down" (supabase.js не грузится)."""
-        ctx = self.br.new_context(viewport={"width": viewport[0], "height": viewport[1]}, service_workers="block")
+        ctx = self.br.new_context(viewport={"width": viewport[0], "height": viewport[1]}, device_scale_factor=scale, service_workers="block")
         pg = ctx.new_page()
         pg.errors, pg.external, pg.track = [], [], []
         pg.on("pageerror", lambda e: pg.errors.append(str(e)))

@@ -4507,7 +4507,7 @@ setInterval(()=>{if(db&&uid&&!seenLoaded)seenLoad();seenDraw()},1200);
   let swReg=null;
   try{if("serviceWorker" in navigator)navigator.serviceWorker.getRegistrations().then(a=>a.forEach(r=>r.unregister())).catch(()=>{})}catch(e){}
   /* автообновление: сравниваем версию сборки с version.json на сервере */
-  const BUILD="3f2655e76725";
+  const BUILD="8b7c2777e2ac";
   if(/^https?:$/.test(location.protocol)&&BUILD.length>8){
     let shown=false,busy=false;
     const bar=()=>{
@@ -4961,7 +4961,7 @@ async function shareRes(mode,sc){
 }
 async function board(m){
   stop();load();show2();m=MODES_A[m]&&m!=="cls"?m:"surv";
-  setTitle("🏆 Рейтинг","Лучшие игроки Яндекс Игр");
+  setTitle("🏆 Рейтинг",YG.platform==="gamepush"?"Лучшие игроки":"Лучшие игроки Яндекс Игр");
   const tabs=ORDER.map(k=>`<button type="button" class="btn ${k===m?"":"alt"} small" data-arc="bd:${k}">${MODES_A[k].ico}</button>`).join("");
   body(`<div class="row2" style="margin-bottom:10px;flex-wrap:wrap">${tabs}</div><div class="card"><b>${MODES_A[m].name}</b><div class="arc-lb" id="arcBd"><small>Загружаем…</small></div></div>
   <div id="arcBdAuth"></div><div class="row2" style="margin-top:12px"><button type="button" class="btn alt" data-arc="hub">← К режимам</button></div>`);
@@ -4974,7 +4974,7 @@ async function board(m){
     const me=r.userRank|0;
     if(!r.entries||!r.entries.length){el.innerHTML="<small>Пока никого нет. Станьте первым</small>"}
     else el.innerHTML=r.entries.map(e=>`<div${me&&e.rank===me?' style="font-weight:800"':""}><span>${e.rank}. ${E((e.player&&e.player.publicName)||"Игрок")}</span><b>${e.score}</b></div>`).join("")+(me?`<p class="hint" style="margin:8px 0 0">Ваше место: <b>${me}</b></p>`:"");
-    if(!authed)$a("arcBdAuth").innerHTML=`<div class="card" style="text-align:center;margin-top:10px"><p style="margin:0 0 8px">Войдите через Яндекс, чтобы ваш рекорд попал в рейтинг</p><button type="button" class="btn" data-arc="bdauth" data-m="${m}">Войти</button></div>`;
+    if(!authed)$a("arcBdAuth").innerHTML=`<div class="card" style="text-align:center;margin-top:10px"><p style="margin:0 0 8px">${YG.platform==="gamepush"?"Войдите в аккаунт":"Войдите через Яндекс"}, чтобы ваш рекорд попал в рейтинг</p><button type="button" class="btn" data-arc="bdauth" data-m="${m}">Войти</button></div>`;
   }catch(e){el.innerHTML="<small>Не удалось загрузить рейтинг</small>"}
 }
 async function bdAuth(m){
@@ -5198,7 +5198,7 @@ function realBlock(){
     rows.push(`<div class="arc-item"><b>${pd.t}</b><small>${pd.d}</small><button type="button" class="btn small" data-arc="pay:${id}">${priceHtml(c)}</button></div>`);
   });
   if(!rows.length)return"";
-  return `<div class="arc-tier">Поддержать игру</div><div class="arc-shop">${rows.join("")}</div><p class="hint">Платное не влияет на вопросы, очки и рейтинг. Чтобы покупки сохранялись на всех устройствах, войдите в аккаунт Яндекса.</p>`;
+  return `<div class="arc-tier">Поддержать игру</div><div class="arc-shop">${rows.join("")}</div><p class="hint">Платное не влияет на вопросы, очки и рейтинг. Чтобы покупки сохранялись на всех устройствах, войдите в аккаунт${YG.platform==="gamepush"?"":" Яндекса"}.</p>`;
 }
 function shop(){
   stop();G=null;load();SHOPON=true;show2();payInit();
