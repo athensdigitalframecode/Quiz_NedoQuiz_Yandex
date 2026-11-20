@@ -64,6 +64,7 @@ with Run("t_gamepush") as r:
     r.arc(pg, "shop")
     pg.wait_for_timeout(500)
     r.ok(pg.locator('[data-arc^="pay:"]').count() == 0, "платежи недоступны → платных товаров нет")
+    r.ok("Покупки сейчас недоступны" in pg.inner_text("body"), "магазин пишет причину, почему нет платных товаров")
 
     # 6. Кнопка «Магазин» на главной: открывает магазин с платными товарами GamePush (без покупки с прошлого запуска)
     pg = r.page(sdk=False, gp=True, gpinit="window.__gpBought=false")

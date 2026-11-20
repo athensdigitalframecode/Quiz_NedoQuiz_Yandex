@@ -93,7 +93,7 @@
     return{
       adv:adv,
       getPlayer:function(){return Promise.resolve(player)},
-      getPayments:function(){return gp.payments&&gp.payments.isAvailable?Promise.resolve(pay):Promise.reject(new Error("nopay"))},
+      getPayments:function(){return gp.payments&&gp.payments.isAvailable?Promise.resolve(pay):Promise.reject(new Error("платформа не поддерживает платежи"))},
       auth:{openAuthDialog:function(){return Promise.resolve(gp.player.login())}},
       leaderboards:lb,
       environment:{i18n:{lang:gp.language||"ru"},payload:"",app:{}}, // payload: у GamePush не проверен, ссылки-вызовы через него не работают
