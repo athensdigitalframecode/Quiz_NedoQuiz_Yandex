@@ -715,6 +715,8 @@ html[data-theme="neon"]{--b1:#ffb3d6;--b2:#ff6fb1;--b3:#c23a82;--bg:#07040f;--ca
 html[data-theme="ocean"]{--b1:#a6f0ec;--b2:#4fd6d0;--b3:#2a9e99;--bg:#03111a;--card:#0a2030;--card2:#0f2c42;--line:#1c4766;--txt:#e8f6fb;--mut:#84a9bd;--gold:#4fd6d0;--gold2:#2aa8a3;--hair:rgba(79,214,208,.28);--glow:rgba(79,214,208,.4);--acc:#7cc4ff;--acc2:#7cc4ff;--glass:rgba(10,32,48,.55);--gr:79,214,208;--m2r:90,170,255;--m3r:60,120,220;--bg1:#0b3a5c;--bg2:#06404a}
 html[data-theme="forest"]{--b1:#d0f5b8;--b2:#9be37a;--b3:#62a845;--bg:#040d08;--card:#0b1b12;--card2:#11271a;--line:#1f4430;--txt:#eef6ec;--mut:#86a58f;--gold:#9be37a;--gold2:#6fb552;--hair:rgba(155,227,122,.26);--glow:rgba(155,227,122,.36);--acc:#8fe3c0;--acc2:#8fe3c0;--glass:rgba(11,27,18,.55);--gr:155,227,122;--m2r:110,220,170;--m3r:200,220,100;--bg1:#12401f;--bg2:#2b3a10}
 html[data-theme="sunset"]{--b1:#ffd0a3;--b2:#ffa45c;--b3:#d9733a;--bg:#12060c;--card:#231019;--card2:#301722;--line:#5a2a3c;--txt:#fdf0e8;--mut:#c49a98;--gold:#ffa45c;--gold2:#d9733a;--hair:rgba(255,164,92,.3);--glow:rgba(255,164,92,.4);--acc:#ff7a9c;--acc2:#ff7a9c;--glass:rgba(35,16,25,.55);--gr:255,164,92;--m2r:255,110,150;--m3r:190,90,220;--bg1:#4e1632;--bg2:#4a2a0c}
+html[data-theme="cosmos"]{--b1:#d9c8ff;--b2:#b18cff;--b3:#7a52d6;--bg:#06051a;--card:#120f2e;--card2:#1a1640;--line:#2f2a6b;--txt:#f0eefc;--mut:#9a94c4;--gold:#b18cff;--gold2:#7a52d6;--hair:rgba(177,140,255,.28);--glow:rgba(177,140,255,.42);--acc:#7fd4ff;--acc2:#7fd4ff;--glass:rgba(18,15,46,.55);--gr:177,140,255;--m2r:127,212,255;--m3r:255,140,220;--bg1:#2a1a6e;--bg2:#0a2f5c}
+html[data-theme="cherry"]{--b1:#ffc2cd;--b2:#ff5c7a;--b3:#c2304d;--bg:#10040a;--card:#220a14;--card2:#2e0f1c;--line:#5c1f35;--txt:#fdeef1;--mut:#c4949f;--gold:#ff5c7a;--gold2:#c2304d;--hair:rgba(255,92,122,.28);--glow:rgba(255,92,122,.42);--acc:#ffc46b;--acc2:#ffc46b;--glass:rgba(34,10,20,.55);--gr:255,92,122;--m2r:255,196,107;--m3r:200,90,255;--bg1:#5c0f2a;--bg2:#3a1a05}
 /* селектор тем */
 .thpick{display:flex;flex-wrap:wrap;gap:2px;justify-content:center;margin:2px 0 12px}
 .thpick button{display:flex;flex-direction:column;align-items:center;gap:5px;width:56px;padding:6px 2px;border:1px solid transparent;border-radius:14px;background:transparent;color:var(--mut);font:600 11px Inter,system-ui;cursor:pointer}
@@ -1060,7 +1062,7 @@ body[data-scr="s-home"] #bestFloat{display:block}
 .arc-av{width:56px;height:56px;border-radius:50%;object-fit:cover;flex:none;display:block}
 .arc-shop{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px;margin:8px 0 14px}
 .arc-item{padding:12px 8px;border-radius:16px;background:var(--card2);border:1px solid var(--line);text-align:center;display:flex;flex-direction:column;align-items:center;gap:8px}
-.arc-item b{font-size:14px}.arc-item .btn{width:100%;padding:10px 6px;font-size:14px}
+.arc-fx{font-size:40px;line-height:56px}.arc-sw{width:56px;height:56px;border-radius:50%;border:2px solid rgba(255,255,255,.18)}.arc-item b{font-size:14px}.arc-item .btn{width:100%;padding:10px 6px;font-size:14px}
 .arc-tier{font-size:13px;color:var(--mut,#9aa3b8);margin:6px 2px 0}
 .arc-mode .ai{font-size:30px;flex:none;width:44px;text-align:center}
 .arc-mode b{display:block;font:700 16px/1.15 var(--disp);letter-spacing:.02em}
@@ -3408,7 +3410,7 @@ function myReveal(q,m){
   if(!m||m.dq||MY.rows.some(r=>r.q===q))return;
   const ans=m.aq===q,ok=ans&&m.a===game.ans,x=bq(game,q)||{},T=Tof(q);
   MY.rows.push({q,ok,rt:ans?+m.rt||0:0,T,c:x.c,n:!ans});
-  if(ok){MY.streak++;MY.best=Math.max(MY.best,MY.streak);MY.lost=0;if(MY.streak>=2)streakNote(MY.streak);vib(MY.streak>=3?[20,40,20]:20)}
+  if(ok){if(window.fxOk)fxOk();MY.streak++;MY.best=Math.max(MY.best,MY.streak);MY.lost=0;if(MY.streak>=2)streakNote(MY.streak);vib(MY.streak>=3?[20,40,20]:20)}
   else{MY.lost=MY.streak>=2?MY.streak:0;MY.streak=0;vib([40,60,40])}
   drawStreak();
   if(race(game.mode))setTimeout(()=>{const mm=me();if(!game||game.status!=="reveal"||(game.qi|0)!==q||!mm)return;const gn=mm.gain|0;if(gn)gainPop(gn,T&&(+mm.rt||0)/T>=.75)},450);
@@ -4100,12 +4102,12 @@ function loop(){cx.clearRect(0,0,cv.width,cv.height);
 /* ---------- тема, размер шрифта, приглашение, обучение ---------- */
 const GAME_URL=location.href.split("#")[0].split("?")[0];
 const LSg=k=>{try{return localStorage.getItem(k)}catch(e){return null}},LSs=(k,v)=>{try{localStorage.setItem(k,v)}catch(e){}};
-const THEMES=[["dark","Золотая ночь","#04070e","#e4c27a"],["neon","Неон","#130c24","#ff6fb1"],["ocean","Океан","#0a2030","#4fd6d0"],["forest","Лес","#0b1b12","#9be37a"],["sunset","Закат","#231019","#ffa45c"],["light","Светлая","#f4efe6","#a8741a"]];
+const THEMES=[["dark","Золотая ночь","#04070e","#e4c27a"],["neon","Неон","#130c24","#ff6fb1"],["ocean","Океан","#0a2030","#4fd6d0"],["forest","Лес","#0b1b12","#9be37a"],["sunset","Закат","#231019","#ffa45c"],["cosmos","Космос","#120f2e","#b18cff","t:cosmos"],["cherry","Вишня","#220a14","#ff5c7a","t:cherry"],["light","Светлая","#f4efe6","#a8741a"]];
 let uiTheme=(t=>THEMES.some(x=>x[0]===t)?t:"dark")(LSg("quiz_theme")),uiFs=Math.min(2,Math.max(0,+LSg("quiz_fs")||0));
 function uiApply(){
   document.documentElement.dataset.theme=uiTheme;document.documentElement.dataset.fs=String(uiFs);
   const f=$("fsBtn"),pk=$("thPick");
-  if(pk){pk.innerHTML=THEMES.map(x=>`<button type="button" data-th="${x[0]}" class="${x[0]===uiTheme?"on":""}"><i style="background:linear-gradient(135deg,${x[2]} 50%,${x[3]} 50%)"></i>${x[1]}</button>`).join("");pk.onclick=e=>{const b=e.target.closest("[data-th]");if(b){uiTheme=b.dataset.th;LSs("quiz_theme",uiTheme);uiApply()}}}
+  if(pk){const thOwn=k=>!!(window.arcOwn&&arcOwn(k));pk.innerHTML=THEMES.filter(x=>!x[4]||thOwn(x[4])||x[0]===uiTheme).map(x=>`<button type="button" data-th="${x[0]}" class="${x[0]===uiTheme?"on":""}"><i style="background:linear-gradient(135deg,${x[2]} 50%,${x[3]} 50%)"></i>${x[1]}</button>`).join("");pk.onclick=e=>{const b=e.target.closest("[data-th]");if(b){uiTheme=b.dataset.th;LSs("quiz_theme",uiTheme);uiApply()}}}
   if(f)f.textContent="Aa Шрифт: "+["обычный","крупный","очень крупный"][uiFs];
 }
 $("fsBtn").onclick=()=>{uiFs=(uiFs+1)%3;LSs("quiz_fs",uiFs);uiApply()};
@@ -4506,7 +4508,7 @@ setInterval(()=>{if(db&&uid&&!seenLoaded)seenLoad();seenDraw()},1200);
   let swReg=null;
   try{if("serviceWorker" in navigator)navigator.serviceWorker.getRegistrations().then(a=>a.forEach(r=>r.unregister())).catch(()=>{})}catch(e){}
   /* автообновление: сравниваем версию сборки с version.json на сервере */
-  const BUILD="e93694b20d0c";
+  const BUILD="7e9af13e48af";
   if(/^https?:$/.test(location.protocol)&&BUILD.length>8){
     let shown=false,busy=false;
     const bar=()=>{
@@ -4563,6 +4565,7 @@ setInterval(()=>{if(db&&uid&&!seenLoaded)seenLoad();seenDraw()},1200);
 
 /* ---- таблица обновлений: новые записи добавляются в НАЧАЛО массива ---- */
 const UPDATES=[
+  {id:"u84",d:"20 ноября",t:"Новое в магазине",items:["Эффекты верного ответа за звёзды: конфетти, звездопад, огонь","Две новые темы оформления за звёзды: «Космос» и «Вишня»","Звёзды можно купить пакетами: 300, 1000 и 2500","«Основатель» теперь ещё и отключает полноэкранную рекламу — тем, кто уже купил, тоже","Аватары в магазине стали наряднее, а эпические — с анимацией; новые: Лиса, Сова, Дракон, Единорог"]},
   {id:"u83",d:"20 ноября",t:"Игра стала динамичнее",items:["«Быстрые режимы» теперь сразу под кнопкой «Играть»","В «Сам с собой» 30 секунд на вопрос (детям по-прежнему 45), таймер виден весь вопрос","Серия верных ответов подряд в игре и лучшая серия в итогах","Отметка первой сыгранной игры"]},
   {id:"u82",d:"13 ноября",t:"Ролик не съедает время",items:["Пока идёт ролик за подсказку 50/50, таймер вопроса стоит на паузе"]},
   {id:"u81",d:"12 ноября",t:"Окно выхода в стиле игры",items:["Выход из игры и отмена дуэли подтверждаются окном в оформлении игры, а не системным окном браузера"]},
@@ -4704,7 +4707,7 @@ const hs=s=>typeof hstr==="function"?hstr(String(s)):String(s).length;
 function blank(){return{v:1,rec:{},mast:{},seen:[],day:"",tasks:[],stars:0,tot:0,runs:0,week:{id:0,best:{}},own:{},tok:[],eq:{av:"",fr:""},sk:{n:0,b:0,l:"",g:{}}}}
 function load(){
   let s=null;try{s=JSON.parse(localStorage.getItem(LSK)||"null")}catch(e){}
-  S=Object.assign(blank(),s||{});S.rec=S.rec||{};S.mast=S.mast||{};S.seen=S.seen||[];S.own=S.own||{};S.tok=S.tok||[];S.eq=S.eq||{av:"",fr:""};S.sk=Object.assign({n:0,b:0,l:"",g:{}},S.sk||{});S.sk.g=S.sk.g||{};YG.noads=!!S.own.noads;
+  S=Object.assign(blank(),s||{});S.rec=S.rec||{};S.mast=S.mast||{};S.seen=S.seen||[];S.own=S.own||{};S.tok=S.tok||[];S.eq=S.eq||{av:"",fr:""};S.sk=Object.assign({n:0,b:0,l:"",g:{}},S.sk||{});S.sk.g=S.sk.g||{};YG.noads=!!(S.own.noads||S.own.founder);try{uiApply()}catch(e){}
   if(!S.week||S.week.id!==wk())S.week={id:wk(),best:{}};
   const d=day();
   if(S.day!==d){
@@ -4738,11 +4741,11 @@ function merge(r){
   S.seen=[...new Set([...(r.seen||[]),...S.seen])].slice(-400);
   Object.keys(r.own||{}).forEach(k=>{if(r.own[k])S.own[k]=1});
   S.tok=[...new Set([...(r.tok||[]),...S.tok])].slice(-60);
-  if(r.eq&&(!S.eq||(!S.eq.av&&!S.eq.fr)))S.eq={av:r.eq.av||"",fr:r.eq.fr||""};
+  if(r.eq&&(!S.eq||(!S.eq.av&&!S.eq.fr)))S.eq={av:r.eq.av||"",fr:r.eq.fr||"",fx:r.eq.fx||""};
   if(r.rw&&S.rw&&r.rw.d===S.rw.d)S.rw.n=Math.max(S.rw.n|0,r.rw.n|0);
   if(r.sk&&(String(r.sk.l)>String(S.sk.l)||(r.sk.l===S.sk.l&&(r.sk.n|0)>(S.sk.n|0)))){S.sk.n=r.sk.n|0;S.sk.l=r.sk.l||""}
   if(r.sk){S.sk.b=Math.max(S.sk.b|0,r.sk.b|0);Object.keys(r.sk.g||{}).forEach(k=>{if(r.sk.g[k])S.sk.g[k]=1})}
-  YG.noads=!!S.own.noads;
+  YG.noads=!!(S.own.noads||S.own.founder);
 }
 function cloudPull(){
   let n=0;const t=setInterval(()=>{
@@ -4886,7 +4889,7 @@ function answer(i){
   mark(x.c,ok);
   if(ok){
     G.ok++;G.combo++;G.maxCombo=Math.max(G.maxCombo,G.combo);
-    const th2=x.c===themeOf(),pts=th2?2:1;G.score+=pts;snd(1);if(th2)pop("🌟 ×2");const rc0=S.rec[G.mode]|0;if(rc0>0&&!G.cfg.total&&!G.beat&&G.score>rc0){G.beat=true;pop("👻 Рекорд побит!")}
+    const th2=x.c===themeOf(),pts=th2?2:1;G.score+=pts;snd(1);fxOk();if(th2)pop("🌟 ×2");const rc0=S.rec[G.mode]|0;if(rc0>0&&!G.cfg.total&&!G.beat&&G.score>rc0){G.beat=true;pop("👻 Рекорд побит!")}
     if(G.combo>=3&&G.combo%3===0){pop("🔥 ×"+G.combo)}
   }else{
     G.wrong++;G.combo=0;snd(0);
@@ -5109,7 +5112,8 @@ document.addEventListener("visibilitychange",()=>{if(document.hidden)mpost()});
 const TIERS=[150,500,1500],TN=["Обычные","Редкие","Эпические"];
 const SH_AV=[["cat","🐱","#fbbf24","#b45309","Кот",0],["panda","🐼","#94a3b8","#334155","Панда",0],["lion","🦁","#f59e0b","#92400e","Лев",0],["penguin","🐧","#38bdf8","#1e3a8a","Пингвин",0],["frog","🐸","#4ade80","#14532d","Лягушка",0],["bear","🐻","#a16207","#451a03","Медведь",0],
  ["eagle","🦅","#60a5fa","#1e293b","Орёл",1],["whale","🐋","#22d3ee","#0c4a6e","Кит",1],["tiger","🐯","#fb923c","#7c2d12","Тигр",1],["shark","🦈","#64748b","#0f172a","Акула",1],
- ["planet","🪐","#a78bfa","#312e81","Сатурн",2],["peacock","🦚","#2dd4bf","#6d28d9","Павлин",2]];
+ ["planet","🪐","#a78bfa","#312e81","Сатурн",2],["peacock","🦚","#2dd4bf","#6d28d9","Павлин",2],
+ ["fox","🦊","#f97316","#431407","Лиса",0],["owl","🦉","#c084fc","#3b0764","Сова",1],["dragon","🐉","#34d399","#064e3b","Дракон",2],["unicorn","🦄","#f9a8d4","#6d28d9","Единорог",2]];
 const SH_FR=[["emerald","Изумруд",0],["sunset","Закат",0],["sakura","Сакура",0],["ocean","Океан",0],["mint","Мята",0],["amber","Янтарь",0],
  ["ruby","Рубин",1],["sapphire","Сапфир",1],["amethyst","Аметист",1],["aurora","Аврора",1],
  ["galaxy","Галактика",2],["rainbow","Радуга",2]];
@@ -5117,10 +5121,27 @@ const EXC={"f:start":"Старт","f:founder":"Основатель"};
 const ITEMS={};
 SH_AV.forEach(x=>{ITEMS["a:"+x[0]]={k:"a",id:x[0],e:x[1],bg:[x[2],x[3]],n:x[4],t:x[5]}});
 SH_FR.forEach(x=>{ITEMS["f:"+x[0]]={k:"f",id:x[0],n:x[1],t:x[2]}});
+[["confetti","🎉","Конфетти",1],["stars","⭐","Звездопад",1],["fire","🔥","Огонь",2]].forEach(x=>{ITEMS["x:"+x[0]]={k:"x",id:x[0],e:x[1],n:x[2],t:x[3]}});
+THEMES.filter(x=>x[4]).forEach(x=>{ITEMS[x[4]]={k:"t",id:x[0],n:x[1],c:[x[2],x[3]],t:1}});
+const SLOT={a:"av",f:"fr",x:"fx"};
+const isOn=(id,it)=>it.k==="t"?uiTheme===it.id:!!(S.eq&&S.eq[SLOT[it.k]]===id);
+function wear(id,it,on){if(it.k==="t"){uiTheme=on?it.id:"dark";LSs("quiz_theme",uiTheme);uiApply()}else S.eq[SLOT[it.k]]=on?id:"";if(on&&it.k==="x")fxOk()}
+/* эффект верного ответа, если надет; при «меньше движения» не показываем */
+function fxOk(){try{if(calm)return;if(!S)load();const f=S.eq&&S.eq.fx,it=f&&ITEMS[f];if(!it||!own(f))return;if(it.id==="confetti")confetti(45);else for(let i=0;i<3;i++)setTimeout(()=>rxFloat(it.e),i*130)}catch(e){}}
 const DEF_AV={e:"🙂",bg:["#64748b","#334155"]};
+/* аватары магазина: чем выше редкость, тем наряднее (обычные — блик и узор, редкие — лучи и искры, эпические — вращение, мерцание, золотое кольцо) */
+const AVART={};
+function avArt(it){
+  if(AVART[it.id])return AVART[it.id];
+  const t=it.t|0,star=(x,y,r,c)=>`<path${c?` class="${c}"`:""} d="M${x} ${y-r}Q${x} ${y} ${x+r} ${y}Q${x} ${y} ${x} ${y+r}Q${x} ${y} ${x-r} ${y}Q${x} ${y} ${x} ${y-r}Z" fill="#fff"/>`;
+  const rays=t?`<g${t>1?' class="spin"':""} opacity="${t>1?.3:.18}">${Array.from({length:12},(_,i)=>`<path d="M50 50L45 -20H55Z" fill="#fff" transform="rotate(${i*30} 50 50)"/>`).join("")}</g>`:"";
+  const sp=t?star(22,26,5,t>1?"tw":"")+star(80,30,4,t>1?"tw d2":"")+star(78,78,3.5,t>1?"tw d3":""):"";
+  const svg=`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><style>.spin{transform-origin:50px 50px;animation:s 16s linear infinite}.tw{animation:w 1.8s ease-in-out infinite}.d2{animation-delay:.6s}.d3{animation-delay:1.2s}@keyframes s{to{transform:rotate(360deg)}}@keyframes w{50%{opacity:.15}}@media (prefers-reduced-motion:reduce){.spin,.tw{animation:none}}</style><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="${it.bg[0]}"/><stop offset="1" stop-color="${it.bg[1]}"/></linearGradient><radialGradient id="h" cx=".3" cy=".22" r=".7"><stop offset="0" stop-color="#fff" stop-opacity=".45"/><stop offset=".5" stop-color="#fff" stop-opacity="0"/></radialGradient><radialGradient id="v" cx=".5" cy=".5" r=".55"><stop offset=".7" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".35"/></radialGradient><linearGradient id="k" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff3b0"/><stop offset=".5" stop-color="#f5c542"/><stop offset="1" stop-color="#b8860b"/></linearGradient><pattern id="p" width="10" height="10" patternUnits="userSpaceOnUse"><circle cx="2" cy="2" r="1.2" fill="#fff" opacity=".16"/></pattern><filter id="f" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="3" stdDeviation="2.5" flood-color="#000" flood-opacity=".45"/></filter></defs><rect width="100" height="100" fill="url(#g)"/>${t?rays:'<rect width="100" height="100" fill="url(#p)"/>'}<rect width="100" height="100" fill="url(#v)"/><rect width="100" height="100" fill="url(#h)"/>${sp}<text x="50" y="${t>1?67:68}" font-size="${t>1?50:52}" text-anchor="middle" filter="url(#f)">${it.e}</text>${t>1?'<circle cx="50" cy="50" r="46.5" fill="none" stroke="url(#k)" stroke-width="3.5"/>':""}</svg>`;
+  return AVART[it.id]="data:image/svg+xml;utf8,"+encodeURIComponent(svg);
+}
 const own=k=>!!(S&&S.own&&S.own[k]);
 function avImg(avId,frId,sz){
-  const it=avId&&ITEMS[avId],src=it?avSrc(it):avSrc(DEF_AV);
+  const it=avId&&ITEMS[avId],src=it?avArt(it):avSrc(DEF_AV);
   const fc=frId&&(ITEMS[frId]||EXC[frId])?" fr-"+frId.slice(2):"";
   return `<img class="arc-av${fc}" src="${src}" alt=""${sz?` style="width:${sz}px;height:${sz}px"`:""}>`;
 }
@@ -5139,20 +5160,23 @@ function buyItem(id){
   const it=ITEMS[id];if(!it||own(id))return;
   const pr=TIERS[it.t];
   if((S.stars|0)<pr){msg("Не хватает "+(pr-(S.stars|0))+"⭐. Звёзды дают задания дня, слово дня и ролики.");return}
-  S.stars-=pr;S.own[id]=1;S.eq[it.k==="a"?"av":"fr"]=id;met("si");save();cloudFlush();shop();
+  S.stars-=pr;S.own[id]=1;wear(id,it,true);met("si");save();cloudFlush();shop();
 }
 function equip(rest){
-  const id=rest;const it=ITEMS[id],k=it?it.k:(EXC[id]?"f":"");if(!k||!own(id))return;
-  const f=k==="a"?"av":"fr";S.eq[f]=S.eq[f]===id?"":id;save();shop();
+  const id=rest,it=ITEMS[id]||(EXC[id]&&{k:"f"});if(!it||!own(id))return;
+  wear(id,it,!isOn(id,it));save();shop();
 }
 /* ---------- покупки за деньги (Яндекс Игры) ---------- */
-const PROD={starter:{t:"Набор новичка",d:"300⭐ и рамка «Старт»",c:1},noads:{t:"Без полноэкранной рекламы",d:"Ролики за награду остаются по вашему желанию",c:0},founder:{t:"Основатель",d:"Значок и рамка «Основатель» — навсегда",c:0}};
+// starter больше не продаётся, но старые неподтверждённые покупки ещё выдаём
+const PROD={stars_s:{t:"Горсть звёзд",d:"300⭐ на оформление",c:1,st:300},stars_m:{t:"Мешок звёзд",d:"1000⭐ на оформление",c:1,st:1000},stars_l:{t:"Сундук звёзд",d:"2500⭐ на оформление",c:1,st:2500},noads:{t:"Без полноэкранной рекламы",d:"Ролики за награду остаются по вашему желанию",c:0},founder:{t:"Основатель",d:"Без полноэкранной рекламы, значок и рамка «Основатель» — навсегда",c:0},starter:{t:"Набор новичка",d:"300⭐ и рамка «Старт»",c:1}};
+const SELL=["stars_s","stars_m","stars_l","noads","founder"];
 const FOUNDER_UNTIL="2027-03-01";
 let PAY=null,CAT={};
 function grant(id){
   if(id==="starter"){S.own.starter=1;S.stars=(S.stars|0)+300;S.own["f:start"]=1;if(!S.eq.fr)S.eq.fr="f:start"}
+  else if(PROD[id]&&PROD[id].st)S.stars=(S.stars|0)+PROD[id].st;
   else if(id==="noads"){S.own.noads=1;YG.noads=true}
-  else if(id==="founder"){S.own.founder=1;S.own["f:founder"]=1;S.eq.fr="f:founder"}
+  else if(id==="founder"){S.own.founder=1;S.own["f:founder"]=1;S.eq.fr="f:founder";YG.noads=true}
 }
 async function procBuys(list){
   for(const pu of list){
@@ -5191,9 +5215,9 @@ function realBlock(){
   if(!PAY||!Object.keys(CAT).length)return YG.platform==="gamepush"&&YG.payWhy?`<p class="hint">Покупки сейчас недоступны (${E(YG.payWhy)}).</p>`:"";
   const founderOpen=Date.now()<Date.parse(FOUNDER_UNTIL);
   const rows=[];
-  ["starter","noads","founder"].forEach(id=>{
+  SELL.forEach(id=>{
     const c=CAT[id],pd=PROD[id];if(!c)return;
-    if(own(id==="starter"?"starter":id)){rows.push(`<div class="arc-item"><b>${pd.t}</b><small>Куплено ✅</small></div>`);return}
+    if(!pd.c&&(own(id)||(id==="noads"&&own("founder")))){rows.push(`<div class="arc-item"><b>${pd.t}</b><small>${own(id)?"Куплено":"Входит в «Основателя»"} ✅</small></div>`);return}
     if(id==="founder"&&!founderOpen)return;
     rows.push(`<div class="arc-item"><b>${pd.t}</b><small>${pd.d}</small><button type="button" class="btn small" data-arc="pay:${id}">${priceHtml(c)}</button></div>`);
   });
@@ -5207,8 +5231,8 @@ function shop(){
   met("sh");
   const left=rwLeft();
   const card=(id,it)=>{
-    const o=own(id),eq=S.eq&&S.eq[it.k==="a"?"av":"fr"]===id;
-    const prev=it.k==="a"?avImg(id,S.eq&&S.eq.fr,56):avImg(S.eq&&S.eq.av,id,56);
+    const o=own(id),eq=isOn(id,it);
+    const prev=it.k==="a"?avImg(id,S.eq&&S.eq.fr,56):it.k==="f"?avImg(S.eq&&S.eq.av,id,56):it.k==="x"?`<span class="arc-fx">${it.e}</span>`:`<i class="arc-sw" style="background:linear-gradient(135deg,${it.c[0]} 50%,${it.c[1]} 50%)"></i>`;
     const btn=o?`<button type="button" class="btn small ${eq?"alt":""}" data-arc="eq:${id}">${eq?"Снять":"Надеть"}</button>`:`<button type="button" class="btn small" data-arc="buy:${id}">${TIERS[it.t]} ⭐</button>`;
     return `<div class="arc-item">${prev}<b>${E(it.n)}</b>${btn}</div>`;
   };
@@ -5216,8 +5240,8 @@ function shop(){
   <button type="button" class="arc-mode" data-arc="rws"${left?"":" disabled"}><span class="ai">📺</span><span><b>+15⭐ за ролик</b><small>${left?"Осталось сегодня: "+left:"На сегодня всё, приходите завтра"}</small></span></button>
   <p class="hint" id="shMsg" style="min-height:1.4em"></p>`;
   for(let t=0;t<3;t++){
-    const a=Object.keys(ITEMS).filter(k=>ITEMS[k].t===t&&ITEMS[k].k==="a"),f=Object.keys(ITEMS).filter(k=>ITEMS[k].t===t&&ITEMS[k].k==="f");
-    h+=`<div class="arc-tier">${TN[t]} · ${TIERS[t]} ⭐</div><div class="arc-shop">${a.map(k=>card(k,ITEMS[k])).join("")}${f.map(k=>card(k,ITEMS[k])).join("")}</div>`;
+    const a=Object.keys(ITEMS).filter(k=>ITEMS[k].t===t);
+    h+=`<div class="arc-tier">${TN[t]} · ${TIERS[t]} ⭐</div><div class="arc-shop">${a.map(k=>card(k,ITEMS[k])).join("")}</div>`;
   }
   const ex=Object.keys(EXC).filter(k=>own(k));
   if(ex.length)h+=`<div class="arc-tier">Особые</div><div class="arc-shop">${ex.map(k=>{const eq=S.eq.fr===k;return `<div class="arc-item">${avImg(S.eq.av,k,56)}<b>${EXC[k]}</b><button type="button" class="btn small ${eq?"alt":""}" data-arc="eq:${k}">${eq?"Снять":"Надеть"}</button></div>`}).join("")}</div>`;
@@ -5304,7 +5328,7 @@ document.addEventListener("keydown",e=>{
   else{const c=e.key.toLowerCase().replace("ё","е");if(/^[а-я]$/.test(c))wdKey(c)}
 });
 
-window.arcOpen=hub;
+window.arcOpen=hub;window.fxOk=fxOk;window.arcOwn=own;
 try{const _t=themeOf(),_e=$a("arcThm");if(_e&&_t>=0)_e.textContent="🌟 Тема недели: "+TOPICS[_t]+" (×2)"}catch(e){}
 load();cloudPull();
 if(!SES){SES=true;met("ses")}

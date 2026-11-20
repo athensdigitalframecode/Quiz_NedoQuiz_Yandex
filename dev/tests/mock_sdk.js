@@ -6,7 +6,7 @@
   const player={isAuthorized:()=>true,getName:()=>"Тест",getUniqueID:()=>"u1",
     getData:()=>Promise.resolve(L.cloud||{}),
     setData:(d,f)=>{log("setData",f);if(L.failSave)return Promise.reject(new Error("save failed"));L.cloud=JSON.parse(JSON.stringify(d));return Promise.resolve()}};
-  const payments={getCatalog:()=>Promise.resolve([{id:"starter",title:"Набор",price:"10 YAN",getPriceCurrencyImage:()=>""},{id:"noads",title:"Без рекламы",price:"50 YAN"},{id:"founder",title:"Основатель",price:"99 YAN"}]),
+  const payments={getCatalog:()=>Promise.resolve([{id:"starter",title:"Набор",price:"10 YAN",getPriceCurrencyImage:()=>""},{id:"stars_s",title:"Горсть",price:"5 YAN"},{id:"stars_m",title:"Мешок",price:"15 YAN"},{id:"stars_l",title:"Сундук",price:"30 YAN"},{id:"noads",title:"Без рекламы",price:"50 YAN"},{id:"founder",title:"Основатель",price:"99 YAN"}]),
     getPurchases:()=>Promise.resolve(L.purchases.slice()),
     purchase:({id})=>{log("purchase",id);return Promise.resolve({productID:id,purchaseToken:"tok-"+Date.now()})},
     consumePurchase:t=>{log("consume",t);L.purchases=L.purchases.filter(p=>p.purchaseToken!==t);return Promise.resolve()}};
