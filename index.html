@@ -950,7 +950,6 @@ body[data-scr=s-tv] .madewrap{display:none!important}
 .invbox{margin:18px 0 6px}.invbox .sharerow{margin:8px 0 0}
 .topicbox label.toplab{font-size:15px;font-weight:600;color:var(--gold);margin:16px 2px 8px}
 .topicbox label.toplab small{display:block;font-size:12px;font-weight:400;color:var(--mut);margin-top:2px}
-body.tmhide #tnum{opacity:0}body.tmhide #ring{opacity:.3}
 #s-boot .bootico{animation:bootx 3.4s ease-in-out infinite alternate;margin-top:18px;margin-bottom:6px}
 #s-boot .bootico svg{animation:booty 1.7s ease-in-out infinite;transform-origin:50% 60%}
 @keyframes bootx{from{transform:translateX(-96px)}to{transform:translateX(96px)}}
@@ -1178,8 +1177,8 @@ body[data-scr="s-home"] #bestFloat{display:block}
   <div id="invites"></div>
   <div id="nowplay"></div>
   <button class="btn playbig" data-act="new" data-mode="solo" type="button"><span class="pbi"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13l11-6.5z" fill="currentColor" stroke="none"/></svg></span><span class="pbt"><b>Играть</b><small>Быстрая игра: 10 вопросов, вы против себя</small></span></button>
-  <div class="topicbox"><label for="topicSel" class="toplab">Тема вопросов<small>по умолчанию микс всех тем</small></label><select id="topicSel"></select><div class="chips" id="topicChips"></div><button type="button" class="chipsmore" id="chipsMore">Все темы ▾</button></div>
   <button type="button" class="btn alt" id="arcOpen" style="width:100%;margin:0 0 10px">⚡ Быстрые режимы<small id="arcThm" style="display:block;font-weight:400;opacity:.8"></small></button>
+  <div class="topicbox"><label for="topicSel" class="toplab">Тема вопросов<small>по умолчанию микс всех тем</small></label><select id="topicSel"></select><div class="chips" id="topicChips"></div><button type="button" class="chipsmore" id="chipsMore">Все темы ▾</button></div>
   <button type="button" class="btn alt" id="arcShop" style="width:100%;margin:0 0 10px">🛍 Магазин</button>
   <div id="dquiz"></div>
   <div id="daily"></div>
@@ -1423,7 +1422,7 @@ body[data-scr="s-home"] #bestFloat{display:block}
   <div class="card"><h2>🧍 Сам с собой</h2>
     <p><b>Кто играет:</b> только вы. Команда и соперники не нужны, игра стартует сама.</p>
     <ul>
-      <li>10 вопросов по 45 секунд, от лёгких к сложным. К каждому даны четыре варианта ответа. Выйти можно в любой момент: ответы засчитаются.</li>
+      <li>10 вопросов по 30 секунд (детям 45), от лёгких к сложным. К каждому даны четыре варианта ответа. Выйти можно в любой момент: ответы засчитаются.</li>
       <li>Выбывать нельзя: игра идёт до конца. За верный ответ дают от 50 до 100 очков, чем быстрее, тем больше.</li>
       <li>Рейтинг меняется по результату: за каждый верный ответ выше 7 вы получаете +6, ниже 7 теряете по 6. Максимум за игру +48, минимум −42. Выход из вкладки больше чем на 4 секунды дисквалифицирует (−20).</li>
       <li>У режима свой рейтинг, звания и таблица рекордов.</li>
@@ -1499,14 +1498,14 @@ body[data-scr="s-home"] #bestFloat{display:block}
   <p class="sub" style="text-align:center;margin:0 0 12px">Частые вопросы. Нажмите на вопрос, чтобы открыть ответ.</p>
   <div class="card faq">
     <details><summary>Что это за игра?</summary><p>«Квиз или Недоквиз» — викторина прямо в браузере. Отвечайте на вопросы на любые темы, копите очки, серии дней и рейтинг.</p></details>
-    <details><summary>Как проходит игра?</summary><p>«Сам с собой»: 10 вопросов, на каждый по 45 секунд. Сложность растёт: сначала лёгкие вопросы, в конце самые трудные. В конце вы увидите результат и разбор.</p></details>
+    <details><summary>Как проходит игра?</summary><p>«Сам с собой»: 10 вопросов, на каждый по 30 секунд (детям 45). Сложность растёт: сначала лёгкие вопросы, в конце самые трудные. В конце вы увидите результат и разбор.</p></details>
     <details><summary>Как считаются очки?</summary><p>Верный ответ приносит от 50 до 100 очков: чем быстрее вы ответили, тем больше.</p></details>
     <details><summary>Что такое квиз дня?</summary><p>Каждый день все игроки отвечают на одни и те же 15 вопросов: от лёгких к сложным. Попытка одна. После игры вы увидите результат из зелёных (верно) и красных (неверно) квадратов и можете показать его друзьям: ответы он не раскрывает.</p></details>
     <details><summary>Как работает вызов другу?</summary><p>После раунда нажмите «Вызвать друга» и отправьте ссылку. Друг ответит на те же вопросы, когда ему удобно, а когда он закончит, увидите результат на главной. Победа двигает рейтинг дуэлей.</p></details>
     <details><summary>Что за сундуки и заморозка серии?</summary><p>Каждые 3 сыгранных раунда дают сундук. Он открывается через 2 часа или сразу, если посмотреть ролик. Внутри рамка или аватар, а иногда заморозка серии: она спасает серию дней, если вы пропустили один день.</p></details>
     <details><summary>Как работают дуэли?</summary><p>Играть одновременно не нужно. «Против призрака»: вы сразу играете 15 вопросов по выбранной теме и сравниваете очки с записанной партией другого игрока. Результат виден сразу. «Найти соперника»: вы отвечаете на вопросы и оставляете вызов, а первый, кто нажмёт эту кнопку, отвечает на те же вопросы. Итог придёт на главную. Можно и вызвать конкретного игрока. Победа в дуэли двигает рейтинг дуэлей; у призрака рейтинг не меняется.</p></details>
     <details><summary>Как меняется рейтинг?</summary><p>Все начинают с 1000 очков. Результаты ваших партий двигают рейтинг вверх или вниз. Звания идут от «Новичка» до «Легенды».</p></details>
-    <details><summary>Сколько времени даётся на вопрос?</summary><p>На обычный вопрос — 45 секунд. На вопросы тем «Логика и мышление» и «Что? Где? Зачем?» даётся 2 минуты, а на вопросы темы «Что? Где? Когда?» — 1,5 минуты.</p></details>
+    <details><summary>Сколько времени даётся на вопрос?</summary><p>На обычный вопрос в «Сам с собой» — 30 секунд (детям 45). На вопросы тем «Логика и мышление» и «Что? Где? Зачем?» даётся 2 минуты, а на вопросы темы «Что? Где? Когда?» — 1,5 минуты.</p></details>
     <details><summary>Что такое вопрос дня и серия?</summary><p>Каждый день на главной странице есть один особый вопрос. Если отвечать на него несколько дней подряд, растёт серия, а за достижения вы получаете значки в профиле.</p></details>
     <details><summary>Что делать, если вопрос неверный?</summary><p>После игры откройте разбор: там видно, какой процент игроков ответил верно. Если вы считаете вопрос или ответ ошибочным, нажмите «⚠️ Ошибка в вопросе» прямо на экране с правильным ответом (или «Оспорить» в разборе). Когда на вопрос пожалуются три разных игрока, он перестанет выпадать в новых играх.</p></details>
     <details><summary>Что за тема «English Vocabulary Builder»?</summary><p>Вам показывают английское предложение с редким словом. Нужно выбрать, что слово значит именно здесь: варианты ответа тоже на английском. После ответа появится перевод слова. Тема только для взрослых профилей и в «Микс тем» не попадает.</p></details>
@@ -1534,7 +1533,7 @@ body[data-scr="s-home"] #bestFloat{display:block}
     </ul></div>
   <div class="card"><h2>Как играть</h2>
     <ul>
-      <li><b>Сам с собой.</b> 10 вопросов, на каждый по 45 секунд. Цель — побить свой рекорд.</li>
+      <li><b>Сам с собой.</b> 10 вопросов, на каждый по 30 секунд (детям 45). Цель — побить свой рекорд.</li>
       <li>Верный ответ приносит от 50 до 100 очков: чем быстрее вы ответили, тем больше.</li>
     </ul></div>
   <div class="card"><h2>Темы и вопросы</h2>
@@ -1599,7 +1598,7 @@ const AV=["data:image/webp;base64,UklGRl4IAABXRUJQVlA4IFIIAAAQKgCdASqgAKAAPm00lk
 const TOTAL=15,REVEAL=8,COUNT=3,SOLO_N=10;
 const tn=g=>g&&g.mode==="solo"&&g.n>0?g.n|0:TOTAL,k15=(k,n)=>n>=TOTAL?k:Math.round(k*TOTAL/n),thr=(t,n)=>Math.ceil(t*n/TOTAL);
 const revealSec=m=>m==="solo"?3:m==="pvp"||m==="evening"?4:m==="blitz"?5:6;
-const MODES={evening:{name:"Квиз-вечер",time:30},pvp:{name:"Дуэль 1×1",time:30},solo:{name:"🧍 Сам с собой",time:45},blitz:{name:"⚡ Блиц",time:60},duel:{name:"⚔️ Дуэль",time:30},mass:{name:"🏟️ Массовый квиз",time:30}};
+const MODES={evening:{name:"Квиз-вечер",time:30},pvp:{name:"Дуэль 1×1",time:30},solo:{name:"🧍 Сам с собой",time:30},blitz:{name:"⚡ Блиц",time:60},duel:{name:"⚔️ Дуэль",time:30},mass:{name:"🏟️ Массовый квиз",time:30}};
 const ind=m=>m==="blitz"||m==="solo"||m==="pvp"||m==="evening";
 const race=m=>m==="solo"||m==="pvp"||m==="evening";
 const RND=[
@@ -2642,6 +2641,8 @@ async function answerDaily(i){
 }
 
 /* итоги игры: запись для разбора, статистика вопросов, достижения */
+/* текущая и лучшая серия верных ответов до вопроса upto */
+function runOf(R,upto){let n=0,b=0;Object.keys(R).map(Number).sort((x,y)=>x-y).filter(k=>k<=upto).forEach(k=>{n=R[k].a&&R[k].a===R[k].c?n+1:0;b=Math.max(b,n)});return[n,b]}
 function recAnswer(q){
   if(!(ind(game.mode)||game.ch))return;
   const m2=me(),R=REC[code]||(REC[code]={});if(!m2||R[q])return;const x=bq(game,q);if(!x)return;
@@ -2679,7 +2680,7 @@ function revItem(q,r){
 function endExtra(){
   const el=$("endExtra");if(!el||!game)return;
   const rec=REC[code]||{},keys=Object.keys(rec).map(Number).sort((a,b)=>a-b),nw=ENDNEW[code]||[];
-  let h=nw.length?`<div class="invite"><span>Новое достижение: ${nw.map(id=>esc(ACHS.find(x=>x.id===id).n)).join(", ")}</span></div>`:"";
+  let h=nw.includes("g1")?`<div class="invite"><span>🎉 Первая игра сыграна! Дальше: квиз дня, быстрые режимы и дуэли.</span></div>`:"";h+=nw.length?`<div class="invite"><span>Новое достижение: ${nw.map(id=>esc(ACHS.find(x=>x.id===id).n)).join(", ")}</span></div>`:"";
   if((ENDCOL[code]||[]).length)h+=`<div class="invite"><span>🎖️ В коллекции открыто: ${ENDCOL[code].map(esc).join(", ")}</span><button class="btn small" data-act="coll">Открыть</button></div>`;
   if(game.ghRes){const r=game.ghRes,nm=r.self?"вашей прошлой партии":"призрака "+esc(nickOf(r.u));h=`<div class="invite"><span>👻 ${r.res==="w"?"Победа":r.res==="l"?"Поражение":"Ничья"} против ${nm}: ${r.mine} : ${r.th}${r.d?" · рейтинг дуэлей "+(r.d>0?"+":"")+r.d:""}</span></div>`+h}
   h+=reactHtml();
@@ -3179,7 +3180,7 @@ async function makeGame(mode,teamsArr,extra){
   const solo10=mode==="solo"&&!(extra&&extra.qs);
   const qs0=pickQs(curTopic,mode==="evening"?EVE_PLAN:QP_PLAN,solo10?SOLO_N:0);
   do{c=newCode();tries++}while(tries<6&&(await db.doc("games/"+c).get()).exists);
-  await db.doc("games/"+c).set({mode,status:"lobby",qi:0,outs:[],qText:"",qOpts:[],ans:"",createdAt:Date.now(),by:uid,teams:teamsArr||[],time:MODES[mode].time,topic:curTopic,qs:qs0,sq:sqOf(qs0),...(solo10?{n:SOLO_N}:{}),...(extra||{})});
+  await db.doc("games/"+c).set({mode,status:"lobby",qi:0,outs:[],qText:"",qOpts:[],ans:"",createdAt:Date.now(),by:uid,teams:teamsArr||[],time:mode==="solo"&&ME&&ME.age?45:MODES[mode].time,topic:curTopic,qs:qs0,sq:sqOf(qs0),...(solo10?{n:SOLO_N}:{}),...(extra||{})});
   try{if(!(extra&&extra.ch)){if(["blitz","evening","mass"].includes(mode))tgNotify("game","all",{code:c,mode});else if(mode==="pvp"&&extra&&extra.invited)tgNotify("pvp",extra.invited,{code:c})}}catch(e){}
   return c;
 }
@@ -3367,7 +3368,7 @@ function drawGame(){
   $("ans").hidden=!(game.status==="reveal"&&game.ans);$("anst").textContent=game.ans||"";{const bx=game.status==="reveal"?bq(game,game.qi|0):null,w=$("whyq");w.textContent=(bx&&bx.e)||"";w.hidden=!w.textContent}flagDraw();
   const bn=$("banner");let names=[];
   if(game.status==="reveal"){
-    if(solo||pvp||ev){const ok=mine&&mine.ok===1;bn.textContent=ok?`Верно! +${mine.gain|0} очков ${okEmo(q)}`:"Не угадали";bn.className="banner "+(ok?"green":"red");if(pvp){const o=players.find(p=>p.id!==uid);if(o)bn.textContent+=" · соперник: "+(o.ok===1?"верно":"мимо")}}
+    if(solo||pvp||ev){const ok=mine&&mine.ok===1;bn.textContent=ok?`Верно! +${mine.gain|0} очков ${okEmo(q)}`:"Не угадали";if(ok&&solo){const r=runOf(REC[code]||{},q)[0];if(r>=2)bn.textContent+=` · серия ${r} 🔥`}bn.className="banner "+(ok?"green":"red");if(pvp){const o=players.find(p=>p.id!==uid);if(o)bn.textContent+=" · соперник: "+(o.ok===1?"верно":"мимо")}}
     else if(blitz){names=(game.outs||[]).map(id=>nickOf(id));
       if(names.length){bn.textContent="Выбывают: "+names.join(", ");bn.className="banner red"}else{bn.textContent="Все остаются в игре! "+okEmo(q);bn.className="banner green"}}
     else{const tt=teamsInGame().filter(t=>players.some(p=>p.team===t&&!p.dq)),k=tt.filter(t=>players.some(p=>p.team===t&&!p.dq&&p.ok===1)).length;bn.textContent=`Верно ответили команд: ${k} из ${tt.length}`;bn.className="banner "+(k?"green":"red")}
@@ -3575,7 +3576,6 @@ function tickUI(){
   if(game.status==="q"){
     const left=Math.max(0,((endAt[q]||Date.now())-Date.now())/1000);
     $("tnum").textContent=Math.ceil(left);
-    document.body.classList.toggle("tmhide",game.mode==="solo"&&left>10);
     $("fg").style.strokeDashoffset=282.7*(1-Math.min(1,left/T));
     $("ring").className="ring"+(left<=10?" hot":left<=T*.4?" warn":"");
     const hu=Math.round(125*Math.max(0,Math.min(1,left/T)));$("fg").style.stroke="hsl("+hu+",85%,55%)";$("tnum").style.color=left<=10?"":"hsl("+hu+",90%,72%)";
@@ -3588,7 +3588,6 @@ function tickUI(){
     $("gstatus").className="status";
     $("gstatus").textContent=(overNow(game,players)?"Итоги через ":"Следующий вопрос через ")+left+" с";
     $("tnum").textContent="0";$("fg").style.strokeDashoffset=282.7;
-    document.body.classList.remove("tmhide");
   }
   {const sn=$("soloNext");if(sn)sn.hidden=!(game.mode==="solo"&&game.status==="reveal"&&!overNow(game,players))}
 }
@@ -3819,7 +3818,7 @@ function drawEnd0(){
     $("endTitle").textContent=p.dq?"🚫 Игра прервана":"🧍 Результат";
     $("endBody").innerHTML=`<div class="champ"><div class="av">${pic(p.id||uid)}</div><h2>${esc(nickOf(p.id||uid))}</h2><p>${verdict}</p></div>
       ${p.dq?"":`<p class="hint" style="text-align:center;margin-top:8px">${part?"Вы ответили на "+game.stopAt+" из "+n+", верно "+k+". Остальные вопросы засчитаны как пропущенные.":k>=n?n+" из "+n+"! Сможете повторить?":"Ещё "+need+(need%10===1&&need!==11?" верный":" верных")+" до «"+nm+"»"}</p>`}
-      <div class="statgrid" style="margin-top:12px"><div><b>${k} из ${n}</b><small>верных ответов</small></div><div><b>${p.pts|0}</b><small>очков</small></div><div><b>${d>0?"+":""}${d}</b><small>к рейтингу</small></div></div>
+      <div class="statgrid" style="margin-top:12px"><div><b>${k} из ${n}</b><small>верных ответов</small></div><div><b>${p.pts|0}</b><small>очков</small></div><div><b>${d>0?"+":""}${d}</b><small>к рейтингу</small></div>${runOf(REC[code]||{},1e9)[1]>=2?`<div><b>${runOf(REC[code]||{},1e9)[1]} 🔥</b><small>лучшая серия</small></div>`:""}</div>
       <button class="btn" style="margin-top:14px" data-act="new" data-mode="solo">Сыграть ещё раз</button>
       ${p.dq?"":`<button class="btn alt" id="soloShare" type="button" style="margin-top:8px">📤 Бросить вызов другу</button>`}`;
     if(plainSolo(game)){qmOnce(part?"sq":"sf",code);const ag=$("endBody").querySelector('[data-act="new"]');if(ag)ag.addEventListener("click",()=>qm("sag"))}
@@ -4507,7 +4506,7 @@ setInterval(()=>{if(db&&uid&&!seenLoaded)seenLoad();seenDraw()},1200);
   let swReg=null;
   try{if("serviceWorker" in navigator)navigator.serviceWorker.getRegistrations().then(a=>a.forEach(r=>r.unregister())).catch(()=>{})}catch(e){}
   /* автообновление: сравниваем версию сборки с version.json на сервере */
-  const BUILD="8b7c2777e2ac";
+  const BUILD="e93694b20d0c";
   if(/^https?:$/.test(location.protocol)&&BUILD.length>8){
     let shown=false,busy=false;
     const bar=()=>{
@@ -4564,6 +4563,7 @@ setInterval(()=>{if(db&&uid&&!seenLoaded)seenLoad();seenDraw()},1200);
 
 /* ---- таблица обновлений: новые записи добавляются в НАЧАЛО массива ---- */
 const UPDATES=[
+  {id:"u83",d:"20 ноября",t:"Игра стала динамичнее",items:["«Быстрые режимы» теперь сразу под кнопкой «Играть»","В «Сам с собой» 30 секунд на вопрос (детям по-прежнему 45), таймер виден весь вопрос","Серия верных ответов подряд в игре и лучшая серия в итогах","Отметка первой сыгранной игры"]},
   {id:"u82",d:"13 ноября",t:"Ролик не съедает время",items:["Пока идёт ролик за подсказку 50/50, таймер вопроса стоит на паузе"]},
   {id:"u81",d:"12 ноября",t:"Окно выхода в стиле игры",items:["Выход из игры и отмена дуэли подтверждаются окном в оформлении игры, а не системным окном браузера"]},
   {id:"u80",d:"7 ноября",t:"Игра стала короче, главная удобнее",items:["«Играть» теперь 10 вопросов вместо 15; квиз дня, дуэли и вечер остались на 15","Кнопка «Играть» на главной сразу под названием","Можно выйти посреди игры: ответы засчитаются, а в конце покажем «ответили на N, верно K»","Таймер на вопросе заметен только в последние 10 секунд, а после ответа есть кнопка «Дальше»","После игры можно бросить вызов другу"]},
