@@ -44,6 +44,7 @@ with Run("t_solo") as r:
     pg.wait_for_timeout(1500)
     st = pg.evaluate("[...__db.keys()].filter(k=>k.startsWith('stats/'))")
     r.ok(len(st) > 0, f"после досрочного выхода записана статистика ({st})")
+    r.ok(pg.evaluate("__rpc.some(c=>c[0]==='stat_bump'&&c[1].src==='games/'+code&&c[1].p.startsWith('stats/solo/players/'))"), "рейтинг начислен через stat_bump, источник — эта партия")
     r.ok(pg.evaluate("__confirms") == 0, "системные confirm/alert не вызывались")
     r.ok(not pg.errors, f"нет ошибок консоли ({pg.errors[:3]})")
     r.ok(not pg.external, f"нет внешних запросов ({pg.external[:3]})")

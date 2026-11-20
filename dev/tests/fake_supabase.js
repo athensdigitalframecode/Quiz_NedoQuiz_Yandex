@@ -1,5 +1,5 @@
 /* Подставной supabase-js для тестов: таблица docs в памяти (window.__db), анонимный вход,
-   rpc doc_merge / acquire_lock, остальные rpc → null. Реалтайма нет — игра опрашивает базу сама.
+   rpc doc_merge / acquire_lock / stat_bump, остальные rpc → null. Реалтайма нет — игра опрашивает базу сама.
    Покрывает только то, что вызывает index.html (sbDoc/sbCol/sbWatch, init). */
 (function(){
   const DB=window.__db=new Map(),RPC=window.__rpc=[];
@@ -34,6 +34,11 @@
     rpc(n,a){RPC.push([n,a]);
       if(n==="doc_merge"){const r=DB.get(a.p);if(!r)return Promise.resolve({data:false,error:null});r.data=Object.assign(r.data||{},clone(a.patch));r.updated_at=new Date().toISOString();return Promise.resolve({data:true,error:null})}
       if(n==="acquire_lock")return Promise.resolve({data:true,error:null});
+      if(n==="stat_bump"){// как в базе, без проверок участия (их проверяют SQL-проверки R-06): один раз на (src, путь)
+        const L=window.__statlog=window.__statlog||new Set(),k=a.src+"|"+a.p;if(L.has(k))return Promise.resolve({data:false,error:null});L.add(k);
+        const i=a.p.lastIndexOf("/"),o=(DB.get(a.p)||{}).data||{};
+        DB.set(a.p,{path:a.p,col:a.p.slice(0,i),id:a.p.slice(i+1),updated_at:new Date().toISOString(),data:{g:(+o.g||0)+1,w:(+o.w||0)+(a.win?1:0),r:Math.max(0,(o.r==null?1000:+o.r)+a.delta),pts:(+o.pts||0)+a.score,best:Math.max(+o.best||0,a.score),last:Date.now()}});
+        return Promise.resolve({data:true,error:null})}
       return Promise.resolve({data:null,error:null})},
     channel(){const c={on:()=>c,subscribe:()=>c};return c},removeChannel(){},
     auth:{

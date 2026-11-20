@@ -2823,8 +2823,8 @@ async function settleTeam(id){
     const sa=avg(A),sb=avg(B),winner=sa===sb?"":sa>sb?A:B,upd={["ta_"+A]:sa,["ta_"+B]:sb};
     for(const [t,sc] of [[A,sa],[B,sb]]){
       const d=!winner?0:winner===t?25:-20;upd["r_"+t]=d;
-      await bump(`stats/duel/teams/${t}`,d,{win:winner===t,score:sc});
-      for(const u of ds(t)){const X=c["d_"+u];await bump(`stats/duel/players/${u}`,X.dq?-20:Math.round(d*.8),{win:!X.dq&&winner===t,score:X.dq?0:(X.pts|0)})}
+      await bump("challenges/"+id,`stats/duel/teams/${t}`,d,{win:winner===t,score:sc});
+      for(const u of ds(t)){const X=c["d_"+u];await bump("challenges/"+id,`stats/duel/players/${u}`,X.dq?-20:Math.round(d*.8),{win:!X.dq&&winner===t,score:X.dq?0:(X.pts|0)})}
     }
     await ref.update({statsDone:true,winner,doneAt:Date.now(),...upd});statsCache={};
   }catch(e){}
@@ -2863,7 +2863,7 @@ async function finishGhost(g,ps){
   qmOnce("ghf",code);
   const p=ps[0]||{},gh=g.gh,mine=p.dq?0:(p.pts|0),th=gh.pts|0,S=p.dq?0:mine>th?1:mine===th?.5:0;
   let d=0;
-  if(!gh.self){const RT=await pvpRatings([uid,gh.u]);d=p.dq?-20:eloD(RT[uid],RT[gh.u],S);await bump(`stats/pvp/players/${uid}`,d,{win:S===1,score:mine});statsCache={}}
+  if(!gh.self){const RT=await pvpRatings([uid,gh.u]);d=p.dq?-20:eloD(RT[uid],RT[gh.u],S);await bump("games/"+code,`stats/pvp/players/${uid}`,d,{win:S===1,score:mine});statsCache={}}
   await gref.update({ghRes:{mine,th,res:S===1?"w":S===0?"l":"d",d,u:gh.u,self:!!gh.self}});
 }
 async function openDuel(){
@@ -3065,7 +3065,7 @@ async function finishCh(g,ps){
   for(const [u,X] of [[a,A],[b,B]]){
     const o=u===a?b:a,OX=u===a?B:A,w=winner===u;let d=X.dq?-20:w?20:winner?-16:0;
     if(!X.dq)d=eloD(RT[u],RT[o],OX.dq?1:w?1:winner?0:.5);
-    await bump(`stats/pvp/players/${u}`,d,{win:w,score:X.dq?0:(X.pts|0)});upd["r_"+u]=d;
+    await bump("challenges/"+id,`stats/pvp/players/${u}`,d,{win:w,score:X.dq?0:(X.pts|0)});upd["r_"+u]=d;
   }
   try{await db.doc("history/ch_"+id).set({mode:"pvp",at:Date.now(),rounds:TOTAL,winner,topic:c.topic==null?-1:c.topic,teams:[],ps:[{u:a,s:sc(A)<0?0:A.pts|0,k:A.okc|0,d:A.dq?1:0,dr:upd["r_"+a]},{u:b,s:sc(B)<0?0:B.pts|0,k:B.okc|0,d:B.dq?1:0,dr:upd["r_"+b]}],ch:1})}catch(e){}
   await ref.update({statsDone:true,winner,doneAt:Date.now(),...upd});
@@ -3710,10 +3710,10 @@ async function act(key){
 }
 
 /* ---------- итоги, рейтинг ---------- */
-async function bump(path,delta,o){
-  const ref=db.doc(path),s=await ref.get(),d=s.exists?s.data():{};
-  const r=Math.max(0,(d.r==null?1000:+d.r)+delta);
-  await ref.set({g:(+d.g||0)+1,w:(+d.w||0)+(o.win?1:0),r,pts:(+d.pts||0)+(o.score||0),best:Math.max(+d.best||0,o.score||0),last:Date.now()});
+/* рейтинг начисляет база (stat_bump): только участникам партии/вызова src и один раз на партию */
+async function bump(src,path,delta,o){
+  const {error}=await sb.rpc("stat_bump",{src,p:path,delta:Math.round(delta),win:!!o.win,score:Math.max(0,Math.round(o.score||0))});
+  if(error)throw error;
 }
 const eloExp=(a,b)=>1/(1+Math.pow(10,(b-a)/400));
 async function pvpRatings(ids){const o={};for(const u of ids){try{const s=await db.doc(`stats/pvp/players/${u}`).get();o[u]=s.exists&&s.data().r!=null?+s.data().r:1000}catch(e){o[u]=1000}}return o}
@@ -3732,7 +3732,7 @@ async function saveStats(g,ps){
       const k=p.okc|0,w=hist.winner===p.id,draw=!hist.winner&&!p.dq;let d=p.dq?-20:w?20:draw?0:-16;
       if(RT&&!p.dq){const o=ps.find(x=>x.id!==p.id);d=eloD(RT[p.id],RT[o.id],o.dq?1:w?1:hist.winner?0:.5)}
       rd[p.id]=d;
-      await bump(`stats/pvp/players/${p.id}`,d,{win:w,score:p.dq?0:(p.pts|0)});
+      await bump("games/"+code,`stats/pvp/players/${p.id}`,d,{win:w,score:p.dq?0:(p.pts|0)});
       hist.ps.push({u:p.id,s:p.dq?0:(p.pts|0),k,d:p.dq?1:0,dr:d});
     }
     try{await db.doc("games/"+code).update({rd})}catch(e){}
@@ -3742,13 +3742,13 @@ async function saveStats(g,ps){
     hist.winner=ord.length&&!ord[0].dq&&(N===1||sc(ord[0])>sc(ord[1]))?ord[0].id:"";
     for(const p of ps){
       const k=p.okc|0,pl=place[p.id],tied=ord.filter(x=>place[x.id]===pl).length,pm=pl+(tied-1)/2,d=p.dq?-20:N>1?Math.round(25*(N+1-2*pm)/(N-1)):Math.round((k-7)*6);
-      await bump(`stats/evening/players/${p.id}`,d,{win:!p.dq&&(N>1?hist.winner===p.id:k>=10),score:p.dq?0:(p.pts|0)});
+      await bump("games/"+code,`stats/evening/players/${p.id}`,d,{win:!p.dq&&(N>1?hist.winner===p.id:k>=10),score:p.dq?0:(p.pts|0)});
       hist.ps.push({u:p.id,s:p.dq?0:(p.pts|0),k,d:p.dq?1:0,dr:d});
     }
   }else if(m==="solo"){
     for(const p of ps){
       const k=p.okc|0,n=tn(g),ks=k15(k,n),d=p.dq?-20:Math.round((ks-7)*6);
-      await bump(`stats/solo/players/${p.id}`,d,{win:!p.dq&&ks>=10,score:p.dq?0:(p.pts|0)});
+      await bump("games/"+code,`stats/solo/players/${p.id}`,d,{win:!p.dq&&ks>=10,score:p.dq?0:(p.pts|0)});
       hist.ps.push({u:p.id,s:p.dq?0:(p.pts|0),k,n,d:p.dq?1:0,dr:d});
     }
   }else if(m==="blitz"){
@@ -3756,7 +3756,7 @@ async function saveStats(g,ps){
     for(const p of ps){
       const surv=p.alive?q+1:(p.outQ|0);
       const d=p.dq?-20:p.id===sole?30:p.alive?15:(surv<TOTAL/2?-10:-5);
-      await bump(`stats/blitz/players/${p.id}`,d,{win:p.id===sole,score:surv});
+      await bump("games/"+code,`stats/blitz/players/${p.id}`,d,{win:p.id===sole,score:surv});
       hist.ps.push({u:p.id,s:surv,a:!!p.alive,d:p.dq?1:0});
     }
   }else{
@@ -3771,8 +3771,8 @@ async function saveStats(g,ps){
       return N>1?Math.round(25*(N+1-2*(place[t]+(tied-1)/2))/(N-1)):0;
     };
     const win=t=>place[t]===1&&!(N>1&&adj(order[0])===adj(order[1]));
-    for(const t of order){await bump(`stats/${m}/teams/${t}`,dT(t),{win:win(t),score:sc[t]});hist.teams.push({t,s:sc[t]})}
-    for(const p of ps){await bump(`stats/${m}/players/${p.id}`,p.dq?-20:Math.round(dT(p.team)*.8),{win:!p.dq&&win(p.team),score:p.dq?0:(p.pts|0)});hist.ps.push({u:p.id,s:p.dq?0:(p.pts|0),t:p.team,d:p.dq?1:0})}
+    for(const t of order){await bump("games/"+code,`stats/${m}/teams/${t}`,dT(t),{win:win(t),score:sc[t]});hist.teams.push({t,s:sc[t]})}
+    for(const p of ps){await bump("games/"+code,`stats/${m}/players/${p.id}`,p.dq?-20:Math.round(dT(p.team)*.8),{win:!p.dq&&win(p.team),score:p.dq?0:(p.pts|0)});hist.ps.push({u:p.id,s:p.dq?0:(p.pts|0),t:p.team,d:p.dq?1:0})}
     hist.winner=order.length&&win(order[0])?order[0]:"";
   }
   await db.doc("history/"+code).set(hist);
@@ -4508,7 +4508,7 @@ setInterval(()=>{if(db&&uid&&!seenLoaded)seenLoad();seenDraw()},1200);
   let swReg=null;
   try{if("serviceWorker" in navigator)navigator.serviceWorker.getRegistrations().then(a=>a.forEach(r=>r.unregister())).catch(()=>{})}catch(e){}
   /* автообновление: сравниваем версию сборки с version.json на сервере */
-  const BUILD="7e9af13e48af";
+  const BUILD="0ff0b83a1d26";
   if(/^https?:$/.test(location.protocol)&&BUILD.length>8){
     let shown=false,busy=false;
     const bar=()=>{
