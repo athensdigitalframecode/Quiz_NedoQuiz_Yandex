@@ -51,6 +51,22 @@ with Run("t_shop") as r:
     r.arc(pg, "eq:t:cosmos")
     r.ok(pg.evaluate("document.documentElement.dataset.theme==='dark'"), "снять тему → «Золотая ночь»")
 
+    # титул и аватар из магазина уходят в профиль (их видят другие)
+    setsv("S.stars=2000")
+    r.arc(pg, "buy:ti:cinephile")
+    r.arc(pg, "buy:a:owl")
+    r.ok(sv("S.eq.ti==='ti:cinephile'&&S.eq.av==='a:owl'"), "титул и аватар надеты")
+    if pg.evaluate("!!(typeof ME!=='undefined'&&ME)"):
+        pg.wait_for_function("(()=>{const r=__db.get('profiles/'+uid);return r&&r.data.ti==='cinephile'&&r.data.photo==='s:owl'})()", timeout=5000)
+        r.ok(True, "в профиль записаны ti и photo s:owl")
+        r.ok("«Киноман»" in pg.evaluate("ttl(uid)"), "под ником показывается «Киноман»")
+        r.ok(pg.evaluate("photoOf(uid).startsWith('data:image/svg')"), "аватар профиля — из магазина")
+        r.arc(pg, "eq:ti:cinephile")
+        pg.wait_for_function("__db.get('profiles/'+uid).data.ti===''", timeout=5000)
+        r.ok(True, "снятый титул убирается из профиля")
+    else:
+        r.ok(False, "в тестовой сессии нет профиля ME — публикацию не проверить")
+
     # без денег: чужое не надевается, звёзд не хватает — сообщение
     setsv("S.stars=0")
     r.arc(pg, "buy:x:fire")
