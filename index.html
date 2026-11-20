@@ -2685,6 +2685,7 @@ async function onEnd(){
     else if(m==="blitz")win=!!mm.alive&&ps.filter(p=>p.alive).length===1;
     else{const s=teamScores(),t=mm.team,vals=Object.values(s),b=Math.max(...vals);win=!!t&&s[t]===b&&vals.filter(v=>v===b).length===1}
     a.g=(a.g|0)+1;
+    if(m==="solo"&&!mm.dq&&okc>0&&window.arcStars)ENDSTAR[c]=arcStars(okc+(okc>=tn(game)?5:0),c);
     if(win){a.w=(a.w|0)+1;a.run=(a.run|0)+1;a.bestRun=Math.max(a.bestRun|0,a.run)}else if(!game.ch)a.run=0;
     if((ind(m)||game.ch)&&okc>=tn(game)&&!mm.dq)a.perfect=(a.perfect|0)+1;
     const cb0=chestOf(a).st;chestTick(a);if(cb0===0&&a.ch.st===1)ENDCHEST[c]=1;
@@ -2709,6 +2710,7 @@ function endExtra(){
   if((ENDCOL[code]||[]).length)h+=`<div class="invite"><span>🎖️ В коллекции открыто: ${ENDCOL[code].map(esc).join(", ")}</span><button class="btn small" data-act="coll">Открыть</button></div>`;
   if(game.ghRes){const r=game.ghRes,nm=r.self?"вашей прошлой партии":"призрака "+esc(nickOf(r.u));h=`<div class="invite"><span>👻 ${r.res==="w"?"Победа":r.res==="l"?"Поражение":"Ничья"} против ${nm}: ${r.mine} : ${r.th}${r.d?" · рейтинг дуэлей "+(r.d>0?"+":"")+r.d:""}</span></div>`+h}
   h+=reactHtml();
+  {const z=ENDSTAR[code];if(z&&z.got)h=`<div class="invite"><span>⭐ <b>+${z.got}</b> за партию · всего ${z.tot}⭐. Тратятся в магазине на оформление</span></div>`+h;else if(z&&z.cap)h=`<div class="invite"><span>⭐ Звёзды за «Играть» на сегодня собраны (${z.cap} партий). Завтра снова</span></div>`+h}
   if(ENDCHEST[code])h=`<div class="invite"><span>🎁 Вы получили сундук! Он ждёт на главной.</span></div>`+h;
   if(game.dly&&DQ.res)h+=`<div class="gap"></div><button class="btn" data-act="dqshare">🗓️ Поделиться квизом дня</button>`;
   else if(game.mode==="solo"&&!game.ch&&!game.gh&&!game.dly&&me())h+=`<div class="gap"></div><button class="btn" data-act="linkch">⚔️ Вызвать друга: те же вопросы</button>`;
@@ -2911,7 +2913,7 @@ async function openDuel(){
   }catch(e){duelErr("Не удалось найти соперника: "+(e.message||e.code))}
 }
 /* ---------- квиз дня, вызов другу, сундуки ---------- */
-const DQ={k:"",res:undefined,stat:null,busy:false},CHL={},ENDCHEST={};
+const DQ={k:"",res:undefined,stat:null,busy:false},CHL={},ENDCHEST={},ENDSTAR={};
 const plur=(n,a,b,c)=>n%10===1&&n%100!==11?a:(n%10>=2&&n%10<=4&&(n%100<10||n%100>=20))?b:c;
 function ygLink(pl){
   try{const id=YG.sdk&&YG.sdk.environment&&YG.sdk.environment.app&&YG.sdk.environment.app.id;if(id)return "https://yandex.ru/games/app/"+id+(pl?"?payload="+pl:"")}catch(e){}
@@ -4531,7 +4533,7 @@ setInterval(()=>{if(db&&uid&&!seenLoaded)seenLoad();seenDraw()},1200);
   let swReg=null;
   try{if("serviceWorker" in navigator)navigator.serviceWorker.getRegistrations().then(a=>a.forEach(r=>r.unregister())).catch(()=>{})}catch(e){}
   /* автообновление: сравниваем версию сборки с version.json на сервере */
-  const BUILD="be5665306bef";
+  const BUILD="70ad7dd66158";
   if(/^https?:$/.test(location.protocol)&&BUILD.length>8){
     let shown=false,busy=false;
     const bar=()=>{
@@ -4588,6 +4590,7 @@ setInterval(()=>{if(db&&uid&&!seenLoaded)seenLoad();seenDraw()},1200);
 
 /* ---- таблица обновлений: новые записи добавляются в НАЧАЛО массива ---- */
 const UPDATES=[
+  {id:"u87",d:"21 ноября",t:"Звёзды за «Играть»",items:["+1⭐ за каждый верный ответ в «Играть», +5⭐ за 10 из 10","Звёзды дают первые 5 партий в день; итог показывает, сколько получено"]},
   {id:"u86",d:"20 ноября",t:"Титулы и оформление на виду",items:["Титулы за звёзды — видны под ником в рейтинге, списке игроков и лобби","Надетые аватар и рамка из магазина теперь видят другие игроки"]},
   {id:"u85",d:"20 ноября",t:"Одна серия дней",items:["Серия дней теперь общая: засчитывается любая игра — основной режим, вопрос дня или быстрые режимы","Серия снова видна на главной, и там же — сколько дней до награды звёздами"]},
   {id:"u84",d:"20 ноября",t:"Новое в магазине",items:["Эффекты верного ответа за звёзды: конфетти, звездопад, огонь","Две новые темы оформления за звёзды: «Космос» и «Вишня»","Звёзды можно купить пакетами: 300, 1000 и 2500","«Основатель» теперь ещё и отключает полноэкранную рекламу — тем, кто уже купил, тоже","Аватары в магазине стали наряднее, а эпические — с анимацией; новые: Лиса, Сова, Дракон, Единорог"]},
@@ -5188,7 +5191,7 @@ function msg(t){const e=$a("shMsg");if(e)e.textContent=t||""}
 function buyItem(id){
   const it=ITEMS[id];if(!it||own(id))return;
   const pr=TIERS[it.t];
-  if((S.stars|0)<pr){msg("Не хватает "+(pr-(S.stars|0))+"⭐. Звёзды дают задания дня, слово дня и ролики.");return}
+  if((S.stars|0)<pr){msg("Не хватает "+(pr-(S.stars|0))+"⭐. Звёзды дают партии «Играть», задания дня, слово дня и ролики.");return}
   S.stars-=pr;S.own[id]=1;wear(id,it,true);met("si");save();cloudFlush();shop();
 }
 function equip(rest){
@@ -5357,7 +5360,10 @@ document.addEventListener("keydown",e=>{
   else{const c=e.key.toLowerCase().replace("ё","е");if(/^[а-я]$/.test(c))wdKey(c)}
 });
 
-window.arcOpen=hub;window.fxOk=fxOk;window.arcOwn=own;
+/* звёзды за партию «Играть»: только первые MS_DAY партий в день, одна партия (код) — один раз */
+const MS_DAY=5;
+function mainStars(n,key){if(!S)load();const d=day();if(!S.ms||S.ms.d!==d)S.ms={d,n:0,k:[]};if(S.ms.k.includes(key))return null;if(S.ms.n>=MS_DAY)return{got:0,tot:S.stars|0,cap:MS_DAY};S.ms.n++;S.ms.k.push(key);S.stars=(S.stars|0)+n;save();cloudFlush();return{got:n,tot:S.stars}}
+window.arcOpen=hub;window.fxOk=fxOk;window.arcOwn=own;window.arcStars=mainStars;
 try{const _t=themeOf(),_e=$a("arcThm");if(_e&&_t>=0)_e.textContent="🌟 Тема недели: "+TOPICS[_t]+" (×2)"}catch(e){}
 load();cloudPull();
 if(!SES){SES=true;met("ses")}
