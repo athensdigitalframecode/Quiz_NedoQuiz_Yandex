@@ -26,9 +26,9 @@ def logo(px, full=False):
 def title(px): return f"<div class=t style='font-size:{px}px'>Квиз <i>или</i><br>Недоквиз</div>"
 def center(inner, gap=0): return f"<div class=c style='inset:0;--g:{gap}px'>{inner}</div>"
 
-def album(a, b):
-    imgs = "".join(f"<img class=ph src='/dist/promo/{n}' style='height:640px'>" for n in (a, b))
-    return center(f"<div style='display:flex;gap:56px;height:640px'>{imgs}</div>")
+def album(a, b, h=640):
+    imgs = "".join(f"<img class=ph src='/dist/promo/{n}' style='height:{h}px'>" for n in (a, b))
+    return center(f"<div style='display:flex;gap:{h * 56 // 640}px;height:{h}px'>{imgs}</div>")
 
 ASSETS = {
   "icon_1024x1024.png": (1024, 1024, center(logo(1024, True))),  # логотип без текста; на всю площадь
@@ -64,6 +64,9 @@ PRODUCTS = {
 for tag, body in PRODUCTS.items(): ASSETS[f"product_{tag}_512x512.png"] = (512, 512, svg(body))
 PAIRS = [("1_home.png", "2_question.png"), ("3_answer.png", "4_quick_modes.png"), ("5_quick_round.png", "6_shop.png"), ("2_question.png", "5_quick_round.png")]
 for i, (a, b) in enumerate(PAIRS, 1): ASSETS[f"screenshot_album_{i}_1280x720.png"] = (1280, 720, album(a, b))
+# VK: большой сниппет 1120x630 и скриншоты 1200x600
+ASSETS["vk_snippet_1120x630.png"] = (1120, 630, center(logo(200) + title(84) + "<div class=s style='font-size:26px'>Квиз на любую тему · 10 вопросов · рейтинг</div>", 20))
+for i, (a, b) in enumerate(PAIRS, 1): ASSETS[f"vk_screenshot_{i}_1200x600.png"] = (1200, 600, album(a, b, 540))
 
 with Run("promo_assets") as r:
     ctx = r.br.new_context(viewport={"width": 1920, "height": 1920}, device_scale_factor=1)

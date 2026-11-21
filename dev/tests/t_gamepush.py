@@ -79,3 +79,22 @@ with Run("t_gamepush") as r:
     r.ok(pg.evaluate("__gp.calls.every(c=>!c[0].startsWith('consume'))"), "без прошлой покупки набор новичка не выдан")
     r.ok("Яндекс" not in pg.inner_text("body"), "в магазине на GamePush нет упоминаний Яндекса")
     r.ok(not pg.errors, f"нет ошибок консоли ({pg.errors[:3]})")
+    # 6. Окно VK: iframe 700 px с scrolling="no" — прокручивается body игры
+    pg = r.page(sdk=False, gp=True, viewport=(1000, 800))
+    pg.set_content(f"<body style='margin:0'><iframe scrolling=no src='{r.base}/index.html' style='width:911px;height:700px;border:0'></iframe>")
+    fr = None
+    for _ in range(60):
+        pg.wait_for_timeout(500); fr = pg.frames[1] if len(pg.frames) > 1 else None
+        if fr and fr.evaluate("document.body&&document.body.dataset.scr") == "s-home": break
+    pg.wait_for_timeout(1000)
+    r.ok(fr.evaluate("document.documentElement.classList.contains('inframe')"), "внутри iframe включена прокрутка body")
+    pg.mouse.move(450, 400); pg.mouse.wheel(0, 500); pg.wait_for_timeout(600)
+    r.ok(fr.evaluate("scrollY") > 300 and fr.evaluate("document.body.classList.contains('scrolled')"), f"колесо прокручивает игру в окне VK (scrollY={fr.evaluate('scrollY')})")
+    fr.evaluate("scrollTo(0,0)")
+    r.ok(fr.evaluate("scrollY") == 0, "scrollTo(0,0) возвращает наверх")
+    # окно выше видимой части (как у VK на ноутбуке): нижняя панель поднимается в видимую часть
+    pg.set_viewport_size({"width": 1000, "height": 640})
+    pg.wait_for_timeout(800)
+    b = fr.evaluate("document.querySelector('.bnav').getBoundingClientRect().bottom")
+    r.ok(b <= 640, f"нижняя панель видна, когда окно игры выше экрана (низ панели {b:.0f} из 640 видимых)")
+    r.ok(not pg.errors, f"нет ошибок консоли в iframe ({pg.errors[:3]})")

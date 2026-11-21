@@ -33,7 +33,9 @@ with Run("promo") as r:
 
     pg = r.page(**GP); ready(pg)
     pg.click("#arcShop")
-    pg.wait_for_function("document.querySelectorAll('[data-arc^=\"pay:\"]').length===3", timeout=8000)
+    pg.wait_for_function("document.querySelectorAll('[data-arc^=\"pay:\"]').length>=3", timeout=8000)
     pg.locator('[data-arc^="pay:"]').first.scroll_into_view_if_needed()
     pg.evaluate("document.querySelector('[data-arc^=\\\"pay:\\\"]').closest('.card,div').scrollIntoView({block:'start'})")
+    # цены подставного SDK не настоящие: на витрине вместо них «Купить»
+    pg.evaluate("document.querySelectorAll('[data-arc^=\"pay:\"]').forEach(b=>b.textContent='Купить')")
     shot(pg, "6_shop.png")

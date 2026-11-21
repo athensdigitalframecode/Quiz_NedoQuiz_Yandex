@@ -19,7 +19,19 @@ Object.defineProperty(window,"localStorage",{configurable:true,value:{getItem:fu
 </script>
 <link rel="preconnect" href="https://cxblrsfnvqqblncvsjhn.supabase.co" crossorigin>
 <script async src="supabase.js"></script><!-- @supabase/supabase-js 2.58.0 UMD, локальная копия -->
-<script src="gp-config.js"></script><script src="gp-adapter.js"></script><!-- GamePush: включается только если в gp-config.js есть projectId -->
+<script src="gp-config.js"></script><script src="gp-adapter.js"></script><script>/* GamePush внутри чужого окна: VK ставит iframe с scrolling="no" (700 px), страница не прокручивается — прокручиваем body */
+if(window.GP_CONFIG&&GP_CONFIG.projectId&&self!==top)(function(){document.documentElement.classList.add("inframe");
+  var B=function(){return document.body},Y={get:function(){return B()?B().scrollTop:0},configurable:true};
+  window.scrollTo=function(x,y){if(!B())return;if(x&&typeof x==="object")B().scrollTo(x);else B().scrollTo(x||0,y||0)};
+  Object.defineProperty(window,"scrollY",Y);Object.defineProperty(window,"pageYOffset",Y);
+  document.addEventListener("scroll",function(e){if(e.target===document.body)window.dispatchEvent(new Event("scroll"))},true);
+  /* окно выше видимой части экрана (VK: 700 px при меньшем окне браузера) — --cut: сколько окна скрыто снизу, на столько поднимаем низ игры */
+  if(window.IntersectionObserver)addEventListener("DOMContentLoaded",function(){
+    var m=document.createElement("div");m.style.cssText="position:fixed;inset:0;opacity:0;pointer-events:none";m.setAttribute("aria-hidden","true");document.body.appendChild(m);
+    var th=[];for(var i=0;i<=100;i++)th.push(i/100);
+    new IntersectionObserver(function(es){var r=es[es.length-1].intersectionRect;if(r.height>0)document.documentElement.style.setProperty("--cut",Math.max(0,Math.round(innerHeight-r.bottom))+"px")},{threshold:th}).observe(m);
+  });
+})();</script><!-- GamePush: включается только если в gp-config.js есть projectId -->
 <script async src="/sdk.js"></script>
 <style>
 /* layout: one-column phone-first lobby → arena of 13 avatars; single committed dark look (neon quiz night) */
@@ -27,7 +39,7 @@ Object.defineProperty(window,"localStorage",{configurable:true,value:{getItem:fu
 #warn,#s-lobby .warnline,#s-home .modes,#nowplay,#codeCard,#tabMode [data-m="blitz"],#tabMode [data-m="duel"],#tabMode [data-m="evening"],#tabMode [data-m="mass"],#tabScope,#rankTeamBox,#homeTeam,#meTeam,#ppTeam,#ppLive,.plbtns [data-act="pvpch"],#s-home [data-guest="in"],.bnav .bn[data-nav="teams"]{display:none!important}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{overscroll-behavior:none}body{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}input,textarea,select{-webkit-user-select:text;user-select:text}
-html,body{min-height:100%}
+html,body{min-height:100%}html.inframe{height:calc(100% - var(--cut,0px));overflow:hidden}html.inframe .bnav{bottom:calc(10px + var(--cut,0px))}html.inframe .sheet{bottom:var(--cut,0px)}html.inframe .mus{bottom:calc(12px + var(--cut,0px))}html.inframe .updbtn{bottom:calc(92px + var(--cut,0px))}html.inframe #updBar{bottom:calc(12px + var(--cut,0px))}html.inframe .rxfloat{bottom:calc(90px + var(--cut,0px))}html.inframe body{height:100%;overflow-y:auto;position:relative}
 body{margin:0;background:var(--bg);color:var(--txt);font:15px/1.4 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;overflow-x:hidden}
 body::before{content:"";position:fixed;inset:0;z-index:-2;background:radial-gradient(900px 600px at 15% -5%,#26346a 0%,transparent 60%),radial-gradient(800px 600px at 100% 100%,#3b1f5e 0%,transparent 55%),var(--bg)}
 #stars{position:fixed;inset:0;z-index:-1;width:100%;height:100%}
@@ -82,7 +94,7 @@ textarea{width:100%;min-height:280px;background:var(--card);color:var(--txt);bor
 .ring .num{position:absolute;inset:0;display:grid;place-items:center;font:800 28px var(--disp);font-variant-numeric:tabular-nums}
 .ring.warn .fg{stroke:var(--gold)}.ring.hot .fg{stroke:var(--bad)}
 .ring.hot .num{color:var(--bad)}
-.qtxt{font-size:20px;font-weight:700;line-height:1.28;flex:1;min-width:0}
+.qtxt{font-size:20px;font-weight:700;line-height:1.28;flex:1;min-width:0;overflow-wrap:break-word;hyphens:auto}
 .qno{font-size:12px;color:var(--gold);text-transform:uppercase;letter-spacing:1.2px;margin-bottom:4px}
 .ans{margin:10px 2px 0;padding:10px 14px;border-radius:14px;background:rgba(47,227,138,.12);border:1px solid rgba(47,227,138,.5)}
 .ans small{color:var(--ok);display:block;font-size:11px;letter-spacing:1px;text-transform:uppercase}
@@ -4533,7 +4545,7 @@ setInterval(()=>{if(db&&uid&&!seenLoaded)seenLoad();seenDraw()},1200);
   let swReg=null;
   try{if("serviceWorker" in navigator)navigator.serviceWorker.getRegistrations().then(a=>a.forEach(r=>r.unregister())).catch(()=>{})}catch(e){}
   /* автообновление: сравниваем версию сборки с version.json на сервере */
-  const BUILD="70ad7dd66158";
+  const BUILD="b0aa4948d58e";
   if(/^https?:$/.test(location.protocol)&&BUILD.length>8){
     let shown=false,busy=false;
     const bar=()=>{
