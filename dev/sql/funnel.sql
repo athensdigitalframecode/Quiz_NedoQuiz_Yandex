@@ -4,7 +4,7 @@
 --   ss  начата партия          sa1 первый ответ в партии
 --   sf  доиграна до конца      sq  брошена (выход посреди, в т.ч. на 0 ответах)
 --   sag «Сыграть ещё раз»      sch «Бросить вызов другу»
--- Квиз дня: dqs начат, dqf закончен. Вызов по ссылке: chc создан, cho открыт другим игроком.
+-- Квиз дня: dqs начат, dqf закончен. Вызов по ссылке: chc создан, cho открыт другим игроком, chf доигран приглашённым; rm «Реванш».
 -- Призрак: gh начата дуэль, ghf закончена.
 -- Ключи быстрых режимов (уже были): ses сессии, rnd раунды, sec секунды, sk серия, ai/ar/ark реклама, bt/bo покупки.
 -- Каждое значение — сумма за день у одного посетителя (vid). Доли считаются от числа событий, не от игроков.
@@ -25,6 +25,8 @@ select day,
   round(100.0*sum(coalesce((m->>'dqf')::int,0)) / nullif(sum(coalesce((m->>'dqs')::int,0)),0), 1) as daily_finish_pct,
   sum(coalesce((m->>'chc')::int,0))                           as link_ch_created,
   sum(coalesce((m->>'cho')::int,0))                           as link_ch_opened,
+  sum(coalesce((m->>'chf')::int,0))                           as challenge_finished,
+  sum(coalesce((m->>'rm')::int,0))                            as rematch,
   sum(coalesce((m->>'gh')::int,0))                            as ghost_started,
   sum(coalesce((m->>'ghf')::int,0))                           as ghost_finished
 from d group by day order by day desc;
