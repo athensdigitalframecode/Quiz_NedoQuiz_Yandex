@@ -266,9 +266,9 @@ body:not(.on-home) a.donate{display:none}
 .opt.mine{outline:2px solid var(--acc)}
 .opt.sel{outline:2px dashed var(--ok)}
 .opt.final{border-color:var(--ok);background:rgba(47,227,138,.14)}
-/* #opts — чтобы правило «#opts .opt» (оформление кнопок) не перебивало цвет разбора в «Играть» */
-.opt.right,#opts .opt.right{border-color:var(--ok);background:rgba(47,227,138,.2);box-shadow:0 0 16px rgba(47,227,138,.4)}
-.opt.wrongpick,#opts .opt.wrongpick{border-color:var(--bad);background:rgba(255,77,99,.16)}
+/* #opts и :hover — чтобы оформление кнопок и «залипшее» наведение после касания не перебивали цвет разбора */
+.opt.right,#opts .opt.right,#opts .opt.right:hover:not(:disabled){border-color:var(--ok);background:rgba(47,227,138,.2);box-shadow:0 0 16px rgba(47,227,138,.4)}
+.opt.wrongpick,#opts .opt.wrongpick,#opts .opt.wrongpick:hover:not(:disabled){border-color:var(--bad);background:rgba(255,77,99,.16)}
 .answer-box.locked .opt{cursor:default;opacity:.92}
 /* ===== Сцена: прожекторы, летающие «?» и «!», анимации ===== */
 #stage{position:fixed;inset:0;z-index:-1;overflow:hidden;pointer-events:none}
@@ -1025,7 +1025,8 @@ body[data-scr="s-home"] #bestFloat{display:block}
 
 .streakpill{display:block;width:max-content;max-width:100%;margin:6px auto 2px;padding:6px 14px;border-radius:999px;font:800 14px var(--disp);background:rgba(255,201,60,.14);border:1px solid var(--gold);color:var(--gold);transition:background .2s,box-shadow .2s;animation:pop .3s}
 .streakpill[hidden]{display:none}
-.streakpill.hot{background:rgba(255,140,40,.18);border-color:#ff8c28;color:#ffb066;box-shadow:0 0 14px rgba(255,140,40,.45)}
+.quickrow{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:0 0 10px}.quickrow .btn{width:100%;margin:0;padding:12px 10px;line-height:1.25}
+.streakpill.hot{font-size:16px;background:rgba(255,140,40,.18);border-color:#ff8c28;color:#ffb066;box-shadow:0 0 14px rgba(255,140,40,.45)}
 .streakpill.big{background:rgba(255,77,99,.18);border-color:#ff4d63;color:#ff8f9f;box-shadow:0 0 20px rgba(255,77,99,.55);animation:streakbeat 1s ease-in-out infinite}
 .streakpill.lost{background:rgba(255,77,99,.12);border-color:var(--bad);color:var(--bad);box-shadow:none}
 @keyframes streakbeat{50%{transform:scale(1.07)}}
@@ -1193,7 +1194,7 @@ body[data-scr="s-home"] #bestFloat{display:block}
   <div id="invites"></div>
   <div id="nowplay"></div>
   <button class="btn playbig" data-act="new" data-mode="solo" type="button"><span class="pbi"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13l11-6.5z" fill="currentColor" stroke="none"/></svg></span><span class="pbt"><b>Играть</b><small>Быстрая игра: 10 вопросов, вы против себя</small></span></button>
-  <button type="button" class="btn alt" id="arcOpen" style="width:100%;margin:0 0 10px">⚡ Быстрые режимы<small id="arcThm" style="display:block;font-weight:400;opacity:.8"></small></button>
+  <div class="quickrow"><button type="button" class="btn alt" data-arc="m:blitz" id="homeBlitz">⚡ Блиц<small style="display:block;font-weight:400;opacity:.8">60 секунд: сколько успеете?</small></button><button type="button" class="btn alt" id="arcOpen">🎮 Все быстрые режимы<small id="arcThm" style="display:block;font-weight:400;opacity:.8"></small></button></div>
   <div class="topicbox"><label for="topicSel" class="toplab">Тема вопросов<small>по умолчанию микс всех тем</small></label><select id="topicSel"></select><div class="chips" id="topicChips"></div><button type="button" class="chipsmore" id="chipsMore">Все темы ▾</button></div>
   <button type="button" class="btn alt" id="arcShop" style="width:100%;margin:0 0 10px">🛍 Магазин</button>
   <div id="dquiz"></div>
@@ -1615,7 +1616,7 @@ const TOTAL=15,REVEAL=8,COUNT=3,SOLO_N=10;
 const tn=g=>g&&g.mode==="solo"&&g.n>0?g.n|0:TOTAL,k15=(k,n)=>n>=TOTAL?k:Math.round(k*TOTAL/n),thr=(t,n)=>Math.ceil(t*n/TOTAL);
 /* e — у вопроса есть пояснение: в «Играть» (один игрок) даём 4 с прочитать, «Дальше →» пропускает */
 const revealSec=(m,e)=>m==="solo"?(e?7:2):m==="pvp"||m==="evening"?4:m==="blitz"?5:6;
-const MODES={evening:{name:"Квиз-вечер",time:30},pvp:{name:"Дуэль 1×1",time:30},solo:{name:"🧍 Сам с собой",time:30},blitz:{name:"⚡ Блиц",time:60},duel:{name:"⚔️ Дуэль",time:30},mass:{name:"🏟️ Массовый квиз",time:30}};
+const MODES={evening:{name:"Квиз-вечер",time:30},pvp:{name:"Дуэль 1×1",time:30},solo:{name:"🧍 Сам с собой",time:20},blitz:{name:"⚡ Блиц",time:60},duel:{name:"⚔️ Дуэль",time:30},mass:{name:"🏟️ Массовый квиз",time:30}};
 const ind=m=>m==="blitz"||m==="solo"||m==="pvp"||m==="evening";
 const race=m=>m==="solo"||m==="pvp"||m==="evening";
 const RND=[
@@ -3367,6 +3368,9 @@ $("copycode").onclick=async()=>{try{await navigator.clipboard.writeText(code);$(
 const Tq=(g,q)=>{const x=bq(g,q),kg=x&&x.c===31,long=kg||(x&&(x.c===25||x.c===26)),L=kg?90:120;if(g&&g.mode==="evening"){const b=RND[rndOf(q)].t;return long&&b>=25?L:b}return long?L:(g&&g.time||60)};
 const Tof=q=>Tq(game,q);
 function teamScores(){const s={};teamsInGame().forEach(t=>s[t]=0);players.forEach(p=>{if(!p.dq&&p.team in s)s[p.team]+=p.pts|0});return s}
+/* характер игры: после ответа в «Играть» — Квизер (верно) или добрый Недоквиз (мимо); выбор стабилен для партии и вопроса */
+const NQ_OK=["Квизер!","В точку!","Знаток!","Так держать!","Голова!"],NQ_NO=["Недоквиз, но бывает","Мимо — зато запомним","Хитрый вопрос","Почти квизер"];
+const nqPick=(a,q)=>a[hstr(String(code)+"~"+q)%a.length];
 const OKEMO=["🔥","🎯","🧠","⚡","🚀","💪","🌟","👏","😎","🏆","🤩","✨"];
 const okEmo=q=>OKEMO[hstr(String(code)+":"+q)%OKEMO.length];
 function drawGame(){
@@ -3413,7 +3417,7 @@ function drawGame(){
   $("ans").hidden=!(game.status==="reveal"&&game.ans);$("ans").classList.toggle("noans",game.mode==="solo"&&!document.body.classList.contains("padmode"));$("anst").textContent=game.ans||"";{const bx=game.status==="reveal"?bq(game,game.qi|0):null,w=$("whyq");w.textContent=(bx&&bx.e)||"";w.hidden=!w.textContent}flagDraw();
   const bn=$("banner");let names=[];
   if(game.status==="reveal"){
-    if(solo||pvp||ev){const ok=mine&&mine.ok===1;bn.textContent=ok?`Верно! +${mine.gain|0} очков ${okEmo(q)}`:"Не угадали";if(ok&&solo){const r=runOf(REC[code]||{},q)[0];if(r>=2)bn.textContent+=` · серия ${r} 🔥`}bn.className="banner "+(ok?"green":"red");if(pvp){const o=players.find(p=>p.id!==uid);if(o)bn.textContent+=" · соперник: "+(o.ok===1?"верно":"мимо")}}
+    if(solo||pvp||ev){const ok=mine&&mine.ok===1;bn.textContent=ok?`${solo?nqPick(NQ_OK,q):"Верно!"} +${mine.gain|0} очков ${okEmo(q)}`:solo?nqPick(NQ_NO,q)+" 🙃":"Не угадали";if(ok&&solo){const r=runOf(REC[code]||{},q)[0];if(r>=3)bn.textContent=`Квизер в ударе! +${mine.gain|0} 🔥`}/* число серии — на значке над вопросом */bn.className="banner "+(ok?"green":"red");if(pvp){const o=players.find(p=>p.id!==uid);if(o)bn.textContent+=" · соперник: "+(o.ok===1?"верно":"мимо")}}
     else if(blitz){names=(game.outs||[]).map(id=>nickOf(id));
       if(names.length){bn.textContent="Выбывают: "+names.join(", ");bn.className="banner red"}else{bn.textContent="Все остаются в игре! "+okEmo(q);bn.className="banner green"}}
     else{const tt=teamsInGame().filter(t=>players.some(p=>p.team===t&&!p.dq)),k=tt.filter(t=>players.some(p=>p.team===t&&!p.dq&&p.ok===1)).length;bn.textContent=`Верно ответили команд: ${k} из ${tt.length}`;bn.className="banner "+(k?"green":"red")}
@@ -3445,7 +3449,7 @@ function drawStreak(){
   el.hidden=!on;if(!on)return;
   el.className="streakpill"+(MY.streak>=5?" big":MY.streak>=3?" hot":"")+(MY.streak<2?" lost":"");
   const t=MY.streak>=2?"🔥 "+MY.streak+" подряд":"💔 Серия прервана · было "+MY.lost;
-  if(el.textContent!==t)el.textContent=t;
+  if(el.textContent!==t){el.textContent=t;el.style.animation="none";void el.offsetWidth;el.style.animation=""}
 }
 function myReveal(q,m){
   if(!game||!ind(game.mode))return;
@@ -4555,7 +4559,7 @@ setInterval(()=>{if(db&&uid&&!seenLoaded)seenLoad();seenDraw()},1200);
   let swReg=null;
   try{if("serviceWorker" in navigator)navigator.serviceWorker.getRegistrations().then(a=>a.forEach(r=>r.unregister())).catch(()=>{})}catch(e){}
   /* автообновление: сравниваем версию сборки с version.json на сервере */
-  const BUILD="cea3994fa25a";
+  const BUILD="c18e6aa3b481";
   if(/^https?:$/.test(location.protocol)&&BUILD.length>8){
     let shown=false,busy=false;
     const bar=()=>{
@@ -4612,6 +4616,7 @@ setInterval(()=>{if(db&&uid&&!seenLoaded)seenLoad();seenDraw()},1200);
 
 /* ---- таблица обновлений: новые записи добавляются в НАЧАЛО массива ---- */
 const UPDATES=[
+  {id:"u93",d:"22 ноября",t:"Квизер или недоквизер?",items:["После ответа в «Играть» — реплика: «Квизер!», «В точку!» или добрая «Недоквиз, но бывает»","Серия верных ответов заметнее: значок вздрагивает на каждом новом ответе, с 3 подряд — «Квизер в ударе!»","«Блиц» на 60 секунд — прямо на главной рядом с «Играть»","В «Играть» 20 секунд на вопрос (детям по-прежнему 45); очки за скорость — те же 50–100"]},
   {id:"u92",d:"22 ноября",t:"Партия бодрее",items:["Подсказки в «Играть» — одной кнопкой «💡 Подсказки» с третьего вопроса, экран вопроса стал чище","После ответа следующий вопрос через 2 секунды (с пояснением — как раньше)","Разбор: вместо «0» на таймере — ✓ или ✗, верный ответ не дублируется карточкой, надпись с очками крупнее","Темы: сначала общие знания и кино, английский — ниже"]},
   {id:"u91",d:"22 ноября",t:"Новая тема и вопросы",items:["Появилась тема «🏛️ Музеи и памятники»","+192 вопроса: музеи и памятники, телевидение, компьютеры, «Что? Где? Зачем?», политика, мода и дизайн, комиксы, гаджеты, транспорт, мультфильмы"]},
   {id:"u90",d:"22 ноября",t:"Новые вопросы",items:["+114 вопросов в темах, где их было меньше всего: театр, настольные игры, математика, мифология и спорт"]},

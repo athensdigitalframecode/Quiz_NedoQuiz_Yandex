@@ -9,7 +9,7 @@ with Run("t_solo") as r:
     start(pg)
     r.ok(pg.evaluate(f"{GAME}.mode") == "solo", "партия «Играть» создана")
     r.ok(pg.evaluate(f"({GAME}.qs||[]).length") == 10, "в партии 10 вопросов")
-    r.ok(pg.evaluate(f"{GAME}.time") == 30, "на вопрос 30 секунд")
+    r.ok(pg.evaluate(f"{GAME}.time") == 20, "на вопрос 20 секунд")
     r.ok(not pg.evaluate("document.body.classList.contains('tmhide')"), "таймер виден с начала вопроса")
     r.ok(pg.evaluate("JSON.stringify(runOf({0:{a:'x',c:'x'},1:{a:'x',c:'x'},2:{a:'',c:'y'},3:{a:'z',c:'z'}},9))") == "[1,2]", "серия: текущая 1, лучшая 2")
     pg.click("#s-game [data-leave]")
