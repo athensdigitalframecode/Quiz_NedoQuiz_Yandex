@@ -40,7 +40,7 @@
 | --- | --- |
 | Константы партии | `const TOTAL=15,REVEAL=8,COUNT=3,SOLO_N=10`, `tn()`, `k15()`, `revealSec` |
 | Звания | `const RANKS=` (Новичок 0 … Легенда 2300, старт 1000) |
-| Темы и скрытые темы | `const TOPICS=` (37 названий), `const HID=new Set([22])`, `isKid` (27–32) |
+| Темы и скрытые темы | `const TOPICS=` (37 названий), `const HID=new Set([22])` (22 — удалённая тема, её вопросы заменены), `isKid` (27–32) |
 | Банк вопросов | `const BANK=` (одна строка) |
 | Выбор вопросов | `function pickQs(topic,plan,len)` |
 | Создание партии | `async function makeGame` |
