@@ -16,8 +16,8 @@ with Run("t_firstrun") as r:
     pg.wait_for_timeout(2500)
     r.ok(pg.locator("#onb").is_hidden(), "новичку окно обучения само не открывается")
     r.ok(pg.locator('[data-act="new"][data-mode="solo"]').first.is_visible(), "кнопка «Играть» видна сразу")
-    r.ok(pg.evaluate("revealSec('solo')===3&&revealSec('solo','пояснение')===7&&revealSec('pvp','x')===4"),
-         "пояснение даёт +4 с только в «Играть»; дуэль не меняется")
+    r.ok(pg.evaluate("revealSec('solo')===2&&revealSec('solo','пояснение')===7&&revealSec('pvp','x')===4"),
+         "разбор в «Играть»: 2 с, с пояснением 7 с; дуэль не меняется")
 
     start(pg)
     pg.wait_for_function("typeof me==='function'&&!!me()", timeout=20000)
@@ -32,6 +32,9 @@ with Run("t_firstrun") as r:
     bg = pg.evaluate("[...document.querySelectorAll('#opts .opt.right,#opts .opt.wrongpick')].map(b=>b.className.split(' ')[1]+':'+getComputedStyle(b).backgroundColor)")
     r.ok(any(x.startswith("right:rgba(47, 227, 138") for x in bg), f"верный ответ подсвечен зелёным ({bg})")
     r.ok(any(x.startswith("wrongpick:rgba(255, 77, 99") for x in bg), "свой неверный выбор подсвечен красным")
-    r.ok(pg.inner_text("#banner").startswith("Не угадали") and a in pg.inner_text("#anst"), "после ошибки — спокойное «Не угадали» и правильный ответ")
+    r.ok(pg.inner_text("#banner").startswith("Не угадали"), "после ошибки — спокойное «Не угадали»")
+    r.ok(pg.locator("#ans .noans, #ans.noans").count() == 1 and not pg.locator("#anst").is_visible(), "верный ответ не дублируется карточкой — он подсвечен в вариантах")
+    r.ok(pg.evaluate("document.getElementById('tnum').textContent") == "✗", "вместо «0» на таймере — ✗")
+    r.ok(pg.locator("#hintRow").is_hidden(), "на первом вопросе подсказок нет")
     r.ok(not pg.errors, f"нет ошибок консоли ({pg.errors[:3]})")
     r.ok(not pg.external, f"нет внешних запросов ({pg.external[:3]})")

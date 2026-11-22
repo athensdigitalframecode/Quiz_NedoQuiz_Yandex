@@ -97,6 +97,7 @@ textarea{width:100%;min-height:280px;background:var(--card);color:var(--txt);bor
 .qtxt{font-size:20px;font-weight:700;line-height:1.28;flex:1;min-width:0;overflow-wrap:break-word;hyphens:auto}
 .qno{font-size:12px;color:var(--gold);text-transform:uppercase;letter-spacing:1.2px;margin-bottom:4px}
 .ans{margin:10px 2px 0;padding:10px 14px;border-radius:14px;background:rgba(47,227,138,.12);border:1px solid rgba(47,227,138,.5)}
+.ans.noans>small,.ans.noans>#anst{display:none}.ans.noans{padding:6px 14px}.ans.noans:not(:has(.whyq:not([hidden]))){background:none;border-color:transparent;padding:0}#s-game .banner.green,#s-game .banner.red{font-size:22px}
 .ans small{color:var(--ok);display:block;font-size:11px;letter-spacing:1px;text-transform:uppercase}
 .banner{margin:14px 0 4px;text-align:center;font-size:18px;font-weight:700;min-height:26px}
 .banner.red{color:var(--bad)}.banner.green{color:var(--ok)}
@@ -1031,7 +1032,7 @@ body[data-scr="s-home"] #bestFloat{display:block}
 @keyframes rightpop{0%{transform:scale(1)}45%{transform:scale(1.06)}100%{transform:scale(1)}}
 #s-game .opt.right{animation:rightflash .8s ease-out,rightpop .5s cubic-bezier(.2,1.6,.4,1)}
 .whyq{margin-top:6px;font-size:13px;line-height:1.35;color:var(--mut);font-weight:500;overflow-wrap:anywhere}
-.hintrow{display:grid;grid-template-columns:1fr 1fr;gap:6px}.hintrow .btn{font-size:12px;padding:10px 8px;line-height:1.25}
+.hintrow{display:grid;grid-template-columns:1fr 1fr;gap:6px}.hintrow .hmore{grid-column:1/-1;justify-self:center;padding:10px 22px}.hintrow .btn{font-size:12px;padding:10px 8px;line-height:1.25}
 .gainpop{position:fixed;left:50%;top:32%;transform:translateX(-50%);z-index:70;pointer-events:none;font:900 34px var(--disp);color:var(--ok);text-shadow:0 2px 14px rgba(0,0,0,.6);animation:gainup 1.4s ease-out forwards}
 .gainpop.neg{color:var(--bad)}
 @keyframes gainup{0%{opacity:0;transform:translate(-50%,10px) scale(.6)}20%{opacity:1;transform:translate(-50%,0) scale(1.15)}100%{opacity:0;transform:translate(-50%,-50px) scale(1)}}
@@ -1613,7 +1614,7 @@ const AV=["data:image/webp;base64,UklGRl4IAABXRUJQVlA4IFIIAAAQKgCdASqgAKAAPm00lk
 const TOTAL=15,REVEAL=8,COUNT=3,SOLO_N=10;
 const tn=g=>g&&g.mode==="solo"&&g.n>0?g.n|0:TOTAL,k15=(k,n)=>n>=TOTAL?k:Math.round(k*TOTAL/n),thr=(t,n)=>Math.ceil(t*n/TOTAL);
 /* e — у вопроса есть пояснение: в «Играть» (один игрок) даём 4 с прочитать, «Дальше →» пропускает */
-const revealSec=(m,e)=>m==="solo"?3+(e?4:0):m==="pvp"||m==="evening"?4:m==="blitz"?5:6;
+const revealSec=(m,e)=>m==="solo"?(e?7:2):m==="pvp"||m==="evening"?4:m==="blitz"?5:6;
 const MODES={evening:{name:"Квиз-вечер",time:30},pvp:{name:"Дуэль 1×1",time:30},solo:{name:"🧍 Сам с собой",time:30},blitz:{name:"⚡ Блиц",time:60},duel:{name:"⚔️ Дуэль",time:30},mass:{name:"🏟️ Массовый квиз",time:30}};
 const ind=m=>m==="blitz"||m==="solo"||m==="pvp"||m==="evening";
 const race=m=>m==="solo"||m==="pvp"||m==="evening";
@@ -2109,13 +2110,13 @@ $("profDel").onclick=async()=>{
 function fillTopics(){
   const sel=$("topicSel"),kb=KB(ME);if(!sel||sel.dataset.init===String(kb))return;
   if(kb){sel.innerHTML=`<option value="${kb}">${TOPICS[kb]} (${topicCount(kb)})</option>`;sel.value=String(kb);curTopic=kb}
-  else sel.innerHTML='<option value="-1">🎲 Микс тем (от лёгких к сложным)</option>'+[30].map(i=>topicCount(i)>=TOPIC_MIN?`<option value="${i}">${TOPICS[i]} (${topicCount(i)})</option>`:"").join("")+[...TOPIC_ORDER,...TOPICS.keys()].filter((i,j,a)=>i!==30&&a.indexOf(i)===j).map(i=>{const n=TOPICS[i];return n&&topicCount(i)>=TOPIC_MIN?`<option value="${i}">${n} (${topicCount(i)})</option>`:""}).join("");if(!kb){sel.value="-1";if(curTopic>=27&&curTopic<30)curTopic=-1}
+  else sel.innerHTML='<option value="-1">🎲 Микс тем (от лёгких к сложным)</option>'+[...TOPIC_ORDER,...TOPICS.keys()].filter((i,j,a)=>a.indexOf(i)===j).map(i=>{const n=TOPICS[i];return n&&topicCount(i)>=TOPIC_MIN?`<option value="${i}">${n} (${topicCount(i)})</option>`:""}).join("");if(!kb){sel.value="-1";if(curTopic>=27&&curTopic<30)curTopic=-1}
   sel.dataset.init=String(kb);
   sel.onchange=()=>{curTopic=+sel.value;drawChallengeTopic();seenSig="";seenDraw()};
 }
 const TOPIC_MIN=15;
 /* порядок тем в списке: языки, культура, игры и техника, наука и мир, спорт и транспорт, мышление, детские. 30 всегда первая; не перечисленные темы добавляются в конец */
-const TOPIC_ORDER=[30,17,0,2,23,5,3,4,1,16,20,6,7,9,21,8,34,33,35,10,32,18,13,14,11,15,12,19,25,26,31,24,36,27,28,29];
+const TOPIC_ORDER=[0,2,23,5,3,4,1,16,20,6,7,9,21,30,17,8,34,33,35,10,32,18,13,14,11,15,12,19,25,26,31,24,36,27,28,29];
 function drawChallengeTopic(){const e=$("chTopic");if(e)e.textContent="Тема вопросов: "+topicName(curTopic)+" (меняется на главном экране)"}
 function drawHome(){
   if(!ME)return;
@@ -3409,7 +3410,7 @@ function drawGame(){
     else if(mine&&!mine.alive)gs.textContent="Вы выбыли. Можно наблюдать за игрой";
     else gs.textContent="Вы наблюдаете за игрой";
   }
-  $("ans").hidden=!(game.status==="reveal"&&game.ans);$("anst").textContent=game.ans||"";{const bx=game.status==="reveal"?bq(game,game.qi|0):null,w=$("whyq");w.textContent=(bx&&bx.e)||"";w.hidden=!w.textContent}flagDraw();
+  $("ans").hidden=!(game.status==="reveal"&&game.ans);$("ans").classList.toggle("noans",game.mode==="solo"&&!document.body.classList.contains("padmode"));$("anst").textContent=game.ans||"";{const bx=game.status==="reveal"?bq(game,game.qi|0):null,w=$("whyq");w.textContent=(bx&&bx.e)||"";w.hidden=!w.textContent}flagDraw();
   const bn=$("banner");let names=[];
   if(game.status==="reveal"){
     if(solo||pvp||ev){const ok=mine&&mine.ok===1;bn.textContent=ok?`Верно! +${mine.gain|0} очков ${okEmo(q)}`:"Не угадали";if(ok&&solo){const r=runOf(REC[code]||{},q)[0];if(r>=2)bn.textContent+=` · серия ${r} 🔥`}bn.className="banner "+(ok?"green":"red");if(pvp){const o=players.find(p=>p.id!==uid);if(o)bn.textContent+=" · соперник: "+(o.ok===1?"верно":"мимо")}}
@@ -3554,8 +3555,11 @@ function drawBetHint(q,mine){
   if(solo&&live&&!answered&&(mine.xn|0)<1)b.push(`<button class="btn small ghost" data-x="1">⏱ +10 сек · −20 очков · 1 раз</button>`);
   if(solo&&live&&!answered&&(mine.sn|0)<1)b.push(`<button class="btn small ghost" data-skip="1">⏭ Заменить вопрос · 1 раз</button>`);
   if(vbOK)b.push(`<button class="btn small${mine.vq===q?"":" ghost"}" data-vb="1">🎰 Ва-банк${mine.vq===q?" включён":""} · ×2 / −50 · 1 раз</button>`);
-  hr.hidden=!b.length;if(b.length)hr.innerHTML=b.join("");
+  /* «Играть»: на первых двух вопросах — без подсказок, дальше одна кнопка вместо пяти; уже включённые видны сразу */
+  let hb=b;if(solo&&b.length&&!(mine.vq===q||mine.xq===q)){if(q<2)hb=[];else if(hOpen!==code+":"+q)hb=[`<button class="btn small ghost hmore" data-hmore="1">💡 Подсказки · ${b.length}</button>`]}
+  hr.hidden=!hb.length;if(hb.length)hr.innerHTML=hb.join("");
 }
+let hOpen="";
 $("betRow").onclick=e=>{const b=e.target.closest("[data-bet]");if(!b)return;curBet=+b.dataset.bet;drawGame()};
 async function hintExtra(bt){
   const m=me(),q=game.qi|0;if(!m||m.dq||!m.alive||m.aq===q)return;
@@ -3576,6 +3580,7 @@ async function hintExtra(bt){
   drawGame();
 }
 $("hintRow").onclick=async e=>{
+  if(e.target.closest("[data-hmore]")){hOpen=code+":"+(game.qi|0);drawGame();return}
   const gv=e.target.closest("[data-ghv]");
   if(gv&&game&&game.status==="q"){const m=me(),q=game.qi|0;if(!m||m.hq===q||m.aq===q)return;
     const tAd=Date.now(); // время ролика не списывается с вопроса: сдвигаем срок на длительность паузы
@@ -3631,7 +3636,7 @@ function tickUI(){
     const left=Math.max(0,revealSec(game.mode,(bq(game,q)||{}).e)-Math.floor((Date.now()-(revealAt[q]||Date.now()))/1000));
     $("gstatus").className="status";
     $("gstatus").textContent=(overNow(game,players)?"Итоги через ":"Следующий вопрос через ")+left+" с";
-    $("tnum").textContent="0";$("fg").style.strokeDashoffset=282.7;
+    {const mm=me(),my=game.mode==="solo"&&mm&&mm.aq===q;$("tnum").textContent=my?(mm.ok===1?"✓":"✗"):"0";$("tnum").style.color=my?(mm.ok===1?"var(--ok)":"var(--bad)"):""}$("fg").style.strokeDashoffset=282.7;
   }
   {const sn=$("soloNext");if(sn)sn.hidden=!(game.mode==="solo"&&game.status==="reveal"&&!overNow(game,players))}
 }
@@ -4550,7 +4555,7 @@ setInterval(()=>{if(db&&uid&&!seenLoaded)seenLoad();seenDraw()},1200);
   let swReg=null;
   try{if("serviceWorker" in navigator)navigator.serviceWorker.getRegistrations().then(a=>a.forEach(r=>r.unregister())).catch(()=>{})}catch(e){}
   /* автообновление: сравниваем версию сборки с version.json на сервере */
-  const BUILD="53dc757ccaad";
+  const BUILD="cea3994fa25a";
   if(/^https?:$/.test(location.protocol)&&BUILD.length>8){
     let shown=false,busy=false;
     const bar=()=>{
@@ -4607,6 +4612,7 @@ setInterval(()=>{if(db&&uid&&!seenLoaded)seenLoad();seenDraw()},1200);
 
 /* ---- таблица обновлений: новые записи добавляются в НАЧАЛО массива ---- */
 const UPDATES=[
+  {id:"u92",d:"22 ноября",t:"Партия бодрее",items:["Подсказки в «Играть» — одной кнопкой «💡 Подсказки» с третьего вопроса, экран вопроса стал чище","После ответа следующий вопрос через 2 секунды (с пояснением — как раньше)","Разбор: вместо «0» на таймере — ✓ или ✗, верный ответ не дублируется карточкой, надпись с очками крупнее","Темы: сначала общие знания и кино, английский — ниже"]},
   {id:"u91",d:"22 ноября",t:"Новая тема и вопросы",items:["Появилась тема «🏛️ Музеи и памятники»","+192 вопроса: музеи и памятники, телевидение, компьютеры, «Что? Где? Зачем?», политика, мода и дизайн, комиксы, гаджеты, транспорт, мультфильмы"]},
   {id:"u90",d:"22 ноября",t:"Новые вопросы",items:["+114 вопросов в темах, где их было меньше всего: театр, настольные игры, математика, мифология и спорт"]},
   {id:"u89",d:"21 ноября",t:"Вызов другу",items:["«Вызвать друга» на итогах «Играть» создаёт настоящий вызов: друг получает те же 10 вопросов, потом оба видят сравнение","После дуэли по вызову есть «Реванш» на новых вопросах — соперник увидит его на главной","Счётчик у друга теперь «из 10», а не «из 15»","В быстрых режимах (Выживание, Блиц, Верю — не верю, По картинкам) тоже можно вызвать друга: те же вопросы, побеждает больше верных ответов"]},

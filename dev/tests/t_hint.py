@@ -1,12 +1,18 @@
 """Ролик за 50/50 посреди вопроса: время ролика не списывается с таймера вопроса.
 Запуск: python dev/tests/t_hint.py"""
-from harness import Run, GAME, start
+from harness import Run, GAME, start, answer
 
 with Run("t_hint") as r:
     pg = r.page(sdk=True)
     pg.wait_for_function("document.body.dataset.scr==='s-home'", timeout=15000)
     start(pg)
     pg.wait_for_function("typeof me==='function'&&!!me()&&game&&game.status==='q'", timeout=20000)
+    r.ok(pg.locator("#hintRow").is_hidden(), "на 1-м вопросе подсказок нет")
+    answer(pg, 2)  # подсказки появляются с 3-го вопроса одной кнопкой
+    pg.wait_for_selector("#hintRow [data-hmore]", timeout=5000)
+    r.ok(pg.locator("#hintRow .btn").count() == 1, "с 3-го вопроса — одна кнопка «Подсказки»")
+    pg.click("#hintRow [data-hmore]")
+    r.ok(pg.locator("#hintRow [data-hint]").count() == 1, "по нажатию раскрывается список, 50/50 в нём")
     pg.evaluate("window.__adMs=2500")
     q = pg.evaluate("game.qi|0")
     t0 = pg.evaluate(f"endAt[{q}]")
