@@ -2022,6 +2022,8 @@ document.addEventListener("click",e=>{
   else if(k==="share")shareCard();
   else if(k==="table")tableCard();
   else if(k==="review")toggleReview();
+  else if(k==="revf"){revF=a.dataset.f;lastEx="";endExtra()}
+  else if(k==="fav"){if(window.favTog)favTog(a.dataset.k);lastEx="";endExtra()}
   else if(k==="disp")disputeQ(+a.dataset.q);
   else if(k==="flag")flagQ();
   else if(k==="awards")awardsCard();
@@ -2702,7 +2704,8 @@ function runOf(R,upto){let n=0,b=0;Object.keys(R).map(Number).sort((x,y)=>x-y).f
 function recAnswer(q){
   if(!(ind(game.mode)||game.ch))return;
   const m2=me(),R=REC[code]||(REC[code]={});if(!m2||R[q])return;const x=bq(game,q);if(!x)return;
-  R[q]={q:x.q,e:x.e||"",by:x.by||"",c:x.a,a:m2.aq===q?(m2.a||""):"",h:String(hstr(x.q)),hard:x.d==="h"};
+  R[q]={q:x.q,e:x.e||"",by:x.by||"",c:x.a,a:m2.aq===q?(m2.a||""):"",h:String(hstr(x.q)),hard:x.d==="h",k:x.by?"":hstr(x.q)+":"+(x.i||"")};
+  try{if(window.misNote)misNote(x,R[q].a===x.a)}catch(e){}
 }
 async function onEnd(){
   if(!game||!code||endDone[code])return;endDone[code]=1;
@@ -2732,7 +2735,15 @@ function revItem(q,r){
   return `<div class="tcard" style="cursor:default;flex-wrap:wrap;align-items:flex-start"><div class="nm"><b>${+q+1}. ${esc(r.q)}</b>
    <small>${good?"Верно":r.a?"Ваш ответ: "+esc(r.a):"Нет ответа"} · правильный: <b>${esc(r.c)}</b></small>
    <small>${pct}</small>${rxSum(q)}${r.e?`<small>${esc(r.e)}</small>`:""}${r.by?`<small>вопрос от ${esc(nickOf(r.by))}</small>`:""}</div>
-   <button class="btn small ghost" data-act="disp" data-q="${+q}" ${dd?"disabled":""}>${dd?"Оспорено":"Оспорить"}</button></div>`;
+   <span style="display:flex;gap:6px">${r.k&&window.favTog?`<button class="btn small ghost" data-act="fav" data-k="${esc(r.k)}" aria-pressed="${favHas(r.k)}" title="В избранное">${favHas(r.k)?"★":"☆"}</button>`:""}<button class="btn small ghost" data-act="disp" data-q="${+q}" ${dd?"disabled":""}>${dd?"Оспорено":"Оспорить"}</button></span></div>`;
+}
+/* фильтры разбора (§4): все / ошибки / верные / без ответа / избранное */
+let revF="all";
+const REVF=[["all","Все",()=>true],["bad","Ошибки",r=>!!r.a&&r.a!==r.c],["ok","Верные",r=>!!r.a&&r.a===r.c],["skip","Без ответа",r=>!r.a],["fav","★ Избранное",r=>!!r.k&&!!window.favHas&&favHas(r.k)]];
+function revList(rec,keys){
+  const f=(REVF.find(x=>x[0]===revF)||REVF[0])[2],l=keys.filter(q=>f(rec[q]));
+  return `<div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:10px">${REVF.map(([id,t,fn])=>{const n=keys.filter(q=>fn(rec[q])).length;return n||id==="all"?`<button class="btn small${id===revF?"":" ghost"}" data-act="revf" data-f="${id}" aria-pressed="${id===revF}">${t} · ${n}</button>`:""}).join("")}</div>`
+    +`<div class="tl">`+(l.map(q=>revItem(q,rec[q])).join("")||'<div class="empty">Здесь пусто</div>')+`</div>`;
 }
 function endExtra(){
   const el=$("endExtra");if(!el||!game)return;
@@ -2748,10 +2759,11 @@ function endExtra(){
   if(game.mode==="evening"&&players.length>1&&!game.ch)h+=`<div class="gap"></div><button class="btn alt" data-act="awards">🏅 Награды вечера</button>`;
   if(players.length>1&&!game.ch)h+=`<div class="gap"></div><button class="btn alt" data-act="table">🖼️ ${game.mode==="evening"?"Сохранить итоги вечера":"Сохранить таблицу результатов"}</button>`;
   if(keys.length)h+=`<div class="gap"></div><button class="btn alt" data-act="review">${revOpen?"Скрыть разбор":"Разбор вопросов"}</button>`;
-  if(revOpen&&keys.length)h+=`<div class="tl">`+keys.map(q=>revItem(q,rec[q])).join("")+`</div>`;
+  if(revOpen&&keys.length)h+=revList(rec,keys);
+  {const n=window.misDue?misDue().length:0;if(keys.length&&n)h+=`<div class="gap"></div><button class="btn alt" data-arc="m:mis">🧠 Работа над ошибками · ${n}</button>`}
   if(h!==lastEx){lastEx=h;el.innerHTML=h}
 }
-async function toggleReview(){revOpen=!revOpen;lastEx="";if(revOpen)await loadQstats(REC[code]||{});endExtra()}
+async function toggleReview(){revOpen=!revOpen;revF="all";lastEx="";if(revOpen)await loadQstats(REC[code]||{});endExtra()}
 const FLAG_N=3;
 const hiddenQ=()=>{const c={};Object.values(DISPS).forEach(d=>{if(d&&d.h&&d.by){(c[d.h]=c[d.h]||new Set()).add(d.by)}});const o=new Set();Object.keys(c).forEach(h=>{if(c[h].size>=FLAG_N)o.add(h)});return o};
 function flagDraw(){
@@ -4573,7 +4585,7 @@ setInterval(()=>{if(db&&uid&&!seenLoaded)seenLoad();seenDraw()},1200);
   let swReg=null;
   try{if("serviceWorker" in navigator)navigator.serviceWorker.getRegistrations().then(a=>a.forEach(r=>r.unregister())).catch(()=>{})}catch(e){}
   /* автообновление: сравниваем версию сборки с version.json на сервере */
-  const BUILD="c18e6aa3b481";
+  const BUILD="84df4979d81f";
   if(/^https?:$/.test(location.protocol)&&BUILD.length>8){
     let shown=false,busy=false;
     const bar=()=>{
@@ -4630,6 +4642,7 @@ setInterval(()=>{if(db&&uid&&!seenLoaded)seenLoad();seenDraw()},1200);
 
 /* ---- таблица обновлений: новые записи добавляются в НАЧАЛО массива ---- */
 const UPDATES=[
+{id:"u94",d:"25 ноября",t:"Работа над ошибками и избранное",items:["Вопросы, на которых вы ошиблись, попадают в «🧠 Работу над ошибками» в быстрых режимах. Ответили верно — вопрос вернётся через 3, 7, 14 и 30 дней, потом считается усвоенным","В разборе после игры — фильтры «Ошибки», «Верные», «Без ответа» и звёздочка ☆: сохраняйте интересные вопросы и тренируйтесь по ним","Тренировка не меняет рейтинг и не даёт звёзд — просто учимся"]},
   {id:"u93",d:"22 ноября",t:"Квизер или недоквизер?",items:["После ответа в «Играть» — реплика: «Квизер!», «В точку!» или добрая «Недоквиз, но бывает»","Серия верных ответов заметнее: значок вздрагивает на каждом новом ответе, с 3 подряд — «Квизер в ударе!»","«Блиц» на 60 секунд — прямо на главной рядом с «Играть»","В «Играть» 20 секунд на вопрос (детям по-прежнему 45); очки за скорость — те же 50–100"]},
   {id:"u92",d:"22 ноября",t:"Партия бодрее",items:["Подсказки в «Играть» — одной кнопкой «💡 Подсказки» с третьего вопроса, экран вопроса стал чище","После ответа следующий вопрос через 2 секунды (с пояснением — как раньше)","Разбор: вместо «0» на таймере — ✓ или ✗, верный ответ не дублируется карточкой, надпись с очками крупнее","Темы: сначала общие знания и кино, английский — ниже"]},
   {id:"u91",d:"22 ноября",t:"Новая тема и вопросы",items:["Появилась тема «🏛️ Музеи и памятники»","+192 вопроса: музеи и памятники, телевидение, компьютеры, «Что? Где? Зачем?», политика, мода и дизайн, комиксы, гаджеты, транспорт, мультфильмы"]},
@@ -4767,7 +4780,9 @@ const MODES_A={
   blitz:{ico:"⚡",name:"Блиц на время",desc:"60 секунд. Ошибка забирает 5 секунд.",time:60,pen:5,pool:"txt"},
   tf:{ico:"🤔",name:"Верю — не верю",desc:"Верно ли утверждение? 60 секунд, ошибка −5 секунд.",time:60,pen:5,pool:"txt",kind:"tf"},
   pic:{ico:"🖼️",name:"По картинкам",desc:"Флаги, места, лица. Три жизни.",lives:3,qtime:20,pool:"pic"},
-  cls:{ico:"🎯",name:"Классика",desc:"15 вопросов подряд, без регистрации.",total:15,qtime:30,pool:"txt"}
+  cls:{ico:"🎯",name:"Классика",desc:"15 вопросов подряд, без регистрации.",total:15,qtime:30,pool:"txt"},
+  mis:{ico:"🧠",name:"Работа над ошибками",desc:"Вопросы, на которых вы ошиблись",total:10,qtime:30,train:1},
+  fav:{ico:"⭐",name:"Избранное",desc:"Сохранённые вопросы",total:10,qtime:30,train:1}
 };
 const ORDER=["surv","blitz","tf","pic"];
 const LEV=[10,30,60,100,150];
@@ -4778,7 +4793,7 @@ const E=s=>(typeof esc==="function"?esc(s):String(s));
 const day=()=>typeof dayKey==="function"?dayKey():new Date().toISOString().slice(0,10);
 const wk=()=>typeof weekId==="function"?weekId():Math.floor((Date.now()/864e5+3)/7);
 const hs=s=>typeof hstr==="function"?hstr(String(s)):String(s).length;
-function blank(){return{v:1,rec:{},mast:{},seen:[],day:"",tasks:[],stars:0,tot:0,runs:0,week:{id:0,best:{}},own:{},tok:[],eq:{av:"",fr:""},sk:{n:0,b:0,l:"",g:{}}}}
+function blank(){return{v:1,fav:[],mis:{},rec:{},mast:{},seen:[],day:"",tasks:[],stars:0,tot:0,runs:0,week:{id:0,best:{}},own:{},tok:[],eq:{av:"",fr:""},sk:{n:0,b:0,l:"",g:{}}}}
 function load(){
   let s=null;try{s=JSON.parse(localStorage.getItem(LSK)||"null")}catch(e){}
   S=Object.assign(blank(),s||{});S.rec=S.rec||{};S.mast=S.mast||{};S.seen=S.seen||[];S.own=S.own||{};S.tok=S.tok||[];S.eq=S.eq||{av:"",fr:""};S.sk=Object.assign({n:0,b:0,l:"",g:{}},S.sk||{});S.sk.g=S.sk.g||{};YG.noads=!!(S.own.noads||S.own.founder);try{uiApply()}catch(e){}
@@ -4817,6 +4832,9 @@ function merge(r){
   S.tok=[...new Set([...(r.tok||[]),...S.tok])].slice(-60);
   if(r.eq&&(!S.eq||(!S.eq.av&&!S.eq.fr)))S.eq={av:r.eq.av||"",fr:r.eq.fr||"",fx:r.eq.fx||"",ti:r.eq.ti||""};
   if(r.rw&&S.rw&&r.rw.d===S.rw.d)S.rw.n=Math.max(S.rw.n|0,r.rw.n|0);
+  /* shortcut: объединение — удалённое из избранного/усвоенное на другом устройстве может вернуться; нужен журнал, если будут жалобы */
+  S.fav=[...new Set([...(Array.isArray(r.fav)?r.fav:[]),...S.fav])].slice(-FAV_MAX);
+  Object.keys(r.mis&&typeof r.mis==="object"?r.mis:{}).forEach(k=>{const a=S.mis[k],b=r.mis[k];if(b&&(!a||(b.s|0)>(a.s|0)||((b.s|0)===(a.s|0)&&String(b.d)>String(a.d))))S.mis[k]={s:b.s|0,d:String(b.d||day())}});
   if(r.sk&&(String(r.sk.l)>String(S.sk.l)||(r.sk.l===S.sk.l&&(r.sk.n|0)>(S.sk.n|0)))){S.sk.n=r.sk.n|0;S.sk.l=r.sk.l||""}
   if(r.sk){S.sk.b=Math.max(S.sk.b|0,r.sk.b|0);Object.keys(r.sk.g||{}).forEach(k=>{if(r.sk.g[k])S.sk.g[k]=1})}
   YG.noads=!!(S.own.noads||S.own.founder);
@@ -4849,7 +4867,25 @@ function shuf(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Ma
 /* вызов другу (R-09): раунд пишет порядок вопросов (G.log), друг получает его же; дальше записи — обычный подбор */
 let QH=null;const byHash=h=>{if(!QH){QH=new Map();BANK.forEach(x=>{const k=hs(x.q)+":"+(x.i||"");if(!QH.has(k))QH.set(k,x)})}return QH.get(h)};
 const qKey=x=>hs(x.q)+":"+(x.i||"");
+/* Избранное и «Работа над ошибками» (§4.1–4.2): только локально + облачное сохранение S.
+   Ошибка → в очередь на сегодня; верно в тренировке → следующий повтор через MIS_DAYS[s], после MIS_DAYS.length верных подряд — усвоен;
+   ошибка в тренировке → завтра. Тренировка не даёт очков рейтинга, звёзд, заданий и мастерства тем. */
+const MIS_DAYS=[1,3,7,14,30],MIS_MAX=300,FAV_MAX=200,TRAIN_N=10;
+const dPlus=n=>{const d=new Date(day()+"T12:00:00Z");d.setUTCDate(d.getUTCDate()+n);return d.toISOString().slice(0,10)};
+function misNote(x,ok,train){
+  if(!x||x.by||!x.q||!x.a)return;if(!S)load();
+  const k=qKey(x),M=S.mis,e=M[k];
+  if(train){if(!e)return;if(ok){e.s=(e.s|0)+1;if(e.s>=MIS_DAYS.length)delete M[k];else e.d=dPlus(MIS_DAYS[e.s])}else{e.s=0;e.d=dPlus(MIS_DAYS[0])}}
+  else{if(ok)return;M[k]={s:0,d:day()};const ks=Object.keys(M);if(ks.length>MIS_MAX)delete M[ks[0]]}
+  save();
+}
+const misDue=()=>{if(!S)load();const t=day();return Object.keys(S.mis).filter(k=>String(S.mis[k].d)<=t&&byHash(k)).sort((a,b)=>(S.mis[a].s|0)-(S.mis[b].s|0)||String(S.mis[a].d).localeCompare(String(S.mis[b].d)))};
+const favList=()=>{if(!S)load();return S.fav.filter(k=>byHash(k))};
+const favHas=k=>{if(!S)load();return S.fav.includes(k)};
+function favTog(k){if(!S)load();const i=S.fav.indexOf(k);if(i>=0)S.fav.splice(i,1);else{S.fav.push(k);if(S.fav.length>FAV_MAX)S.fav.shift();met("fva")}save();return i<0}
+function trainList(mode){return (mode==="mis"?misDue():shuf(favList())).slice(0,TRAIN_N).map(byHash)}
 function pick(){
+  if(G.list)return G.list[G.n-1];
   if(G.ch){const x=byHash((G.ch.aq||[])[G.n-1]);if(x&&!G.used.has(x)){G.used.add(x);return x}}
   const cfg=G.cfg,P=pool(cfg.pool),n=G.n,L=n<4?"e":n<10?"m":(Math.random()<.5?"h":"m");
   const seen=new Set(S.seen);
@@ -4882,7 +4918,10 @@ function hub(){
     return `<button type="button" class="arc-mode" data-arc="m:${m}"><span class="ai">${c.ico}</span><span><b>${c.name}</b><small>${c.desc}</small></span><span class="rc">${r?r:"—"}<i>рекорд</i></span></button>`}).join("");
   const tasks=S.tasks.map(t=>{const p=Math.min(t.p|0,t.g),d=p>=t.g;return `<div class="arc-task${d?" done":""}"><div class="tb">${d?"✅ ":""}${E(t.n)}<div class="tp"><i style="width:${Math.round(p/t.g*100)}%"></i></div></div><span class="tn">${p}/${t.g}</span></div>`}).join("");
   const stars=S.stars|0,th=themeOf(),thb=th>=0?`<div class="card" style="text-align:center;margin-bottom:10px">🌟 <b>Тема недели:</b> ${E(TOPICS[th])}<br><small>Верные ответы по ней дают ×2 очков</small></div>`:"";
-  body(`${meRow()}${skHtml()}${chList()}${thb}<div class="arc-modes">${list}</div>
+  const md=misDue().length,mq=Object.keys(S.mis).length,fv=favList().length;
+  const trn=(mq?`<button type="button" class="arc-mode" data-arc="m:mis"><span class="ai">🧠</span><span><b>Работа над ошибками</b><small>${md?"К повтору сегодня: "+md:"Сегодня повторять нечего"}</small></span><span class="rc">${mq}<i>в очереди</i></span></button>`:"")
+    +(fv?`<button type="button" class="arc-mode" data-arc="m:fav"><span class="ai">⭐</span><span><b>Избранное</b><small>Тренировка по сохранённым вопросам</small></span><span class="rc">${fv}<i>вопросов</i></span></button>`:"");
+  body(`${meRow()}${skHtml()}${chList()}${thb}${trn?`<div class="arc-modes" style="margin-bottom:10px">${trn}</div>`:""}<div class="arc-modes">${list}</div>
   <button type="button" class="arc-mode" data-arc="wd"><span class="ai">🔤</span><span><b>Слово дня</b><small>${S.wd&&S.wd.day===day()&&S.wd.done?(S.wd.win?"Сегодня угадано ✅":"Попытки закончились"):"Одно слово в день: 6 попыток"}</small></span><span class="rc">${(S.wdS&&S.wdS.best)||"—"}<i>серия</i></span></button>
   <div class="card"><div class="cardtitle"><h2>📅 Задания дня</h2><span class="chip2">⭐ ${stars}</span></div>${tasks}<p class="hint" style="margin:8px 0 0">Выполните все три и получите 10 звёзд.</p></div>
   <div class="row2" style="margin-top:12px"><button type="button" class="btn alt" data-arc="mast">🏅 Мастерство тем</button><button type="button" class="btn alt" data-arc="bd:surv">🏆 Рейтинг</button></div>
@@ -4904,10 +4943,10 @@ function mastery(){
 }
 /* ---------- игра ---------- */
 function start(mode,ch){
-  load();const cfg=MODES_A[mode];if(!cfg||!BANK||!BANK.length)return;
-  if(pool(cfg.pool).length<20)return;
-  met("rnd");
-  G={t0:Date.now(),mode,cfg,score:0,ok:0,wrong:0,combo:0,maxCombo:0,lives:cfg.lives||0,time:cfg.time||0,n:0,used:new Set(),rev:false,ext:false,q:null,lock:false,qLeft:cfg.qtime||0,over:false,topics:{},ch:ch||null,log:[],logT:[]};LASTR=null;LASTID="";
+  load();let cfg=MODES_A[mode],list=null;if(!cfg||!BANK||!BANK.length)return;
+  if(cfg.train){list=trainList(mode);if(!list.length){toast(mode==="mis"?"Сегодня повторять нечего — загляните завтра":"В избранном пока пусто");return}cfg={...cfg,total:list.length};met(mode==="mis"?"mts":"fvs")}
+  else{if(pool(cfg.pool).length<20)return;met("rnd")}
+  G={list,t0:Date.now(),mode,cfg,score:0,ok:0,wrong:0,combo:0,maxCombo:0,lives:cfg.lives||0,time:cfg.time||0,n:0,used:new Set(),rev:false,ext:false,q:null,lock:false,qLeft:cfg.qtime||0,over:false,topics:{},ch:ch||null,log:[],logT:[]};LASTR=null;LASTID="";
   show2();setTitle(cfg.ico+" "+cfg.name,ch?"Вызов от "+E(nick(ch.by)):"");$a("arcBack").hidden=true;
   next();
   stop();tm=setInterval(tick,100);
@@ -4966,7 +5005,7 @@ function answer(i){
   }else{
     const bs=document.querySelectorAll("#arcBody .opt");bs.forEach(b=>{const v=b.dataset.arc==="t:1";if(v===G.truth)b.classList.add("right");else if(i>=0&&((i===1)===v))b.classList.add("wrongpick")});
   }
-  mark(x.c,ok);
+  if(c.train)misNote(x,ok,G.mode==="mis");else{mark(x.c,ok);misNote(x,ok)}
   if(ok){
     G.ok++;G.combo++;G.maxCombo=Math.max(G.maxCombo,G.combo);
     const th2=x.c===themeOf(),pts=th2?2:1;G.score+=pts;snd(1);fxOk();if(th2)pop("🌟 ×2");const rc0=S.rec[G.mode]|0;if(rc0>0&&!G.cfg.total&&!G.beat&&G.score>rc0){G.beat=true;pop("👻 Рекорд побит!")}
@@ -5108,6 +5147,14 @@ function finish(){
   if(!G||G.over)return;G.over=true;stop();
   const c=G.cfg,m=G.mode,sc=G.score;
   try{met("sec",Math.min(900,Math.round((Date.now()-G.t0)/1000)))}catch(e){}
+  if(c.train){
+    if(m==="mis")met("mtc");const left=m==="mis"?misDue().length:0,q=Object.keys(S.mis).length;
+    body(`<div class="arc-big">${G.ok} из ${c.total}</div><div class="arc-sub">${G.ok===c.total?"Квизер! Всё верно":"Ошибки вернутся завтра — так запоминается лучше"}</div>
+    ${m==="mis"?`<div class="card" style="text-align:center">${left?`К повтору сегодня ещё: <b>${left}</b>`:"На сегодня всё повторено"} · в очереди: ${q}<br><small>Верные ответы вернутся через ${MIS_DAYS.slice(1).join(", ")} дней, потом вопрос считается усвоенным</small></div>`:""}
+    <p class="hint" style="text-align:center">Тренировка не меняет рейтинг и не даёт звёзд</p>
+    <div class="row2" style="margin-top:12px">${m!=="mis"||left?`<button type="button" class="btn" data-arc="m:${m}">Ещё раз</button>`:""}<button type="button" class="btn alt" data-arc="hub">Все режимы</button></div>`);
+    setTitle(c.ico+" "+c.name,"Итоги тренировки");return;
+  }
   const old=S.rec[m]|0,isRec=sc>old&&sc>0;if(isRec)S.rec[m]=sc;
   S.week.best[m]=Math.max(S.week.best[m]|0,sc);
   S.tot=(S.tot|0)+sc;S.runs=(S.runs|0)+1;
@@ -5443,7 +5490,7 @@ document.addEventListener("keydown",e=>{
 /* звёзды за партию «Играть»: только первые MS_DAY партий в день, одна партия (код) — один раз */
 const MS_DAY=5;
 function mainStars(n,key){if(!S)load();const d=day();if(!S.ms||S.ms.d!==d)S.ms={d,n:0,k:[]};if(S.ms.k.includes(key))return null;if(S.ms.n>=MS_DAY)return{got:0,tot:S.stars|0,cap:MS_DAY};S.ms.n++;S.ms.k.push(key);S.stars=(S.stars|0)+n;save();cloudFlush();return{got:n,tot:S.stars}}
-window.arcOpen=hub;window.fxOk=fxOk;window.arcOwn=own;window.arcStars=mainStars;
+window.arcOpen=hub;window.misNote=misNote;window.misDue=misDue;window.favTog=favTog;window.favHas=favHas;window.fxOk=fxOk;window.arcOwn=own;window.arcStars=mainStars;
 try{const _t=themeOf(),_e=$a("arcThm");if(_e&&_t>=0)_e.textContent="🌟 Тема недели: "+TOPICS[_t]+" (×2)"}catch(e){}
 load();cloudPull();
 if(!SES){SES=true;met("ses")}
