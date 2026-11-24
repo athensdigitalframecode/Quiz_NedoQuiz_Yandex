@@ -2,7 +2,7 @@
    rpc doc_merge / acquire_lock / stat_bump, остальные rpc → null. Реалтайма нет — игра опрашивает базу сама.
    Покрывает только то, что вызывает index.html (sbDoc/sbCol/sbWatch, init). */
 (function(){
-  const DB=window.__db=new Map(),RPC=window.__rpc=[];
+  const DB=window.__db=new Map(),RPC=window.__rpc=[],SEL=window.__sel=[];// __sel: [коллекция, строк отдано] на каждый select
   const UID="00000000-0000-4000-8000-000000000001";
   let ses=null;
   const val=(r,c)=>{const m=/^data->>(.+)$/.exec(c);if(m)return r.data&&r.data[m[1]]!=null?String(r.data[m[1]]):null;return r[c]};
@@ -10,18 +10,18 @@
   function q(){
     const st={op:"select",cols:"*",f:[],ord:null,lim:null,rng:null,single:false,row:null};
     const run=()=>{
-      if(st.op==="upsert"){const r=clone(st.row);r.updated_at=r.updated_at||new Date().toISOString();DB.set(r.path,r);return{data:null,error:null}}
-      let rows=[...DB.values()].filter(r=>st.f.every(([c,v])=>val(r,c)===v));
+      if(st.op==="upsert"){const r=clone(st.row);r.updated_at=new Date().toISOString();/* как docs_guard: время ставит сервер */DB.set(r.path,r);return{data:null,error:null}}
+      let rows=[...DB.values()].filter(r=>st.f.every(([c,v,op])=>op===">"?String(val(r,c))>v:val(r,c)===v));
       if(st.op==="delete"){rows.forEach(r=>DB.delete(r.path));return{data:null,error:null}}
       if(st.ord){const[c,asc]=st.ord;rows.sort((a,b)=>(a[c]>b[c]?1:a[c]<b[c]?-1:0)*(asc?1:-1))}
       if(st.rng)rows=rows.slice(st.rng[0],st.rng[1]+1);
       if(st.lim!=null)rows=rows.slice(0,st.lim);
       const pick=r=>{const o={};st.cols.split(",").forEach(c=>{o[c.trim()]=clone(r[c.trim()])});return o};
-      rows=rows.map(pick);
+      rows=rows.map(pick);{const c=st.f.find(f=>f[0]==="col");if(c&&!st.single)SEL.push([c[1],rows.length])}
       return{data:st.single?(rows[0]||null):rows,error:null};
     };
     const b={
-      select(c){st.cols=c||"*";return b},eq(c,v){st.f.push([c,v]);return b},
+      select(c){st.cols=c||"*";return b},eq(c,v){st.f.push([c,v]);return b},gt(c,v){st.f.push([c,v,">"]);return b},
       order(c,o){st.ord=[c,!(o&&o.ascending===false)];return b},limit(n){st.lim=n;return b},
       range(a,z){st.rng=[a,z];return b},maybeSingle(){st.single=true;return b},
       upsert(r){st.op="upsert";st.row=r;return b},delete(){st.op="delete";return b},

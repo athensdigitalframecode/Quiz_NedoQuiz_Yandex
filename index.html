@@ -1816,15 +1816,15 @@ let sb=null;
 const sbSnap=(id,v)=>({id,exists:v!==undefined,data:()=>v});
 const sbPage=async(mk)=>{const out=[];for(let f=0;;f+=1000){const {data,error}=await mk().range(f,f+999);if(error)throw error;out.push(...data);if(data.length<1000)break}return out};
 const SBW=new Set();
-function sbBump(path){SBW.forEach(w=>{if(w.match(path))w.kick()})}
+function sbBump(path,full){SBW.forEach(w=>{if(w.match(path))w.kick(full)})}
 function sbWatch(load,filters,apply,onErr,poll,match){
-  let dead=false,ch=null,t=null,last=null;
-  const run=async()=>{try{const raw=await load(),k=JSON.stringify(raw===undefined?null:raw);if(k===last)return true;last=k;apply(raw);return true}catch(e){return false}};
+  let dead=false,ch=null,t=null,last=null,lr;
+  const run=async full=>{try{const raw=await load(full);if(raw!==undefined&&raw===lr)return true;lr=raw;const k=JSON.stringify(raw===undefined?null:raw);if(k===last)return true;last=k;apply(raw);return true}catch(e){return false}};
   run().then(ok=>{if(!ok&&onErr)onErr()});
   const name="w"+Math.random().toString(36).slice(2);
   try{ch=filters.reduce((c,f)=>c.on("postgres_changes",{event:"*",schema:"public",table:"docs",filter:f},()=>{if(dead)return;clearTimeout(t);t=setTimeout(run,60)}),sb.channel(name)).subscribe()}catch(e){}
   const iv=setInterval(()=>{if(!dead&&!document.hidden)run()},poll);
-  const w={match:match||(()=>false),kick:()=>{if(dead)return;clearTimeout(t);t=setTimeout(run,40)}};SBW.add(w);
+  const w={match:match||(()=>false),kick:full=>{if(dead)return;clearTimeout(t);t=setTimeout(()=>run(full),40)}};SBW.add(w);
   return()=>{dead=true;SBW.delete(w);clearInterval(iv);clearTimeout(t);try{ch&&sb.removeChannel(ch)}catch(e){}}
 }
 function sbDoc(path){
@@ -1833,10 +1833,24 @@ function sbDoc(path){
     async get(){const {data,error}=await sb.from("docs").select("data").eq("path",path).maybeSingle();if(error)throw error;return sbSnap(id,data?data.data:undefined)},
     async set(d){const {error}=await sb.from("docs").upsert({path,col,id,data:JSON.parse(JSON.stringify(d)),updated_at:new Date().toISOString()});if(error)throw error;sbBump(path)},
     async update(d){const {data,error}=await sb.rpc("doc_merge",{p:path,patch:JSON.parse(JSON.stringify(d))});if(error)throw error;if(!data)throw new Error("not-found");sbBump(path)},
-    async delete(){const {error}=await sb.from("docs").delete().eq("path",path);if(error)throw error;sbBump(path)},
+    async delete(){const {error}=await sb.from("docs").delete().eq("path",path);if(error)throw error;sbBump(path,1)},
     async acquire(o){const {data,error}=await sb.rpc("acquire_lock",{p:path,holder:String(o.holder),ttl_ms:o.ttlMs||30000});if(error)throw error;return{acquired:!!data}},
     onSnapshot(fn,err){return sbWatch(async()=>{const {data,error}=await sb.from("docs").select("data").eq("path",path).maybeSingle();if(error)throw error;return data?data.data:undefined},["path=eq."+path],v=>fn(sbSnap(id,v)),err,2500,p=>p===path)},
     collection(p){return sbCol(path+"/"+p)}
+  };
+}
+/* Подписка на большую коллекцию: раз в SB_FULL мс — вся коллекция, между ними только строки с updated_at новее последней
+   (его ставит сервер: триггер docs_guard / doc_merge). Чужие удаления видны после полной сверки — поэтому не для games/ и фильтров.
+   Возвращает тот же массив, если ничего не изменилось: sbWatch тогда не сравнивает и не перерисовывает. */
+const SB_FULL=180000,SB_LAG=30000;
+function sbDelta(path){
+  let M=null,ts=0,at=0,out=null;
+  const q=()=>sb.from("docs").select("id,data,updated_at").eq("col",path);
+  const add=rows=>{let ch=false;rows.forEach(r=>{const o=M.get(r.id),u=Date.parse(r.updated_at);if(u>ts)ts=u;if(!o||o.u!==r.updated_at){M.set(r.id,{d:r.data,u:r.updated_at});ch=true}});return ch};
+  return async full=>{
+    if(!M||full||Date.now()-at>SB_FULL){const rows=await sbPage(()=>q().order("id"));M=new Map();ts=0;at=Date.now();add(rows)}
+    else if(!add(await sbPage(()=>q().gt("updated_at",new Date(ts-SB_LAG).toISOString()).order("id")))&&out)return out;
+    return out=[...M.keys()].sort().map(id=>({id,data:M.get(id).d}));
   };
 }
 function sbCol(path,flt){
@@ -1848,7 +1862,7 @@ function sbCol(path,flt){
     where:(f,o,v)=>sbCol(path,[f,v]),
     get:load,
     async recent(n){const {data,error}=await sb.from("docs").select("id,data").eq("col",path).order("updated_at",{ascending:false}).limit(n);if(error)throw error;return wrap(data)},
-    onSnapshot(fn,err){return sbWatch(raw,["col=eq."+path],r=>fn(wrap(r)),err,path.startsWith("games/")?3000:8000,p=>p.startsWith(path+"/")&&p.indexOf("/",path.length+1)<0)}
+    onSnapshot(fn,err){return sbWatch(flt||path.startsWith("games/")?raw:sbDelta(path),["col=eq."+path],r=>fn(wrap(r)),err,path.startsWith("games/")?3000:8000,p=>p.startsWith(path+"/")&&p.indexOf("/",path.length+1)<0)}
   };
 }
 function tgNotify(){}
