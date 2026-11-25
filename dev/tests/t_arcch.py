@@ -14,6 +14,7 @@ def play(r, pg, n):
         pg.wait_for_function(f"!!{QSEL}", timeout=10000)
         texts.append(pg.evaluate(f"{QSEL}.textContent"))
         pg.locator("#arcBody .opt").first.click()
+        pg.mouse.move(1, 1)  # иначе :hover-подъём кнопки под курсором «дрожит» и следующий клик ждёт неподвижности
         pg.wait_for_function(f"!{QSEL}||{QSEL}.textContent!=={texts[-1]!r}", timeout=10000)
     r.arc(pg, "fin")
     pg.wait_for_selector("#arcBody .arc-big", timeout=5000)
