@@ -37,6 +37,10 @@
       if(n==="qstat_add"){// как M01: атомарный +1 пачкой, ключ — число
         const wk=Math.floor((Date.now()/864e5+3)/7);let k=0;(a.items||[]).forEach(it=>{if(!/^[0-9]{1,10}$/.test(String(it.h)))return;const p="qstats/"+it.h,o=(DB.get(p)||{}).data||{},ok=it.ok===true?1:0,sw=o.wk===wk;
           DB.set(p,{path:p,col:"qstats",id:String(it.h),updated_at:new Date().toISOString(),data:{n:(o.n|0)+1,ok:(o.ok|0)+ok,wk,wn:(sw?o.wn|0:0)+1,wok:(sw?o.wok|0:0)+ok}});k++});return Promise.resolve({data:k,error:null})}
+      if(n==="player_places"){// как M02: 1 + игроки того же разряда (profiles.age) с рейтингом выше; без r — 1000
+        const R=d=>d&&d.r!=null&&isFinite(+d.r)?+d.r:1000,age=id=>((DB.get("profiles/"+id)||{}).data||{}).age||"",o={};
+        [...DB.values()].filter(r=>/^stats\/[^/]+\/players$/.test(r.col)&&r.id===a.u).forEach(me=>{o[me.col.split("/")[1]]=1+[...DB.values()].filter(d=>d.col===me.col&&age(d.id)===age(a.u)&&R(d.data)>R(me.data)).length});
+        return Promise.resolve({data:o,error:null})}
       if(n==="disputes_summary"){const g={};[...DB.values()].filter(r=>r.col==="disputes"&&r.data&&r.data.h).forEach(r=>{const x=g[r.data.h]=g[r.data.h]||{h:r.data.h,q:r.data.q,a:r.data.a,by:new Set()};x.by.add(r.data.by)});
         const l=Object.values(g).map(x=>({h:x.h,q:x.q,a:x.a,n:x.by.size})).sort((x,y)=>y.n-x.n);return Promise.resolve({data:{hid:l.filter(x=>x.n>=3).map(x=>x.h),top:l.slice(0,10)},error:null})}
       if(n==="stat_bump"){// как в базе, без проверок участия (их проверяют SQL-проверки R-06): один раз на (src, путь)

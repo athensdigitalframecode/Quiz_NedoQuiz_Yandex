@@ -2610,7 +2610,10 @@ async function drawMe(){
 
 
 const MEDAL=["🥇","🥈","🥉"];
-async function myPlaces(u,by){const o={};await Promise.all(Object.keys(MODES).map(async m=>{try{if(!by[m])return;const mr=R0(by[m]);const a=(await db.collection(`stats/${m}/players`).get()).docs;o[m]=1+a.filter(d=>grpOf(d.id)===grpOf(u)&&R0(d.data())>mr).length}catch(e){}}));return o}
+async function myPlaces(u,by){
+  /* M02: место считает сервер (dev/sql/m02_player_places.sql); при ошибке — прежний расчёт по всему рейтингу */
+  try{const{data,error}=await sb.rpc("player_places",{u});if(!error&&data&&typeof data==="object"){const o={};Object.keys(MODES).forEach(m=>{if(by[m]&&+data[m]>0)o[m]=+data[m]});return o}}catch(e){}
+  const o={};await Promise.all(Object.keys(MODES).map(async m=>{try{if(!by[m])return;const mr=R0(by[m]);const a=(await db.collection(`stats/${m}/players`).get()).docs;o[m]=1+a.filter(d=>grpOf(d.id)===grpOf(u)&&R0(d.data())>mr).length}catch(e){}}));return o}
 const placeChip=p=>p?`<span class="chip2">${p<4?MEDAL[p-1]+" ":""}${p} место</span> `:"";
 /* ---------- вопросы от игроков ---------- */
 let SUG={},sgLvl="m";const SG_N=3,SG_TOPIC=25;
@@ -4606,7 +4609,7 @@ setInterval(()=>{if(db&&uid&&!seenLoaded)seenLoad();seenDraw()},1200);
   let swReg=null;
   try{if("serviceWorker" in navigator)navigator.serviceWorker.getRegistrations().then(a=>a.forEach(r=>r.unregister())).catch(()=>{})}catch(e){}
   /* автообновление: сравниваем версию сборки с version.json на сервере */
-  const BUILD="9bbcaecfb59e";
+  const BUILD="7433ce6ba77b";
   if(/^https?:$/.test(location.protocol)&&BUILD.length>8){
     let shown=false,busy=false;
     const bar=()=>{
