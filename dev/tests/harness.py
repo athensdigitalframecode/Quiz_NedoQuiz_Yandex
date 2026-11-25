@@ -41,6 +41,17 @@ def answer(pg, n):
         if nx.is_visible(): nx.click()
         pg.wait_for_function(f"(g=>g.status==='q'&&g.qi>{q0})({GAME})", timeout=15000)
 
+def answer_wrong(pg, n):
+    """Ответить на n вопросов «Играть» заведомо неверно (вариант, отличный от правильного)."""
+    for _ in range(n):
+        q0 = pg.evaluate(f"{GAME}.qi")
+        pg.wait_for_function("typeof me==='function'&&!!me()&&game&&game.status==='q'", timeout=20000)
+        pg.evaluate("(()=>{const a=bq(game,game.qi).a;const b=[...document.querySelectorAll('#opts .opt:not(.gone)')].find(o=>!o.innerText.includes(a));b.click()})()")
+        pg.wait_for_function(f"(g=>g.status==='reveal'||g.qi>{q0})({GAME})", timeout=5000)
+        nx = pg.locator("#soloNext")
+        if nx.is_visible(): nx.click()
+        pg.wait_for_function(f"(g=>g.status==='q'&&g.qi>{q0})({GAME})", timeout=15000)
+
 class Run:
     """with Run("имя") as r: page = r.page(sdk=True, db="fake"); r.ok(условие, "что проверяем")"""
     def __init__(self, name): self.name, self.fails, self.n = name, 0, 0

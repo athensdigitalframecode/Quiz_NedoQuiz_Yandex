@@ -1,17 +1,6 @@
 """§4: «Работа над ошибками», избранное, фильтры разбора. Тренировка не даёт звёзд, очков рейтинга и мастерства.
 Запуск: python dev/tests/t_train.py"""
-from harness import Run, GAME, start
-
-def answer_wrong(pg, n):
-    """Ответить на n вопросов «Играть» заведомо неверно (вариант, отличный от правильного)."""
-    for _ in range(n):
-        q0 = pg.evaluate(f"{GAME}.qi")
-        pg.wait_for_function("typeof me==='function'&&!!me()&&game&&game.status==='q'", timeout=20000)
-        pg.evaluate("(()=>{const a=bq(game,game.qi).a;const b=[...document.querySelectorAll('#opts .opt:not(.gone)')].find(o=>!o.innerText.includes(a));b.click()})()")
-        pg.wait_for_function(f"(g=>g.status==='reveal'||g.qi>{q0})({GAME})", timeout=5000)
-        nx = pg.locator("#soloNext")
-        if nx.is_visible(): nx.click()
-        pg.wait_for_function(f"(g=>g.status==='q'&&g.qi>{q0})({GAME})", timeout=15000)
+from harness import Run, GAME, start, answer_wrong
 
 ARC = "JSON.parse(localStorage.getItem('quiz_arc')||'{}')"
 
@@ -62,6 +51,7 @@ with Run("t_train") as r:
         okI = pg.evaluate("(()=>{const q=document.querySelector('#arcBody .arc-q').innerText,x=BANK.find(b=>b.q===q);return [...document.querySelectorAll('#arcBody .opt .pt')].map(e=>e.innerText).indexOf(x.a)})()")
         if i == 2: okI = (okI + 1) % 4  # последний — ошибка
         pg.click(f'[data-arc="o:{okI}"]')
+        pg.mouse.move(1, 1)  # см. t_arcch: :hover-подъём под курсором
         pg.wait_for_timeout(1300)
     pg.wait_for_selector(".arc-big", timeout=5000)
     after = pg.evaluate(ARC)
