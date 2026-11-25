@@ -43,6 +43,8 @@ with Run("t_m01") as r:
     pg.click('[data-act="review"]')
     pg.wait_for_selector('[data-act="disp"]', timeout=5000)
     pg.locator('[data-act="disp"]').first.click()
+    pg.wait_for_selector("#arYes", timeout=3000)  # окно причины (этап 8)
+    pg.click("#arYes")
     pg.wait_for_function("Object.keys(DISPS).length===1", timeout=10000)
     r.ok(True, "своя жалоба загружается обратно")
 

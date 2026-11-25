@@ -928,6 +928,7 @@ body[data-scr=s-tv] .bnav,body[data-scr=s-tv] #donate,body[data-scr=s-tv] #updBt
 .dlgbg{position:fixed;inset:0;z-index:90;background:rgba(5,8,20,.72);display:grid;place-items:center;padding:16px}
 .dlg{width:100%;max-width:420px;background:#162046;border:1px solid rgba(255,255,255,.14);border-radius:20px;padding:18px;box-shadow:0 20px 60px rgba(0,0,0,.6)}
 .dlg h2{margin:0 0 8px}.dlg p{margin:0 0 10px;line-height:1.4}.dlg input{width:100%;box-sizing:border-box}
+.dlg .rsn{display:grid;gap:6px;margin:4px 0 10px}.dlg .rsn label{display:flex;gap:10px;align-items:center;min-height:40px;padding:6px 12px;border:1px solid rgba(255,255,255,.14);border-radius:12px;cursor:pointer}.dlg .rsn input{width:auto;margin:0}.dlg textarea{width:100%;box-sizing:border-box;resize:vertical;font:inherit;min-height:0;height:72px}.dlg{max-height:calc(100vh - 32px);overflow-y:auto}
 .dlgrow{display:flex;gap:10px;margin-top:12px}.dlgrow .btn{flex:1}
 html[data-theme="light"] .dlg{background:var(--card);border-color:var(--line);color:var(--txt)}
 .dangerbtn{color:#ff8a8a!important;border-color:rgba(255,120,120,.5)!important}
@@ -2795,14 +2796,34 @@ function flagDraw(){
   b.hidden=!x;
   if(x){const h=String(hstr(x.q)),done=DISPD[h+"_"+uid]||(DISPS[h+"_"+uid]);b.disabled=!!done;b.textContent=done?"✓ Жалоба отправлена":"⚠️ Ошибка в вопросе"}
 }
+/* Жалоба (§8.1): причина + необязательный комментарий ≤200, не больше DISP_DAY в день с устройства.
+   Пишется своя запись disputes/<хеш>_<uid> (одна на вопрос); чужие жалобы не читаются (M01). */
+const DREASONS=[["wrong","Неправильный ответ"],["multi","Несколько правильных ответов"],["old","Устаревшая информация"],["text","Некорректная формулировка"],["pic","Неправильная картинка"],["diff","Неверный уровень сложности"],["other","Другая проблема"]],DISP_DAY=10;
+const dispDay=()=>{let o=null;try{o=JSON.parse(LSg("quiz_dispday")||"null")}catch(e){}return o&&o.d===dayKey()?o:{d:dayKey(),n:0}};
+function askReason(pic){return new Promise(res=>{
+  const left=DISP_DAY-(dispDay().n|0)>0,w=document.createElement("div");w.className="dlgbg";
+  w.innerHTML=`<div class="dlg" role="dialog" aria-modal="true" aria-labelledby="arT"><h2 id="arT">Что не так с вопросом?</h2>`+(left
+    ?`<div class="rsn" role="radiogroup">${DREASONS.filter(r=>pic||r[0]!=="pic").map(([id,t],i)=>`<label><input type="radio" name="rsn" value="${id}"${i?"":" checked"}> ${esc(t)}</label>`).join("")}</div><textarea id="arC" maxlength="200" rows="2" placeholder="Комментарий, если хотите (до 200 знаков)"></textarea>`
+    :`<p>Сегодня вы уже отправили ${DISP_DAY} жалоб — спасибо! Завтра можно снова.</p>`)
+    +`<div class="dlgrow"><button type="button" class="btn alt" id="arNo">${left?"Отмена":"Понятно"}</button>${left?'<button type="button" class="btn" id="arYes">Отправить</button>':""}</div></div>`;
+  document.body.appendChild(w);
+  const done=v=>{document.removeEventListener("keydown",key);w.remove();res(v)},key=e=>{if(e.key==="Escape")done(null)};
+  document.addEventListener("keydown",key);
+  w.querySelector("#arNo").onclick=()=>done(null);w.onclick=e=>{if(e.target===w)done(null)};
+  const y=w.querySelector("#arYes");if(y)y.onclick=()=>{const r=(w.querySelector("input[name=rsn]:checked")||{}).value||"other",c=String(w.querySelector("#arC").value||"").replace(/\s+/g," ").trim().slice(0,200),o=dispDay();o.n++;LSs("quiz_dispday",JSON.stringify(o));done({r,c})};
+})}
+const dispExtra=rs=>({r:rs.r,c:rs.c,m:(game&&game.mode)||"",pl:YG.platform||"web"});
 async function flagQ(){
   const x=bq(game,game.qi|0);if(!x||!uid)return;const h=String(hstr(x.q)),id=h+"_"+uid;
+  const rs=await askReason(!!x.i);if(!rs)return;
   DISPD[id]=1;flagDraw();
-  try{await db.doc("disputes/"+id).set({h,q:x.q,a:x.a,by:uid,at:Date.now(),f:1})}catch(e){}
+  try{await db.doc("disputes/"+id).set({h,q:x.q,a:x.a,by:uid,at:Date.now(),f:1,...dispExtra(rs)})}catch(e){}
 }
 async function disputeQ(q){
-  const r=(REC[code]||{})[q];if(!r)return;const id=r.h+"_"+uid;DISPD[id]=1;lastEx="";endExtra();
-  try{await db.doc("disputes/"+id).set({h:r.h,q:r.q,a:r.c,by:uid,at:Date.now()})}catch(e){}
+  const r=(REC[code]||{})[q];if(!r)return;const id=r.h+"_"+uid;
+  const rs=await askReason(!!(r.k&&r.k.split(":")[1]));if(!rs)return;
+  DISPD[id]=1;lastEx="";endExtra();
+  try{await db.doc("disputes/"+id).set({h:r.h,q:r.q,a:r.c,by:uid,at:Date.now(),...dispExtra(rs)})}catch(e){}
 }
 
 /* карточка результата */
@@ -4609,7 +4630,7 @@ setInterval(()=>{if(db&&uid&&!seenLoaded)seenLoad();seenDraw()},1200);
   let swReg=null;
   try{if("serviceWorker" in navigator)navigator.serviceWorker.getRegistrations().then(a=>a.forEach(r=>r.unregister())).catch(()=>{})}catch(e){}
   /* автообновление: сравниваем версию сборки с version.json на сервере */
-  const BUILD="7433ce6ba77b";
+  const BUILD="b4babad24d03";
   if(/^https?:$/.test(location.protocol)&&BUILD.length>8){
     let shown=false,busy=false;
     const bar=()=>{
@@ -4666,6 +4687,7 @@ setInterval(()=>{if(db&&uid&&!seenLoaded)seenLoad();seenDraw()},1200);
 
 /* ---- таблица обновлений: новые записи добавляются в НАЧАЛО массива ---- */
 const UPDATES=[
+{id:"u98",d:"25 ноября",t:"Сообщить об ошибке — точнее",items:["Жалоба на вопрос теперь с причиной: неправильный или устаревший ответ, несколько верных, формулировка, картинка, сложность — и коротким комментарием, если хотите","Ваши жалобы видны только вам; вопрос, на который пожаловались трое, временно убирается из игры"]},
 {id:"u97",d:"25 ноября",t:"Ваши сильные стороны",items:["В профиле и в «Мастерстве тем» — блок «Ваши знания»: в каких темах вы сильны, что стоит подтянуть и процент верных ответов по темам","«🎯 Слабые темы» — тренировка по темам, где пока получается хуже. Без влияния на рейтинг и звёзды"]},
 {id:"u96",d:"25 ноября",t:"Вопросы под вас",items:["«Играть» подстраивается под ваши ответы: если всё получается — сложных вопросов становится больше, если трудно — больше доступных. Внутри партии по-прежнему от простого к сложному","Меняется плавно, не больше чем на шаг за партию. Дуэли, вызовы и квиз дня — одинаковые для всех"]},
 {id:"u95",d:"25 ноября",t:"Кнопка «Назад» на телефоне",items:["«Назад» больше не выкидывает из игры: закрывает окно, а посреди партии или раунда сначала спрашивает, точно ли выйти"]},
