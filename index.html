@@ -1745,7 +1745,21 @@ addEventListener("scroll",()=>{const y=window.scrollY||document.documentElement.
  addEventListener("resize",place);place();
 })();
 function popQ(){["opts"].forEach(id=>{const e=$(id);e.classList.remove("pop");void e.offsetWidth;e.classList.add("pop")});const q=document.querySelector(".qcard");q.classList.remove("pop");void q.offsetWidth;q.classList.add("pop")}
-function show(id){document.body.dataset.scr=id;document.querySelectorAll(".screen").forEach(s=>s.classList.toggle("on",s.id===id));document.body.classList.toggle("on-home",id==="s-home")}
+function show(id){document.body.dataset.scr=id;document.querySelectorAll(".screen").forEach(s=>s.classList.toggle("on",s.id===id));document.body.classList.toggle("on-home",id==="s-home");bkArm()}
+/* Системная «Назад» (§10.2): пока игрок не на главной, в истории лежит одна запись-страховка. «Назад» снимает её —
+   закрываем окно, спрашиваем о выходе из партии или возвращаемся на главную. На главной «Назад» работает как обычно.
+   shortcut: после возврата на главную кнопками игры запись остаётся — первое «Назад» там ничего не делает; history.back() опасен (может увести со страницы) */
+const BK_FREE=new Set(["s-home","s-boot","s-auth","s-unavail","s-profile"]);let bkOn=false;
+function bkArm(){const s=document.body.dataset.scr;if(bkOn||BK_FREE.has(s)||(s==="s-arc"&&window.arcIsHome&&arcIsHome()))return;try{history.pushState({nqb:1},"");bkOn=true}catch(e){}}
+addEventListener("popstate",()=>{
+  if(!bkOn)return;bkOn=false;
+  const s=document.body.dataset.scr,sh=document.getElementById("sheet");
+  if(document.querySelector(".dlgbg")||(sh&&!sh.hidden)){document.dispatchEvent(new KeyboardEvent("keydown",{key:"Escape",bubbles:true}));const d=document.querySelector(".dlgbg");if(d)d.click()}
+  else if(s==="s-game"||s==="s-lobby"){const b=document.querySelector("#"+s+" [data-leave]");if(b)b.click()}
+  else if(s==="s-arc"){if(window.arcBackPress)arcBackPress()}
+  else{const pb=document.querySelector("#"+s+' [data-act="pback"]');if(pb&&pb.offsetParent)pb.click();else{leaveGame(true);nav("home")}}
+  setTimeout(bkArm,0);
+});
 
 /* ---------- состояние ---------- */
 let db=null,uid=null,ME=null,profiles={},teams={},lobbies=[],challenges={};
@@ -4585,7 +4599,7 @@ setInterval(()=>{if(db&&uid&&!seenLoaded)seenLoad();seenDraw()},1200);
   let swReg=null;
   try{if("serviceWorker" in navigator)navigator.serviceWorker.getRegistrations().then(a=>a.forEach(r=>r.unregister())).catch(()=>{})}catch(e){}
   /* автообновление: сравниваем версию сборки с version.json на сервере */
-  const BUILD="84df4979d81f";
+  const BUILD="b90925a7af2c";
   if(/^https?:$/.test(location.protocol)&&BUILD.length>8){
     let shown=false,busy=false;
     const bar=()=>{
@@ -4642,6 +4656,7 @@ setInterval(()=>{if(db&&uid&&!seenLoaded)seenLoad();seenDraw()},1200);
 
 /* ---- таблица обновлений: новые записи добавляются в НАЧАЛО массива ---- */
 const UPDATES=[
+{id:"u95",d:"25 ноября",t:"Кнопка «Назад» на телефоне",items:["«Назад» больше не выкидывает из игры: закрывает окно, а посреди партии или раунда сначала спрашивает, точно ли выйти"]},
 {id:"u94",d:"25 ноября",t:"Работа над ошибками и избранное",items:["Вопросы, на которых вы ошиблись, попадают в «🧠 Работу над ошибками» в быстрых режимах. Ответили верно — вопрос вернётся через 3, 7, 14 и 30 дней, потом считается усвоенным","В разборе после игры — фильтры «Ошибки», «Верные», «Без ответа» и звёздочка ☆: сохраняйте интересные вопросы и тренируйтесь по ним","Тренировка не меняет рейтинг и не даёт звёзд — просто учимся"]},
   {id:"u93",d:"22 ноября",t:"Квизер или недоквизер?",items:["После ответа в «Играть» — реплика: «Квизер!», «В точку!» или добрая «Недоквиз, но бывает»","Серия верных ответов заметнее: значок вздрагивает на каждом новом ответе, с 3 подряд — «Квизер в ударе!»","«Блиц» на 60 секунд — прямо на главной рядом с «Играть»","В «Играть» 20 секунд на вопрос (детям по-прежнему 45); очки за скорость — те же 50–100"]},
   {id:"u92",d:"22 ноября",t:"Партия бодрее",items:["Подсказки в «Играть» — одной кнопкой «💡 Подсказки» с третьего вопроса, экран вопроса стал чище","После ответа следующий вопрос через 2 секунды (с пояснением — как раньше)","Разбор: вместо «0» на таймере — ✓ или ✗, верный ответ не дублируется карточкой, надпись с очками крупнее","Темы: сначала общие знания и кино, английский — ниже"]},
@@ -4902,7 +4917,13 @@ function pick(){
   return x;
 }
 /* ---------- экраны ---------- */
-function body(h){$a("arcBody").innerHTML=h}
+function body(h){$a("arcBody").innerHTML=h;atHub=false}
+let atHub=false;
+/* «Назад» в быстрых режимах: посреди раунда — спросить; на списке режимов — на главную; на остальных экранах — к списку */
+function backPress(){
+  if(G&&!G.over){const lk=G.lock;G.lock=true;askYes("Выйти из раунда?",G.cfg.train?"Тренировку можно продолжить позже.":"Результат этого раунда не сохранится.","Выйти","Играть дальше").then(y=>{if(!G)return;if(y)hub();else G.lock=lk})}
+  else if(atHub)back();else hub();
+}
 function setTitle(t,sub){$a("arcTitle").textContent=t;$a("arcSub").textContent=sub||""}
 function show2(){if(typeof show==="function")show("s-arc");scrollTo(0,0)}
 function stop(){clearInterval(tm);tm=null}
@@ -4912,7 +4933,7 @@ function back(){
 }
 const online=()=>{try{return !!(uid&&ME)}catch(e){return false}};
 function hub(){
-  stop();G=null;SHOPON=false;load();show2();setTitle("⚡ Быстрые режимы","Короткие раунды: сыграли, побили рекорд, ещё раз");
+  stop();G=null;SHOPON=false;load();atHub=true;show2();setTitle("⚡ Быстрые режимы","Короткие раунды: сыграли, побили рекорд, ещё раз");
   $a("arcBack").hidden=!online();
   const list=(online()?ORDER:["cls",...ORDER]).map(m=>{const c=MODES_A[m],r=S.rec[m]|0;
     return `<button type="button" class="arc-mode" data-arc="m:${m}"><span class="ai">${c.ico}</span><span><b>${c.name}</b><small>${c.desc}</small></span><span class="rc">${r?r:"—"}<i>рекорд</i></span></button>`}).join("");
@@ -4926,6 +4947,7 @@ function hub(){
   <div class="card"><div class="cardtitle"><h2>📅 Задания дня</h2><span class="chip2">⭐ ${stars}</span></div>${tasks}<p class="hint" style="margin:8px 0 0">Выполните все три и получите 10 звёзд.</p></div>
   <div class="row2" style="margin-top:12px"><button type="button" class="btn alt" data-arc="mast">🏅 Мастерство тем</button><button type="button" class="btn alt" data-arc="bd:surv">🏆 Рейтинг</button></div>
   <p class="hint" style="margin-top:10px">Очки всех режимов: <b>${S.tot|0}</b> · раундов сыграно: ${S.runs|0}</p>`);
+  atHub=true;if(window.bkArm)bkArm();
 }
 function mastery(){
   stop();load();show2();setTitle("🏅 Мастерство тем","Отвечайте верно в быстрых режимах, чтобы повышать уровень");
@@ -5490,7 +5512,7 @@ document.addEventListener("keydown",e=>{
 /* звёзды за партию «Играть»: только первые MS_DAY партий в день, одна партия (код) — один раз */
 const MS_DAY=5;
 function mainStars(n,key){if(!S)load();const d=day();if(!S.ms||S.ms.d!==d)S.ms={d,n:0,k:[]};if(S.ms.k.includes(key))return null;if(S.ms.n>=MS_DAY)return{got:0,tot:S.stars|0,cap:MS_DAY};S.ms.n++;S.ms.k.push(key);S.stars=(S.stars|0)+n;save();cloudFlush();return{got:n,tot:S.stars}}
-window.arcOpen=hub;window.misNote=misNote;window.misDue=misDue;window.favTog=favTog;window.favHas=favHas;window.fxOk=fxOk;window.arcOwn=own;window.arcStars=mainStars;
+window.arcOpen=hub;window.arcBackPress=backPress;window.arcIsHome=()=>atHub&&!online();window.misNote=misNote;window.misDue=misDue;window.favTog=favTog;window.favHas=favHas;window.fxOk=fxOk;window.arcOwn=own;window.arcStars=mainStars;
 try{const _t=themeOf(),_e=$a("arcThm");if(_e&&_t>=0)_e.textContent="🌟 Тема недели: "+TOPICS[_t]+" (×2)"}catch(e){}
 load();cloudPull();
 if(!SES){SES=true;met("ses")}
