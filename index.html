@@ -1241,6 +1241,7 @@ body[data-scr="s-home"] #bestFloat{display:block}
   <h1 id="meNick" style="margin-top:10px"></h1>
   <p class="sub statusline" id="meStatus"></p>
   <p class="sub" id="meTeam"></p>
+  <div id="meKnow"></div>
   <div id="meStats"></div>
   <div id="meAch"></div>
   <button class="btn alt" id="logoutBtn">Выйти из аккаунта</button>
@@ -2593,6 +2594,7 @@ async function tgDraw(){
 async function drawMe(){
   if(!ME)return;tgDraw();
   $("mePic").src=photoOfProfile(ME);$("meNick").textContent=ME.nick;$("meStatus").textContent=ME.status||"";$("meTeam").innerHTML=ME.team?teamLabel(ME.team):"Без команды";
+  try{$("meKnow").innerHTML=window.kpHtml?kpHtml():""}catch(e){}
   $("meStats").innerHTML='<div class="empty">Загружаем…</div>';
   statsCache[uid]=null;await loadMyStats();
   if(cur!=="me")return;
@@ -4600,7 +4602,7 @@ setInterval(()=>{if(db&&uid&&!seenLoaded)seenLoad();seenDraw()},1200);
   let swReg=null;
   try{if("serviceWorker" in navigator)navigator.serviceWorker.getRegistrations().then(a=>a.forEach(r=>r.unregister())).catch(()=>{})}catch(e){}
   /* автообновление: сравниваем версию сборки с version.json на сервере */
-  const BUILD="7009c22a8c83";
+  const BUILD="1cbf700d555b";
   if(/^https?:$/.test(location.protocol)&&BUILD.length>8){
     let shown=false,busy=false;
     const bar=()=>{
@@ -4657,6 +4659,7 @@ setInterval(()=>{if(db&&uid&&!seenLoaded)seenLoad();seenDraw()},1200);
 
 /* ---- таблица обновлений: новые записи добавляются в НАЧАЛО массива ---- */
 const UPDATES=[
+{id:"u97",d:"25 ноября",t:"Ваши сильные стороны",items:["В профиле и в «Мастерстве тем» — блок «Ваши знания»: в каких темах вы сильны, что стоит подтянуть и процент верных ответов по темам","«🎯 Слабые темы» — тренировка по темам, где пока получается хуже. Без влияния на рейтинг и звёзды"]},
 {id:"u96",d:"25 ноября",t:"Вопросы под вас",items:["«Играть» подстраивается под ваши ответы: если всё получается — сложных вопросов становится больше, если трудно — больше доступных. Внутри партии по-прежнему от простого к сложному","Меняется плавно, не больше чем на шаг за партию. Дуэли, вызовы и квиз дня — одинаковые для всех"]},
 {id:"u95",d:"25 ноября",t:"Кнопка «Назад» на телефоне",items:["«Назад» больше не выкидывает из игры: закрывает окно, а посреди партии или раунда сначала спрашивает, точно ли выйти"]},
 {id:"u94",d:"25 ноября",t:"Работа над ошибками и избранное",items:["Вопросы, на которых вы ошиблись, попадают в «🧠 Работу над ошибками» в быстрых режимах. Ответили верно — вопрос вернётся через 3, 7, 14 и 30 дней, потом считается усвоенным","В разборе после игры — фильтры «Ошибки», «Верные», «Без ответа» и звёздочка ☆: сохраняйте интересные вопросы и тренируйтесь по ним","Тренировка не меняет рейтинг и не даёт звёзд — просто учимся"]},
@@ -4799,7 +4802,8 @@ const MODES_A={
   pic:{ico:"🖼️",name:"По картинкам",desc:"Флаги, места, лица. Три жизни.",lives:3,qtime:20,pool:"pic"},
   cls:{ico:"🎯",name:"Классика",desc:"15 вопросов подряд, без регистрации.",total:15,qtime:30,pool:"txt"},
   mis:{ico:"🧠",name:"Работа над ошибками",desc:"Вопросы, на которых вы ошиблись",total:10,qtime:30,train:1},
-  fav:{ico:"⭐",name:"Избранное",desc:"Сохранённые вопросы",total:10,qtime:30,train:1}
+  fav:{ico:"⭐",name:"Избранное",desc:"Сохранённые вопросы",total:10,qtime:30,train:1},
+  weak:{ico:"🎯",name:"Слабые темы",desc:"Вопросы из тем, которые стоит подтянуть",total:10,qtime:30,train:1}
 };
 const ORDER=["surv","blitz","tf","pic"];
 const LEV=[10,30,60,100,150];
@@ -4908,9 +4912,9 @@ const KP_WIN=20,ADAPT={min:15,n:8,nh:5,up:[.75,.55],down:[.6,.35]};
 const LV_ADAPT={"-1":[0,0,0,0, 0,0,0,0, 1,1,1,1, 1,2,2],"1":[0,0,0,1, 1,1,1,1, 1,2,2,2, 2,2,2]};
 function kpNorm(k){k=k&&typeof k==="object"?k:{};const s=v=>String(v||"").replace(/[^01]/g,"").slice(-KP_WIN),t={};Object.keys(k.t&&typeof k.t==="object"?k.t:{}).forEach(c=>{const v=k.t[c];if(Array.isArray(v))t[c]=[v[0]|0,v[1]|0]});return{e:s(k.e),m:s(k.m),h:s(k.h),t,lv:Math.max(-1,Math.min(1,k.lv|0))}}
 function kpTot(k){return k&&k.t?Object.values(k.t).reduce((a,v)=>a+((v&&v[0])|0),0):0}
-function kpNote(x,ok){
+function kpNote(x,ok,topicOnly){
   if(!x||x.by||!x.q)return;if(!S)load();
-  const k=S.kp,L=x.d==="e"?"e":x.d==="h"?"h":"m";k[L]=(k[L]+(ok?"1":"0")).slice(-KP_WIN);
+  const k=S.kp,L=x.d==="e"?"e":x.d==="h"?"h":"m";if(!topicOnly)k[L]=(k[L]+(ok?"1":"0")).slice(-KP_WIN);
   const t=k.t[x.c]||(k.t[x.c]=[0,0]);t[0]++;if(ok)t[1]++;save();
 }
 function kpTarget(){
@@ -4924,7 +4928,31 @@ function adaptPlan(){
   if(!S)load();const k=S.kp;k.lv=Math.max(-1,Math.min(1,k.lv+Math.sign(kpTarget()-k.lv)));save();met(k.lv<0?"adw":k.lv>0?"ads":"adn");
   return k.lv?QP_PLAN.map((p,i)=>({...p,L:LV_ADAPT[k.lv][i]})):QP_PLAN;
 }
-function trainList(mode){return (mode==="mis"?misDue():shuf(favList())).slice(0,TRAIN_N).map(byHash)}
+/* Сильные и слабые темы (§4.3): выводы по теме — от KP_MIN ответов. Сильные — ≥70 %, слабые — <60 %, по 3. */
+const KP_MIN=8;
+function kpTopics(){
+  if(!S)load();const all=Object.keys(S.kp.t).map(Number).filter(c=>TOPICS[c]&&!(typeof HID!=="undefined"&&HID.has(c))).map(c=>{const[n,ok]=S.kp.t[c];return{c,n,ok,p:n?ok/n:0}}),j=all.filter(t=>t.n>=KP_MIN);
+  const strong=j.filter(t=>t.p>=.7).sort((a,b)=>b.p-a.p||b.n-a.n).slice(0,3),weak=j.filter(t=>t.p<.6).sort((a,b)=>a.p-b.p||b.n-a.n).slice(0,3);
+  return{j:j.sort((a,b)=>b.n-a.n),strong,weak,few:all.length-j.length};
+}
+function kpHtml(){
+  const{j,strong,weak,few}=kpTopics(),nm=l=>l.map(t=>E(TOPICS[t.c])).join(", "),pc=t=>Math.round(t.p*100);
+  if(!j.length)return `<div class="card" style="margin-bottom:12px"><div class="cardtitle"><h2 style="margin:0">🧭 Ваши знания</h2></div><p class="hint" style="margin:0">Сыграйте ещё немного: после ${KP_MIN} ответов в теме здесь появятся ваши сильные стороны и что стоит подтянуть.</p></div>`;
+  const md=misDue().length,rec=weak.length?`<button type="button" class="btn" data-arc="m:weak">🎯 Тренировка: ${nm(weak)}</button>`:md?`<button type="button" class="btn alt" data-arc="m:mis">🧠 Работа над ошибками · ${md}</button>`:`<p class="hint" style="margin:0">Отличный баланс — играйте в «Играть», сложность подстроится сама.</p>`;
+  return `<div class="card" style="margin-bottom:12px"><div class="cardtitle"><h2 style="margin:0">🧭 Ваши знания</h2><span class="chip2">тем: ${j.length}</span></div>
+  ${strong.length?`<p style="margin:0 0 6px">💪 <b>Ваши сильные стороны:</b> ${nm(strong)}</p>`:""}${weak.length?`<p style="margin:0 0 6px">🌱 <b>Что стоит подтянуть:</b> ${nm(weak)}</p>`:""}
+  <div class="arc-mast">${j.slice(0,8).map(t=>`<div class="arc-mrow"><div class="mt">${E(TOPICS[t.c])}<div class="mb"><i style="width:${pc(t)}%"></i></div></div><span class="ml">${pc(t)}% · ${t.n} отв.</span></div>`).join("")}</div>
+  ${few?`<p class="hint" style="margin:6px 0 0">Ещё ${few} ${few===1?"тема":few<5?"темы":"тем"} — пока мало ответов для выводов</p>`:""}<div style="margin-top:10px">${rec}</div></div>`;
+}
+function weakList(){
+  const W=new Set(kpTopics().weak.map(t=>t.c));if(!W.size)return[];
+  const seen=new Set(S.seen),lv=x=>x.d==="e"?0:x.d==="h"?2:1;
+  let c=pool("txt").concat(pool("pic")).filter(x=>W.has(x.c));
+  if(c.length<TRAIN_N)c=BANK.filter(x=>W.has(x.c)&&!x.by);
+  c=shuf(c).sort((a,b)=>(seen.has(hs(a.q))-seen.has(hs(b.q)))||(lv(a)-lv(b))).slice(0,TRAIN_N);
+  return c.sort((a,b)=>lv(a)-lv(b));
+}
+function trainList(mode){if(mode==="weak")return weakList();return (mode==="mis"?misDue():shuf(favList())).slice(0,TRAIN_N).map(byHash)}
 function pick(){
   if(G.list)return G.list[G.n-1];
   if(G.ch){const x=byHash((G.ch.aq||[])[G.n-1]);if(x&&!G.used.has(x)){G.used.add(x);return x}}
@@ -4965,8 +4993,8 @@ function hub(){
     return `<button type="button" class="arc-mode" data-arc="m:${m}"><span class="ai">${c.ico}</span><span><b>${c.name}</b><small>${c.desc}</small></span><span class="rc">${r?r:"—"}<i>рекорд</i></span></button>`}).join("");
   const tasks=S.tasks.map(t=>{const p=Math.min(t.p|0,t.g),d=p>=t.g;return `<div class="arc-task${d?" done":""}"><div class="tb">${d?"✅ ":""}${E(t.n)}<div class="tp"><i style="width:${Math.round(p/t.g*100)}%"></i></div></div><span class="tn">${p}/${t.g}</span></div>`}).join("");
   const stars=S.stars|0,th=themeOf(),thb=th>=0?`<div class="card" style="text-align:center;margin-bottom:10px">🌟 <b>Тема недели:</b> ${E(TOPICS[th])}<br><small>Верные ответы по ней дают ×2 очков</small></div>`:"";
-  const md=misDue().length,mq=Object.keys(S.mis).length,fv=favList().length;
-  const trn=(mq?`<button type="button" class="arc-mode" data-arc="m:mis"><span class="ai">🧠</span><span><b>Работа над ошибками</b><small>${md?"К повтору сегодня: "+md:"Сегодня повторять нечего"}</small></span><span class="rc">${mq}<i>в очереди</i></span></button>`:"")
+  const md=misDue().length,mq=Object.keys(S.mis).length,fv=favList().length,wk=kpTopics().weak;
+  const trn=(wk.length?`<button type="button" class="arc-mode" data-arc="m:weak"><span class="ai">🎯</span><span><b>Слабые темы</b><small>${wk.map(t=>E(TOPICS[t.c])).join(", ")}</small></span><span class="rc">${wk.length}<i>${wk.length===1?"тема":"темы"}</i></span></button>`:"")+(mq?`<button type="button" class="arc-mode" data-arc="m:mis"><span class="ai">🧠</span><span><b>Работа над ошибками</b><small>${md?"К повтору сегодня: "+md:"Сегодня повторять нечего"}</small></span><span class="rc">${mq}<i>в очереди</i></span></button>`:"")
     +(fv?`<button type="button" class="arc-mode" data-arc="m:fav"><span class="ai">⭐</span><span><b>Избранное</b><small>Тренировка по сохранённым вопросам</small></span><span class="rc">${fv}<i>вопросов</i></span></button>`:"");
   body(`${meRow()}${skHtml()}${chList()}${thb}${trn?`<div class="arc-modes" style="margin-bottom:10px">${trn}</div>`:""}<div class="arc-modes">${list}</div>
   <button type="button" class="arc-mode" data-arc="wd"><span class="ai">🔤</span><span><b>Слово дня</b><small>${S.wd&&S.wd.day===day()&&S.wd.done?(S.wd.win?"Сегодня угадано ✅":"Попытки закончились"):"Одно слово в день: 6 попыток"}</small></span><span class="rc">${(S.wdS&&S.wdS.best)||"—"}<i>серия</i></span></button>
@@ -4986,13 +5014,13 @@ function mastery(){
   }
   rows.sort((a,b)=>b.lv-a.lv||b.ok-a.ok);
   const total=rows.reduce((s,r)=>s+r.lv,0);
-  body(`<p class="sub" style="text-align:left">Всего уровней: <b>${total}</b> из ${rows.length*LEV.length}</p><div class="arc-mast">${rows.map(r=>`<div class="arc-mrow"><div class="mt">${E(TOPICS[r.c])}<div class="mb"><i style="width:${r.pc}%"></i></div></div><span class="ml">${r.lv>=LEV.length?"МАКС":`ур. ${r.lv} · ${r.ok}/${r.nxt}`}</span></div>`).join("")}</div>
+  body(`${kpHtml()}<p class="sub" style="text-align:left">Всего уровней: <b>${total}</b> из ${rows.length*LEV.length}</p><div class="arc-mast">${rows.map(r=>`<div class="arc-mrow"><div class="mt">${E(TOPICS[r.c])}<div class="mb"><i style="width:${r.pc}%"></i></div></div><span class="ml">${r.lv>=LEV.length?"МАКС":`ур. ${r.lv} · ${r.ok}/${r.nxt}`}</span></div>`).join("")}</div>
   <div class="row2" style="margin-top:14px"><button type="button" class="btn alt" data-arc="hub">← К режимам</button></div>`);
 }
 /* ---------- игра ---------- */
 function start(mode,ch){
   load();let cfg=MODES_A[mode],list=null;if(!cfg||!BANK||!BANK.length)return;
-  if(cfg.train){list=trainList(mode);if(!list.length){toast(mode==="mis"?"Сегодня повторять нечего — загляните завтра":"В избранном пока пусто");return}cfg={...cfg,total:list.length};met(mode==="mis"?"mts":"fvs")}
+  if(cfg.train){list=trainList(mode);if(!list.length){toast(mode==="mis"?"Сегодня повторять нечего — загляните завтра":mode==="weak"?"Пока мало данных о темах — сыграйте ещё":"В избранном пока пусто");return}cfg={...cfg,total:list.length};met({mis:"mts",fav:"fvs",weak:"wks"}[mode])}
   else{if(pool(cfg.pool).length<20)return;met("rnd")}
   G={list,t0:Date.now(),mode,cfg,score:0,ok:0,wrong:0,combo:0,maxCombo:0,lives:cfg.lives||0,time:cfg.time||0,n:0,used:new Set(),rev:false,ext:false,q:null,lock:false,qLeft:cfg.qtime||0,over:false,topics:{},ch:ch||null,log:[],logT:[]};LASTR=null;LASTID="";
   show2();setTitle(cfg.ico+" "+cfg.name,ch?"Вызов от "+E(nick(ch.by)):"");$a("arcBack").hidden=true;
@@ -5053,7 +5081,8 @@ function answer(i){
   }else{
     const bs=document.querySelectorAll("#arcBody .opt");bs.forEach(b=>{const v=b.dataset.arc==="t:1";if(v===G.truth)b.classList.add("right");else if(i>=0&&((i===1)===v))b.classList.add("wrongpick")});
   }
-  if(c.train)misNote(x,ok,G.mode==="mis");else{mark(x.c,ok);misNote(x,ok);if(c.kind!=="tf")kpNote(x,ok)}
+  if(G.mode==="weak"){misNote(x,ok);kpNote(x,ok,1)}// прогресс по теме виден, уровень сложности — нет (вопросы тут легче)
+  else if(c.train)misNote(x,ok,G.mode==="mis");else{mark(x.c,ok);misNote(x,ok);if(c.kind!=="tf")kpNote(x,ok)}
   if(ok){
     G.ok++;G.combo++;G.maxCombo=Math.max(G.maxCombo,G.combo);
     const th2=x.c===themeOf(),pts=th2?2:1;G.score+=pts;snd(1);fxOk();if(th2)pop("🌟 ×2");const rc0=S.rec[G.mode]|0;if(rc0>0&&!G.cfg.total&&!G.beat&&G.score>rc0){G.beat=true;pop("👻 Рекорд побит!")}
@@ -5197,7 +5226,7 @@ function finish(){
   try{met("sec",Math.min(900,Math.round((Date.now()-G.t0)/1000)))}catch(e){}
   if(c.train){
     if(m==="mis")met("mtc");const left=m==="mis"?misDue().length:0,q=Object.keys(S.mis).length;
-    body(`<div class="arc-big">${G.ok} из ${c.total}</div><div class="arc-sub">${G.ok===c.total?"Квизер! Всё верно":"Ошибки вернутся завтра — так запоминается лучше"}</div>
+    body(`<div class="arc-big">${G.ok} из ${c.total}</div><div class="arc-sub">${G.ok===c.total?"Квизер! Всё верно":m==="weak"?"Ошибки попали в «Работу над ошибками»":"Ошибки вернутся завтра — так запоминается лучше"}</div>
     ${m==="mis"?`<div class="card" style="text-align:center">${left?`К повтору сегодня ещё: <b>${left}</b>`:"На сегодня всё повторено"} · в очереди: ${q}<br><small>Верные ответы вернутся через ${MIS_DAYS.slice(1).join(", ")} дней, потом вопрос считается усвоенным</small></div>`:""}
     <p class="hint" style="text-align:center">Тренировка не меняет рейтинг и не даёт звёзд</p>
     <div class="row2" style="margin-top:12px">${m!=="mis"||left?`<button type="button" class="btn" data-arc="m:${m}">Ещё раз</button>`:""}<button type="button" class="btn alt" data-arc="hub">Все режимы</button></div>`);
@@ -5538,7 +5567,7 @@ document.addEventListener("keydown",e=>{
 /* звёзды за партию «Играть»: только первые MS_DAY партий в день, одна партия (код) — один раз */
 const MS_DAY=5;
 function mainStars(n,key){if(!S)load();const d=day();if(!S.ms||S.ms.d!==d)S.ms={d,n:0,k:[]};if(S.ms.k.includes(key))return null;if(S.ms.n>=MS_DAY)return{got:0,tot:S.stars|0,cap:MS_DAY};S.ms.n++;S.ms.k.push(key);S.stars=(S.stars|0)+n;save();cloudFlush();return{got:n,tot:S.stars}}
-window.arcOpen=hub;window.arcBackPress=backPress;window.kpNote=kpNote;window.adaptPlan=adaptPlan;window.arcIsHome=()=>atHub&&!online();window.misNote=misNote;window.misDue=misDue;window.favTog=favTog;window.favHas=favHas;window.fxOk=fxOk;window.arcOwn=own;window.arcStars=mainStars;
+window.arcOpen=hub;window.arcBackPress=backPress;window.kpNote=kpNote;window.kpHtml=kpHtml;window.adaptPlan=adaptPlan;window.arcIsHome=()=>atHub&&!online();window.misNote=misNote;window.misDue=misDue;window.favTog=favTog;window.favHas=favHas;window.fxOk=fxOk;window.arcOwn=own;window.arcStars=mainStars;
 try{const _t=themeOf(),_e=$a("arcThm");if(_e&&_t>=0)_e.textContent="🌟 Тема недели: "+TOPICS[_t]+" (×2)"}catch(e){}
 load();cloudPull();
 if(!SES){SES=true;met("ses")}
