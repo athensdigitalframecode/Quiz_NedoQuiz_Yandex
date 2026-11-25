@@ -1943,7 +1943,7 @@ async function boot(){
   await Promise.all([
     sub(db.collection("profiles"),s=>{profiles={};s.docs.forEach(d=>profiles[d.id]=d.data());ME=profiles[uid]||null;document.body.classList.toggle("kid",!!KB(ME))}),
     sub(db.collection("teams"),s=>{teams={};s.docs.forEach(d=>teams[d.id]=d.data());if(ME&&ME.team&&!teams[ME.team]){const t=ME.team;setTimeout(()=>{if(ME&&ME.team===t&&!teams[t])db.doc("profiles/"+uid).update({team:""}).catch(()=>{})},2500)}}),
-    sub(db.collection("disputes"),s=>{DISPS={};s.docs.forEach(d=>DISPS[d.id]=d.data())}),
+    sub(db.collection("disputes").where("by","==",uid),s=>{DISPS={};s.docs.forEach(d=>DISPS[d.id]=d.data())}),dsumLoad(),
     sub(db.collection("dailyans").where("key","==",dayKey()),s=>{DAILY={};s.docs.forEach(d=>DAILY[d.data().u]=d.data())}),
     sub(db.collection("suggest"),s=>{SUG={};s.docs.forEach(d=>SUG[d.id]=d.data())}),
     sub(db.collection("challenges"),s=>{const t=Date.now()-7*86400000;challenges={};s.docs.forEach(d=>{const c=d.data();if((+c.createdAt||0)>t)challenges[d.id]=c})}),
@@ -2637,6 +2637,7 @@ function sgCard(id,s,mode){
   return `<div class="tcard" style="cursor:default"><div class="nm">${head}<small>${lab}</small></div>${st==="pending"?`<button class="btn small ghost" data-act="sgd" data-id="${id}">Убрать</button>`:""}</div>`;
 }
 function drawSuggest(){
+  if(Date.now()-dsumAt>=600000)dsumLoad().then(()=>{if(cur==="suggest")drawSuggest()});
   if(!$("sgTopic").children.length)$("sgTopic").innerHTML=TOPICS.map((n,i)=>n&&i!==PIC_T&&!isKid(i)&&!HID.has(i)?`<option value="${i}"${i===SG_TOPIC?" selected":""}>${esc(n)}</option>`:"").join("");
   [...$("sgLvl").children].forEach(b=>b.classList.toggle("on",b.dataset.l===sgLvl));
   const ids=Object.keys(SUG).sort((a,b)=>((+SUG[b].at||0))-((+SUG[a].at||0)));
@@ -2646,7 +2647,7 @@ function drawSuggest(){
   const mine=ids.filter(id=>SUG[id].by===uid&&!SUG[id].hide);
   const okN=mine.filter(id=>sgState(SUG[id])==="ok").length;
   {const g={};Object.values(DISPS).forEach(d=>{(g[d.h]=g[d.h]||{q:d.q,a:d.a,n:0}).n++});
-   const l=Object.values(g).sort((a,b)=>b.n-a.n).slice(0,10);
+   const l=DSUM&&Array.isArray(DSUM.top)?DSUM.top:Object.values(g).sort((a,b)=>b.n-a.n).slice(0,10);
    $("sgDisp").innerHTML=l.map(d=>`<div class="tcard" style="cursor:default"><div class="nm"><b>${esc(d.q)}</b><small>Ответ в игре: ${esc(d.a)} · оспорили: ${d.n}</small></div></div>`).join("")||'<div class="empty">Пока никто не оспорил вопросы</div>'}
   $("sgMine").innerHTML=(mine.length?`<p class="hint">Одобрено ваших вопросов: ${okN}</p>`:"")+(mine.map(id=>sgCard(id,SUG[id],"mine")).join("")||'<div class="empty">Вы пока ничего не предлагали</div>');
 }
@@ -2741,8 +2742,8 @@ async function onEnd(){
     const cb0=chestOf(a).st;chestTick(a);if(cb0===0&&a.ch.st===1)ENDCHEST[c]=1;
     touch(a);if(window.arcDayPlayed)arcDayPlayed();ENDNEW[c]=[...achSet(a)].filter(x=>!before.has(x));ENDCOL[c]=[...colSet(a)].filter(x=>!cbef.has(x)).map(colName).filter(Boolean);await saveAch(a);
     if(cur==="end")endExtra();
-    for(const q of Object.keys(rec)){const r=rec[q];if(!r.a)continue;
-      try{const ref=db.doc("qstats/"+r.h),s=await ref.get(),d=s.exists?s.data():{};const wk=weekId(),sw=d.wk===wk;await ref.set({n:(+d.n||0)+1,ok:(+d.ok||0)+(r.a===r.c?1:0),wk,wn:(sw?(+d.wn||0):0)+1,wok:(sw?(+d.wok||0):0)+(r.a===r.c?1:0)})}catch(e){}}
+    {const it=Object.values(rec).filter(r=>r.a).map(r=>({h:r.h,ok:r.a===r.c})).slice(0,30);/* M01: атомарный +1 одной пачкой (dev/sql/m01_qstats_disputes.sql) */
+      if(it.length)try{const{error}=await sb.rpc("qstat_add",{items:it});if(error)throw error}catch(e){}}
   }catch(e){}
 }
 async function loadQstats(rec){await Promise.all(Object.values(rec).map(async r=>{if(QSTAT[r.h]!==undefined)return;try{const s=await db.doc("qstats/"+r.h).get();QSTAT[r.h]=s.exists?s.data():null}catch(e){QSTAT[r.h]=null}}));}
@@ -2781,7 +2782,10 @@ function endExtra(){
 }
 async function toggleReview(){revOpen=!revOpen;revF="all";lastEx="";if(revOpen)await loadQstats(REC[code]||{});endExtra()}
 const FLAG_N=3;
-const hiddenQ=()=>{const c={};Object.values(DISPS).forEach(d=>{if(d&&d.h&&d.by){(c[d.h]=c[d.h]||new Set()).add(d.by)}});const o=new Set();Object.keys(c).forEach(h=>{if(c[h].size>=FLAG_N)o.add(h)});return o};
+/* M01: чужие жалобы не читаются; скрытые вопросы и топ оспоренных — сводкой с сервера (без идентификаторов игроков) */
+let DSUM=null,dsumAt=0;
+async function dsumLoad(){if(!sb||Date.now()-dsumAt<600000)return;dsumAt=Date.now();try{const{data,error}=await sb.rpc("disputes_summary");if(!error&&data&&Array.isArray(data.hid))DSUM=data}catch(e){}}
+const hiddenQ=()=>{if(DSUM)return new Set(DSUM.hid.map(String));const c={};Object.values(DISPS).forEach(d=>{if(d&&d.h&&d.by){(c[d.h]=c[d.h]||new Set()).add(d.by)}});const o=new Set();Object.keys(c).forEach(h=>{if(c[h].size>=FLAG_N)o.add(h)});return o};
 function flagDraw(){
   const b=$("flagq");if(!b)return;
   const x=game&&game.status==="reveal"?bq(game,game.qi|0):null;
@@ -4602,7 +4606,7 @@ setInterval(()=>{if(db&&uid&&!seenLoaded)seenLoad();seenDraw()},1200);
   let swReg=null;
   try{if("serviceWorker" in navigator)navigator.serviceWorker.getRegistrations().then(a=>a.forEach(r=>r.unregister())).catch(()=>{})}catch(e){}
   /* автообновление: сравниваем версию сборки с version.json на сервере */
-  const BUILD="1cbf700d555b";
+  const BUILD="9bbcaecfb59e";
   if(/^https?:$/.test(location.protocol)&&BUILD.length>8){
     let shown=false,busy=false;
     const bar=()=>{
