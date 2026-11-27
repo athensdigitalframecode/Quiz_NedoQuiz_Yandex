@@ -3,7 +3,7 @@
   $env:SUPABASE_SERVICE_ROLE_KEY = "<ключ из Supabase → Project Settings → API Keys>"
   python -I dev/team_upload.py
 Кладёт bank.json (пути картинок team/img/x.jpg → img/x.jpg) и все картинки из него; повторный запуск перезаписывает."""
-import concurrent.futures as cf, json, os, pathlib, re, sys, urllib.request
+import concurrent.futures as cf, json, os, pathlib, re, sys, time, urllib.error, urllib.request
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 T = ROOT / "team"
@@ -29,9 +29,14 @@ for q in bank["q"]:
 def put(path, data, ctype):
     rq = urllib.request.Request(URL + path, data=data, method="POST", headers={
         "Authorization": "Bearer " + KEY, "apikey": KEY, "Content-Type": ctype, "x-upsert": "true"})
-    with urllib.request.urlopen(rq, timeout=60) as r: return r.status
+    for t in range(7):  # 429 «Too Many Requests» и сбои сервера — ждём 1, 2, 4… с и повторяем
+        try:
+            with urllib.request.urlopen(rq, timeout=60) as r: return r.status
+        except urllib.error.HTTPError as e:
+            if e.code not in (429, 500, 502, 503, 504) or t == 6: raise
+            time.sleep(2 ** t)
 
-with cf.ThreadPoolExecutor(8) as ex:
+with cf.ThreadPoolExecutor(4) as ex:
     futs = {ex.submit(put, p[len("team/"):], (ROOT / p).read_bytes(), "image/jpeg"): p for p in imgs}
     err = []
     for i, f in enumerate(cf.as_completed(futs), 1):
