@@ -24,6 +24,8 @@ SOURCES = {
     "scizor": {"name": "scizor666/rebus (GitHub), пул ru-image", "url": "https://github.com/scizor666/rebus", "lic": "MIT; эмодзи OpenMoji — CC BY-SA 4.0 (лицензия не проверялась, добавлено по решению владельца 27.11)", "rights": "ok"},
     "columbus": {"name": "koen-47/COLUMBUS (Hugging Face)", "url": "https://huggingface.co/datasets/koen-47/COLUMBUS", "lic": "MIT (по карточке на HF)", "rights": "ok"},
     "fuzzysb": {"name": "fuzzysb/Logo-Quiz-Logos (GitHub)", "url": "https://github.com/fuzzysb/Logo-Quiz-Logos", "lic": "LGPL-3.0 на репозиторий; логотипы — товарные знаки владельцев", "rights": "approval"},
+    "wdlogos": {"name": "Wikidata (логотип, P154) + Wikimedia Commons", "url": "https://www.wikidata.org/wiki/Property:P154",
+                "lic": "Wikidata — CC0; файлы Commons — свободная лицензия или общественное достояние; логотипы — товарные знаки владельцев", "rights": "approval"},
 }
 CATS = {
     "rebus_en": {"name": "Ребусы (английские)", "ico": "🧩", "lang": "en", "q": "Разгадайте ребус (ответ по-английски)"},
@@ -96,12 +98,12 @@ def jget(name, url):
 def sparql(name, query):
     return jget(name, "https://query.wikidata.org/sparql?format=json&query=" + urllib.parse.quote(query))["results"]["bindings"]
 
-def wd(ids, name):
+def wd(ids, name, langs="ru|en"):
     """Метки и псевдонимы ru/en и утверждения сущностей Wikidata (CC0), пачками по 50."""
     out = {}
     for k in range(0, len(ids), 50):
         part = ids[k:k + 50]
-        j = jget(f"{name}_{k}.json", "https://www.wikidata.org/w/api.php?action=wbgetentities&format=json&props=labels|aliases|claims&languages=ru|en&ids=" + "|".join(part))
+        j = jget(f"{name}_{k}.json", f"https://www.wikidata.org/w/api.php?action=wbgetentities&format=json&props=labels|aliases|claims&languages={langs}&ids=" + "|".join(part))
         out.update(j.get("entities", {}))
     return out
 
@@ -202,8 +204,32 @@ def src_art():
                     "bad": "" if free else f"лицензия изображения не свободная или не указана ({lic or '—'})"})
     return out
 
+def src_wdlogos():
+    """Логотипы без надписи с названием: кандидаты — Wikidata P154 с 40+ статьями в Википедиях или из России (_raw/wdlogos/candidates.json),
+    в игру — только просмотренные вручную на контактных листах (team_curation.json → wdlogos_ok). У большинства логотипов Commons название написано на картинке."""
+    p = RAW / "wdlogos/candidates.json"
+    if not p.exists(): print("  нет wdlogos/candidates.json"); return []
+    C = {c["qid"]: c for c in json.loads(p.read_text(encoding="utf-8"))}
+    ok = [q for q in CUR.get("wdlogos_ok", []) if q in C]
+    E = wd(ok, "wdlogos/wd_ok", "ru|en|mul")
+    lic = {}
+    for k in range(0, len(ok), 50):  # лицензия файла — Wikimedia Commons API
+        j = jget(f"wdlogos/commons_{k}.json", "https://commons.wikimedia.org/w/api.php?action=query&format=json&prop=imageinfo&iiprop=extmetadata&iiextmetadatafilter=LicenseShortName&titles="
+                 + urllib.parse.quote("|".join("File:" + C[q]["file"] for q in ok[k:k + 50])))
+        nt = {n["to"]: n["from"] for n in j.get("query", {}).get("normalized", [])}
+        for pg in j.get("query", {}).get("pages", {}).values():
+            lic[nt.get(pg["title"], pg["title"])[5:]] = (((pg.get("imageinfo") or [{}])[0].get("extmetadata") or {}).get("LicenseShortName") or {}).get("value", "")
+    out = []
+    for q in ok:
+        e = E.get(q); en, ru = lab(e, "en") or lab(e, "mul"), lab(e, "ru")  # у многих брендов английское название лежит в метке «mul»
+        out.append({"key": q, "url": "https://commons.wikimedia.org/wiki/Special:FilePath/" + urllib.parse.quote(C[q]["file"]) + "?width=400",
+                    "a": en or ru, "a_main": ru if C[q]["ru"] and ru else "", "acc": [ru, *als(e, "ru"), *als(e, "en")], "d": "m", "cat": "logos",
+                    "ref": f"https://www.wikidata.org/wiki/{q}", "e": f"Логотип: Wikimedia Commons, {C[q]['file']}, {lic.get(C[q]['file']) or 'лицензия не указана'}",
+                    "bad": "" if en or ru else "нет названия"})
+    return out
+
 FETCH = {"pmovva": src_pmovva, "rebus": src_rebus, "fuzzysb": src_fuzzysb,
-         "emojiscreen": src_emojiscreen, "bigbench": src_bigbench, "scizor": src_scizor, "columbus": src_columbus, "art": src_art}
+         "emojiscreen": src_emojiscreen, "bigbench": src_bigbench, "scizor": src_scizor, "columbus": src_columbus, "art": src_art, "wdlogos": src_wdlogos}
 
 def fetch():
     meta = {}

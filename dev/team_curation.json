@@ -1,5 +1,6 @@
 {
  "approved": ["logos"],
+ "wdlogos_ok": ["Q388", "Q209330", "Q115564437", "Q38076", "Q1049511", "Q1422", "Q135622", "Q15616276", "Q23317", "Q9334", "Q12013", "Q35339", "Q66048", "Q94912", "Q27436", "Q120281745", "Q489921", "Q234803", "Q116947", "Q27224", "Q485593", "Q330067", "Q58166", "Q28406404", "Q466183", "Q78194383", "Q1123836", "Q864889", "Q16927658", "Q112406961", "Q658242"],
  "exclude": {
   "fuzzysb": {
    "Goyard": "малоизвестный в России бренд",
@@ -1241,6 +1242,203 @@
    "acc": [
     "Трамп подписывает указ",
     "Трамп с указом"
+   ]
+  },
+  "wdlogos:Q388": {
+   "a": "Linux",
+   "acc": [
+    "Линукс"
+   ]
+  },
+  "wdlogos:Q209330": {
+   "a": "Instagram",
+   "acc": [
+    "Инстаграм"
+   ]
+  },
+  "wdlogos:Q115564437": {
+   "a": "ChatGPT",
+   "acc": [
+    "OpenAI",
+    "Чат GPT",
+    "ЧатГПТ"
+   ]
+  },
+  "wdlogos:Q38076": {
+   "a": "McDonald's",
+   "acc": [
+    "Макдональдс",
+    "Макдоналдс"
+   ]
+  },
+  "wdlogos:Q1049511": {
+   "a": "WhatsApp",
+   "acc": [
+    "Ватсап",
+    "Вотсап",
+    "Вацап"
+   ]
+  },
+  "wdlogos:Q1422": {
+   "a": "Juventus",
+   "acc": [
+    "Ювентус"
+   ]
+  },
+  "wdlogos:Q135622": {
+   "a": "Google Translate",
+   "acc": [
+    "Google Переводчик",
+    "Гугл переводчик"
+   ]
+  },
+  "wdlogos:Q15616276": {
+   "a": "Telegram",
+   "acc": [
+    "Телеграм",
+    "Телеграмм"
+   ]
+  },
+  "wdlogos:Q23317": {
+   "a": "Audi",
+   "acc": [
+    "Ауди"
+   ]
+  },
+  "wdlogos:Q9334": {
+   "a": "Gmail",
+   "acc": [
+    "Джимейл",
+    "Гмейл"
+   ]
+  },
+  "wdlogos:Q12013": {
+   "a": "Google Maps",
+   "acc": [
+    "Google Карты",
+    "Гугл карты"
+   ]
+  },
+  "wdlogos:Q35339": {
+   "a": "WWE",
+   "acc": []
+  },
+  "wdlogos:Q66048": {
+   "a": "Deutsche Bank",
+   "acc": [
+    "Дойче Банк"
+   ]
+  },
+  "wdlogos:Q94912": {
+   "a": "Rockstar Games",
+   "acc": [
+    "Rockstar",
+    "Рокстар"
+   ]
+  },
+  "wdlogos:Q27436": {
+   "a": "Cadillac",
+   "acc": [
+    "Кадиллак"
+   ]
+  },
+  "wdlogos:Q120281745": {
+   "a": "Threads",
+   "acc": [
+    "Тредс"
+   ]
+  },
+  "wdlogos:Q489921": {
+   "a": "Mastercard",
+   "acc": [
+    "Мастеркард"
+   ]
+  },
+  "wdlogos:Q234803": {
+   "a": "Rolls-Royce",
+   "acc": [
+    "Роллс-Ройс"
+   ]
+  },
+  "wdlogos:Q116947": {
+   "a": "Messenger",
+   "acc": [
+    "Facebook Messenger",
+    "Мессенджер"
+   ]
+  },
+  "wdlogos:Q27224": {
+   "a": "Bentley",
+   "acc": [
+    "Бентли"
+   ]
+  },
+  "wdlogos:Q485593": {
+   "a": "Red Hat",
+   "acc": [
+    "Ред Хэт"
+   ]
+  },
+  "wdlogos:Q330067": {
+   "a": "Первый канал",
+   "acc": [
+    "Channel One"
+   ]
+  },
+  "wdlogos:Q58166": {
+   "a": "ICQ",
+   "acc": [
+    "Аська",
+    "Ася"
+   ]
+  },
+  "wdlogos:Q28406404": {
+   "a": "Microsoft Teams",
+   "acc": [
+    "Teams"
+   ]
+  },
+  "wdlogos:Q466183": {
+   "a": "Reebok",
+   "acc": [
+    "Рибок"
+   ]
+  },
+  "wdlogos:Q78194383": {
+   "a": "Bluesky",
+   "acc": [
+    "Блюскай"
+   ]
+  },
+  "wdlogos:Q1123836": {
+   "a": "Одноклассники",
+   "acc": [
+    "OK",
+    "Odnoklassniki"
+   ]
+  },
+  "wdlogos:Q864889": {
+   "a": "OneDrive",
+   "acc": [
+    "Microsoft OneDrive"
+   ]
+  },
+  "wdlogos:Q16927658": {
+   "a": "Google Classroom",
+   "acc": [
+    "Classroom"
+   ]
+  },
+  "wdlogos:Q112406961": {
+   "a": "Вкусно — и точка",
+   "acc": [
+    "Вкусно и точка"
+   ]
+  },
+  "wdlogos:Q658242": {
+   "a": "УАЗ",
+   "acc": [
+    "UAZ"
    ]
   }
  },
