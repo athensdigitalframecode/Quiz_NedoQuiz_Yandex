@@ -24,12 +24,16 @@ SOURCES = {
     "scizor": {"name": "scizor666/rebus (GitHub), пул ru-image", "url": "https://github.com/scizor666/rebus", "lic": "MIT; эмодзи OpenMoji — CC BY-SA 4.0 (лицензия не проверялась, добавлено по решению владельца 27.11)", "rights": "ok"},
     "columbus": {"name": "koen-47/COLUMBUS (Hugging Face)", "url": "https://huggingface.co/datasets/koen-47/COLUMBUS", "lic": "MIT (по карточке на HF)", "rights": "ok"},
     "fuzzysb": {"name": "fuzzysb/Logo-Quiz-Logos (GitHub)", "url": "https://github.com/fuzzysb/Logo-Quiz-Logos", "lic": "LGPL-3.0 на репозиторий; логотипы — товарные знаки владельцев", "rights": "approval"},
+    "memepedia": {"name": "Memepedia, рубрика «Пикча» (WordPress API)", "url": "https://memepedia.world/category/pic/", "lic": "не указана («© Все права замемщены»)", "rights": "approval"},
     "wdlogos": {"name": "Wikidata (логотип, P154) + Wikimedia Commons", "url": "https://www.wikidata.org/wiki/Property:P154",
                 "lic": "Wikidata — CC0; файлы Commons — свободная лицензия или общественное достояние; логотипы — товарные знаки владельцев", "rights": "approval"},
 }
 CATS = {
     "rebus_en": {"name": "Ребусы (английские)", "ico": "🧩", "lang": "en", "q": "Разгадайте ребус (ответ по-английски)"},
     "rebus_ru": {"name": "Ребусы (русские)", "ico": "🧩", "lang": "ru", "q": "Разгадайте ребус"},
+    "meme_src": {"name": "Мемы: откуда кадр", "ico": "🎞️", "lang": "ru", "q": "Откуда этот мем: из какого фильма, сериала, мультфильма, шоу или игры?"},
+    "meme_who": {"name": "Мемы: кто на картинке", "ico": "👤", "lang": "ru", "q": "Кто на картинке?"},
+    "meme_mean": {"name": "Мемы: что означает", "ico": "💬", "lang": "ru", "q": "Что означает этот мем? Подумайте и сравните с ответом"},
     "logos": {"name": "Логотипы и бренды", "ico": "🏷️", "lang": "en", "q": "Какой это бренд?"},
     "emoji": {"name": "Фильмы и сериалы в эмодзи", "ico": "🎬", "lang": "ru", "q": "Какой фильм, сериал или мюзикл зашифрован эмодзи?"},
     "paintings": {"name": "Известные картины", "ico": "🖼️", "lang": "ru", "q": "Как называется эта картина?"},
@@ -204,6 +208,56 @@ def src_art():
                     "bad": "" if free else f"лицензия изображения не свободная или не указана ({lic or '—'})"})
     return out
 
+MP_BAD = re.compile(r"ху[йяеёи]|пизд|\bеб[аулнё]|\bъеб|заеб|уеб|ебан|ебл|бля|залуп|мудак|мудил|гандон|пидор|пидр|шлюх|сучк|порн|porn|onlyfans|xxx|секс|sex|эрот|nsfw|"
+                    r"голая|голый|обнаж|nude|член\b|дроч|минет|вагин|пенис|сиськ|жоп|говн|срать|сран|ссать|нацист|гитлер|hitler", re.I)  # мат и 18+ — не берём
+MP_KIND = {"фильм": "фильм", "сериал": "сериал", "мультфильм": "мультфильм", "мультсериал": "мультсериал", "аниме": "аниме", "клип": "клип", "шоу": "шоу", "телешоу": "шоу",
+           "передач": "телепередача", "программ": "телепрограмма", "игр": "игра", "стрим": "стрим", "реклам": "реклама", "песн": "песня"}
+
+def mp_posts():
+    """Рубрика «Пикча» Memepedia с 2015 г.: статья (заголовок, картинка, текст)."""
+    out, page = [], 1
+    while True:
+        p = cached(f"memepedia/pic2015_{page}.json", f"https://memepedia.world/wp-json/wp/v2/posts?categories=48&per_page=100&page={page}&after=2015-01-01T00:00:00&_fields=id,date,link,title,featured_media")
+        c = cached(f"memepedia/content_{page}.json", f"https://memepedia.world/wp-json/wp/v2/posts?categories=48&per_page=100&page={page}&after=2015-01-01T00:00:00&_fields=id,content")
+        if not p or not c: return out
+        rows = json.loads(p.read_text(encoding="utf-8")); body = {x["id"]: x["content"]["rendered"] for x in json.loads(c.read_text(encoding="utf-8"))}
+        if not isinstance(rows, list) or not rows: return out
+        for x in rows:
+            m = cached(f"memepedia/media_{x['featured_media']}.json", f"https://memepedia.world/wp-json/wp/v2/media/{x['featured_media']}?_fields=source_url") if x["featured_media"] else None
+            url = json.loads(m.read_text(encoding="utf-8")).get("source_url") if m else None
+            out.append({"id": str(x["id"]), "url": urllib.parse.quote(url, safe=":/%") if url else None, "title": html.unescape(x["title"]["rendered"]).strip(),
+                        "link": x["link"], "y": int(x["date"][:4]), "html": body.get(x["id"], "")})
+        if len(rows) < 100: return out
+        page += 1
+
+def mp_sections(h):
+    """Разделы статьи по заголовкам h2/h3: intro, «происхождение», «значение»…"""
+    t = lambda s: re.sub(r"\s+", " ", html.unescape(re.sub(r"<[^>]+>", " ", s))).strip()
+    parts = re.split(r"<h[23][^>]*>(.*?)</h[23]>", h, flags=re.S)
+    s = {"intro": t(parts[0])}
+    for k in range(1, len(parts) - 1, 2): s[t(parts[k]).lower()] = t(parts[k + 1])
+    return s
+
+def src_memepedia():
+    """Три вопроса по статьям Memepedia: откуда кадр (team_curation → mp_src, проверено вручную), кто на картинке (mp_who), что означает мем (самопроверка,
+    ответ — начало раздела «Значение»). Картинка одна на статью (img_key), мат и 18+ отсеиваются по MP_BAD."""
+    out = []
+    for x in mp_posts():
+        s = mp_sections(x["html"]); mean = s.get("значение", "")
+        if not x["url"] or MP_BAD.search(x["title"] + " " + s["intro"] + " " + mean[:400]): continue
+        base = {"url": x["url"], "img_key": x["id"], "ref": x["link"], "y": x["y"], "d": "m"}
+        if x["id"] in CUR.get("mp_src", {}):
+            kind, ans = CUR["mp_src"][x["id"]]; kw = next((v for k, v in MP_KIND.items() if kind.startswith(k)), kind)
+            out.append({**base, "key": "src:" + x["id"], "cat": "meme_src", "a": ans, "acc": [], "e": f"Мем «{x['title']}» — {kw} «{ans}»"})
+        if x["id"] in CUR.get("mp_who", {}):
+            nm = CUR["mp_who"][x["id"]]; w = nm.split()
+            acc = [" ".join(w[1:])] + (["Роберт Дауни", "Дауни"] if "Дауни" in nm else [])  # фамилия без имени тоже засчитывается
+            out.append({**base, "key": "who:" + x["id"], "cat": "meme_who", "a": nm, "acc": acc if len(w) > 1 else [], "e": f"Мем «{x['title']}»"})
+        if len(mean) > 60:
+            m2 = " ".join(re.split(r"(?<=[.!?])\s+", mean)[:2])
+            out.append({**base, "key": "mean:" + x["id"], "cat": "meme_mean", "a": m2[:350].rstrip() + ("…" if len(m2) > 350 else ""), "acc": [], "self": 1, "e": f"Мем «{x['title']}»"})
+    return out
+
 def src_wdlogos():
     """Логотипы без надписи с названием: кандидаты — Wikidata P154 с 40+ статьями в Википедиях или из России (_raw/wdlogos/candidates.json),
     в игру — только просмотренные вручную на контактных листах (team_curation.json → wdlogos_ok). У большинства логотипов Commons название написано на картинке."""
@@ -229,7 +283,7 @@ def src_wdlogos():
     return out
 
 FETCH = {"pmovva": src_pmovva, "rebus": src_rebus, "fuzzysb": src_fuzzysb,
-         "emojiscreen": src_emojiscreen, "bigbench": src_bigbench, "scizor": src_scizor, "columbus": src_columbus, "art": src_art, "wdlogos": src_wdlogos}
+         "emojiscreen": src_emojiscreen, "bigbench": src_bigbench, "scizor": src_scizor, "columbus": src_columbus, "art": src_art, "wdlogos": src_wdlogos, "memepedia": src_memepedia}
 
 def fetch():
     meta = {}
@@ -237,7 +291,7 @@ def fetch():
         recs = f(); ok = 0
         for r in recs:
             ext = (pathlib.PurePosixPath(urllib.parse.urlparse(r["url"] or "").path).suffix or ".img").lower()[:5]
-            r["raw"] = f"{sid}/img/{hashlib.sha1(r['key'].encode()).hexdigest()[:16]}{ext}"
+            r["raw"] = f"{sid}/img/{hashlib.sha1(r.get('img_key', r['key']).encode()).hexdigest()[:16]}{ext}"  # img_key: одна картинка на несколько вопросов
             if r["url"] and cached(r["raw"], r["url"]): ok += 1
         meta[sid] = recs; print(f"{sid}: записей {len(recs)}, картинок есть {ok}")
     (RAW / "meta.json").write_text(json.dumps(meta, ensure_ascii=False, indent=0), encoding="utf-8")
@@ -291,13 +345,13 @@ def build():
                 lo, hi = im.convert("L").getextrema()
                 if hi - lo < 16: drop("пустое (однотонное) изображение"); continue
                 h = fp(im)
-                dup = None if sid == "columbus" else next((k for hh, k in seen_h if same(h, hh)), None)  # COLUMBUS — слова на белом: отпечатки склеивают разные ребусы, дубли снимает сверка ответов
+                dup = None if sid == "columbus" else next((k for hh, k, c in seen_h if same(h, hh) and (sid != "memepedia" or c == r["cat"])), None)  # COLUMBUS — слова на белом: отпечатки склеивают разные ребусы, дубли снимает сверка ответов
                 if dup: drop(f"визуальный дубль {dup}"); continue
             a, *alt = [s.strip() for s in r["a"].split("|") if s.strip()] or [""]  # «Crystallise|Crystallize»
             r = {**r, "acc": alt + [s.strip() for x in r["acc"] for s in x.split("|")]}
             na = norm(a)
             if not na: drop("пустой ответ"); continue
-            ka = r["cat"] + ":" + na
+            ka = r["cat"] + ":" + (r["key"] if sid == "memepedia" else na)  # у мемов один ответ («Мстители: Финал») бывает у разных картинок
             if ka in seen_a: drop(f"дубль ответа {seen_a[ka]}"); continue
             rk = f"{sid}:{r['key']}"
             q = {"id": rk, "c": r["cat"], "d": r["d"], "q": r.get("q") or CATS[r["cat"]]["q"], "a": ru.get(rk, {}).get("a") or r.get("a_main") or a,
@@ -312,12 +366,13 @@ def build():
             q["acc"] = list(dict.fromkeys(x for x in [a, *r["acc"], *ru.get(rk, {}).get("acc", []), *en.get(rk, [])] if norm(x) and x != q["a"]))
             if r.get("y"): q["y"] = r["y"]
             if r.get("hint"): q["e"] = r["hint"]
+            if r.get("self"): q["self"] = 1  # самопроверка: ответ не сверяется, игрок сам решает «засчитать»
             reason = mod_reason(sid, r, q)
             if reason:
                 q["st"] = "mod"; q["why"] = reason; mod.append(q); st["moderation"] += 1
             else:
                 good.append(q); st["imported"] += 1
-            if h: seen_h.append((h, rk))
+            if h: seen_h.append((h, rk, r["cat"]))
             seen_a[ka] = rk
     for f in IMG.iterdir():
         if f.name not in used: f.unlink()
