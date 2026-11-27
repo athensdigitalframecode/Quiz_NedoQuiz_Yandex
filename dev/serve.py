@@ -9,5 +9,6 @@ class H(http.server.SimpleHTTPRequestHandler):
     def translate_path(s, path):
         if MOCK and path.split("?")[0] == "/sdk.js": return str(ROOT / "dev/tests/mock_sdk.js")
         return super().translate_path(path)
+    def list_directory(s, *a): s.send_error(404)  # иначе /team/ покажет имя файла = код комнаты
     def end_headers(s): s.send_header("Cache-Control", "no-store"); super().end_headers()
 http.server.ThreadingHTTPServer(("localhost", port), H).serve_forever()
